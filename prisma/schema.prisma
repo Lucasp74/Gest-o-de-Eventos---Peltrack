@@ -1,0 +1,354 @@
+// Peltrack — schema do banco de dados (PostgreSQL / Neon)
+// Modela a plataforma SaaS multi-tenant de controle de acesso a eventos.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Enums
+// ─────────────────────────────────────────────────────────────
+enum Plan {
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum EventStatus {
+  RASCUNHO
+  INSCRICOES
+  ATIVO
+  LOTADO
+  ENCERRADO
+}
+
+enum EventFlow {
+  QRCODE
+  EXCEL
+}
+
+enum EventVisibility {
+  PUBLICO  // aparece na vitrine pública /eventos — qualquer um se inscreve
+  RESTRITO // só quem tem o link/convite (não aparece na vitrine)
+}
+
+enum ConfirmationStatus {
+  CONFIRMADO
+  LISTA_ESPERA
+  CANCELADO
+}
+
+enum PaymentStatus {
+  PENDENTE
+  APROVADO
+  EXPIRADO
+  CANCELADO
+}
+
+enum LeadStatus {
+  NOVO
+  EM_CONTATO
+  FECHADO
+  PERDIDO
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Tenant — o cliente da plataforma (escola, empresa, produtora)
+// ─────────────────────────────────────────────────────────────
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  plan      Plan     @default(STARTER)
+
+  // Valor mensal cobrado (R$). Nulo = usa o padrão do plano (Starter 0 / Pro 79).
+  // Definido manualmente no painel admin — essencial para Enterprise (negociado).
+  monthlyPrice Decimal? @db.Decimal(10, 2)
+
+  // Limites do plano (provisionamento). 0 = ilimitado.
+  maxEventsPerMonth   Int @default(2)
+  maxGuestsPerEvent   Int @default(50)
+
+  // Flags de recursos (liberadas manualmente no painel admin p/ Enterprise)
+  flagAdvancedReports Boolean @default(false)
+  flagDesktopSync     Boolean @default(false)
+  flagApiAccess       Boolean @default(false)
+  apiKey              String? @unique
+
+  users     User[]
+  events    Event[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────
+//  User — login do cliente (pertence a um Tenant)
+// ─────────────────────────────────────────────────────────────
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime? // usado pelo Auth.js (login com Google)
+  image         String?   // foto do perfil (Google)
+  passwordHash  String?   // opcional — usuários do Google não têm senha (podem criar depois)
+
+  tenantId      String?   // opcional — o Tenant é criado automaticamente no cadastro
+  tenant        Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  accounts      Account[] // contas OAuth (Google) vinculadas
+  sessions      Session[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([tenantId])
+}
+
+// ── Modelos do Auth.js (adapter Prisma) ──────────────────────
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Admin — dono da plataforma (acesso ao painel admin, com 2FA)
+// ─────────────────────────────────────────────────────────────
+model Admin {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  totpSecret   String?  // segredo do 2FA (TOTP) — não usado; 2FA é por e-mail
+  totpEnabled  Boolean  @default(false)
+
+  otps         AdminOtp[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────
+//  AdminOtp — código de login enviado por e-mail (2ª etapa do
+//  login admin). Uso único, expira em minutos, máx. 5 tentativas.
+// ─────────────────────────────────────────────────────────────
+model AdminOtp {
+  id        String    @id @default(cuid())
+  adminId   String
+  admin     Admin     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  codeHash  String    // hash do código de 6 dígitos (nunca em texto puro)
+  expiresAt DateTime
+  attempts  Int       @default(0)
+  usedAt    DateTime?
+
+  createdAt DateTime  @default(now())
+
+  @@index([adminId])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Event — evento criado por um Tenant
+// ─────────────────────────────────────────────────────────────
+model Event {
+  id          String      @id @default(cuid())
+  tenantId    String
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  imageUrl    String?
+  subject     String?
+  category    String?
+
+  startAt     DateTime
+  endAt       DateTime?
+
+  // Localização
+  venue       String?
+  street      String?
+  number      String?
+  complement  String?
+  district    String?
+  city        String?
+  uf          String?
+  cep         String?
+
+  capacity    Int         @default(0) // 0 = ilimitado
+  status      EventStatus @default(RASCUNHO)
+  flow        EventFlow   @default(QRCODE)
+  paid        Boolean     @default(false)
+  visibility  EventVisibility @default(RESTRITO) // privado por padrão; público = opt-in
+
+  // Janela de inscrições (opcional)
+  registrationOpensAt  DateTime?
+  registrationClosesAt DateTime?
+
+  tickets       TicketType[]
+  confirmations Confirmation[]
+  checkins      Checkin[]
+  terminals     Terminal[]
+  payments      Payment[]
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([tenantId])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  TicketType — tipo de ingresso (eventos pagos)
+// ─────────────────────────────────────────────────────────────
+model TicketType {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  name      String
+  price     Decimal  @db.Decimal(10, 2)
+  quantity  Int
+  sold      Int      @default(0)
+  // true  = a taxa de conveniência é repassada ao COMPRADOR (criador recebe o preço cheio)
+  // false = o criador ABSORVE a taxa (comprador paga só o preço; criador recebe preço − taxa)
+  passFeeToBuyer Boolean @default(true)
+
+  payments  Payment[]
+
+  createdAt DateTime @default(now())
+
+  @@index([eventId])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Confirmation — confirmação de presença (token = QR Code)
+// ─────────────────────────────────────────────────────────────
+model Confirmation {
+  id        String             @id @default(uuid()) // token único do QR Code
+  eventId   String
+  event     Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  name      String
+  email     String
+  status    ConfirmationStatus @default(CONFIRMADO)
+
+  checkin   Checkin?
+  payment   Payment?
+
+  createdAt DateTime           @default(now())
+
+  @@unique([eventId, email]) // evita confirmação duplicada por e-mail no mesmo evento
+  @@index([eventId])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Checkin — entrada registrada no scanner (entrada/saída)
+// ─────────────────────────────────────────────────────────────
+model Checkin {
+  id             String        @id @default(cuid())
+  eventId        String
+  event          Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  confirmationId String?       @unique
+  confirmation   Confirmation? @relation(fields: [confirmationId], references: [id], onDelete: SetNull)
+
+  name           String
+  email          String
+  terminal       String
+  checkedInAt    DateTime      @default(now())
+  checkedOutAt   DateTime?     // reservado para o check-out futuro
+
+  @@index([eventId])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Terminal — guichê de check-in (por evento)
+// ─────────────────────────────────────────────────────────────
+model Terminal {
+  id      String @id @default(cuid())
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name    String
+
+  @@index([eventId])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Payment — cobrança Pix via AbacatePay (ingressos pagos)
+// ─────────────────────────────────────────────────────────────
+model Payment {
+  id             String        @id @default(cuid())
+  eventId        String
+  event          Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  // Preenchido só quando o pagamento é confirmado (webhook, 09/07)
+  confirmationId String?       @unique
+  confirmation   Confirmation? @relation(fields: [confirmationId], references: [id], onDelete: SetNull)
+
+  ticketTypeId   String?
+  ticketType     TicketType?   @relation(fields: [ticketTypeId], references: [id], onDelete: SetNull)
+
+  // Dados do comprador (guardados até o webhook criar a confirmação)
+  buyerName      String?
+  buyerEmail     String?
+
+  amount         Decimal       @db.Decimal(10, 2) // total pago (ingresso + taxa)
+  feeAmount      Decimal?      @db.Decimal(10, 2) // taxa de conveniência (receita Peltrack)
+  status         PaymentStatus @default(PENDENTE)
+  providerId     String?       @unique // id da cobrança no gateway (Mercado Pago)
+  brCode         String?       // Pix copia-e-cola (para re-exibir)
+  expiresAt      DateTime?     // expiração do Pix
+
+  createdAt      DateTime      @default(now())
+  paidAt         DateTime?
+
+  @@index([eventId])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Lead — contato de vendas (botão "Falar com vendas" / Enterprise)
+// ─────────────────────────────────────────────────────────────
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  message   String?
+  status    LeadStatus @default(NOVO)
+
+  createdAt DateTime   @default(now())
+}
