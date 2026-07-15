@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// A lista de clientes tem de refletir o banco a cada visita — nunca prerenderizar no build.
+export const dynamic = "force-dynamic";
+
 export default async function AdminClientesPage() {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);

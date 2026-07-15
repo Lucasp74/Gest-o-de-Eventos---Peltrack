@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Métricas têm de refletir o banco a cada visita — nunca prerenderizar no build.
+export const dynamic = "force-dynamic";
+
 const MONTHS_PT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
 /** Série mensal acumulada (clientes × usuários) desde o primeiro registro. */

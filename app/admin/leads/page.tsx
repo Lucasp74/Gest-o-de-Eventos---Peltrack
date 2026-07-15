@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Os leads têm de refletir o banco a cada visita — nunca prerenderizar no build.
+export const dynamic = "force-dynamic";
+
 export default async function AdminLeadsPage() {
   const leads = await prisma.lead.findMany({ orderBy: { createdAt: "desc" } });
 
