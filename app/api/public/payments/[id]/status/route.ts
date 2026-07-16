@@ -7,13 +7,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkPixCharge } from "@/lib/mercadopago";
+import { getValidSellerToken } from "@/lib/mpAccount";
 import { releasePaidPayment } from "@/lib/paymentRelease";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const payment = await prisma.payment.findUnique({
     where: { id },
-    select: { status: true, providerId: true, confirmationId: true },
+    select: { status: true, providerId: true, confirmationId: true, event: { select: { tenantId: true } } },
   });
   if (!payment) return NextResponse.json({ error: "Não encontrado." }, { status: 404 });
 
@@ -21,8 +22,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ status: "aprovado", confirmationId: payment.confirmationId });
   }
 
-  if (payment.providerId) {
-    const { status } = await checkPixCharge(payment.providerId);
+  const sellerToken = payment.providerId ? await getValidSellerToken(payment.event.tenantId) : null;
+  if (payment.providerId && sellerToken) {
+    const { status } = await checkPixCharge(payment.providerId, sellerToken);
     if (status === "PAID") {
       const r = await releasePaidPayment(payment.providerId);
       return NextResponse.json({ status: "aprovado", confirmationId: r.confirmationId ?? null });

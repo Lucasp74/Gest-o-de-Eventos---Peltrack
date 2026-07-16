@@ -7,6 +7,7 @@
  */
 import { prisma } from "@/lib/prisma";
 import { checkPixCharge } from "@/lib/mercadopago";
+import { getValidSellerToken } from "@/lib/mpAccount";
 import { sendInviteEmail } from "@/lib/inviteEmail";
 import { notifyEvent } from "@/lib/pusherServer";
 
@@ -24,14 +25,17 @@ export async function releasePaidPayment(
     return { released: false, already: true, confirmationId: payment.confirmationId ?? undefined };
   }
 
-  // Dupla checagem: confirma com o Mercado Pago que está mesmo pago (anti-fraude)
-  if (opts.verifyWithApi) {
-    const { status } = await checkPixCharge(providerId);
-    if (status !== "PAID") return { released: false, reason: "not_paid_yet" };
-  }
-
   const event = await prisma.event.findUnique({ where: { id: payment.eventId } });
   if (!event) return { released: false, reason: "event_gone" };
+
+  // Dupla checagem: confirma com o Mercado Pago (na conta do organizador) que
+  // está mesmo pago — anti-fraude contra webhook forjado.
+  if (opts.verifyWithApi) {
+    const sellerToken = await getValidSellerToken(event.tenantId);
+    if (!sellerToken) return { released: false, reason: "seller_disconnected" };
+    const { status } = await checkPixCharge(providerId, sellerToken);
+    if (status !== "PAID") return { released: false, reason: "not_paid_yet" };
+  }
 
   const email = (payment.buyerEmail ?? "").toLowerCase();
   const name = payment.buyerName ?? "Convidado";

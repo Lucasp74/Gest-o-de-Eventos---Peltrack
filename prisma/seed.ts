@@ -28,8 +28,9 @@ function required(name: string): string {
 const SEED_ADMIN_NAME = process.env.SEED_ADMIN_NAME ?? "Administrador";
 const SEED_ADMIN_EMAIL = required("SEED_ADMIN_EMAIL");
 const SEED_ADMIN_PASSWORD = required("SEED_ADMIN_PASSWORD");
-const SEED_DEMO_EMAIL = required("SEED_DEMO_EMAIL");
-const SEED_DEMO_PASSWORD = required("SEED_DEMO_PASSWORD");
+
+/** SEED_DEMO=false cria apenas o admin — use assim em produção. */
+const SEED_DEMO = process.env.SEED_DEMO !== "false";
 
 async function main() {
   console.log("Iniciando seed...");
@@ -45,6 +46,14 @@ async function main() {
     },
   });
   console.log("  - Admin criado");
+
+  if (!SEED_DEMO) {
+    console.log("SEED_DEMO=false — dados de demonstracao ignorados (modo producao).");
+    return;
+  }
+
+  const SEED_DEMO_EMAIL = required("SEED_DEMO_EMAIL");
+  const SEED_DEMO_PASSWORD = required("SEED_DEMO_PASSWORD");
 
   // ── Tenant demo (cliente de teste, plano Pro) ──────────
   const tenant = await prisma.tenant.upsert({

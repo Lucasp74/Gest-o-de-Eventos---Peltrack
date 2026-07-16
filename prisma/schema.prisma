@@ -79,6 +79,15 @@ model Tenant {
   flagApiAccess       Boolean @default(false)
   apiKey              String? @unique
 
+  // Conexão com o Mercado Pago (split de pagamento via OAuth).
+  // Quando conectado, a cobrança do ingresso é criada na conta do organizador
+  // e a Peltrack recebe só a taxa (application_fee). Tokens são sensíveis.
+  mpUserId         String?   @unique // id da conta MP do organizador
+  mpAccessToken    String?   // token para cobrar em nome dele (expira em ~180 dias)
+  mpRefreshToken   String?   // renova o access token sem novo OAuth
+  mpTokenExpiresAt DateTime? // quando o access token expira
+  mpConnectedAt    DateTime? // quando conectou (null = não conectado)
+
   users     User[]
   events    Event[]
 

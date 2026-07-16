@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createPixCharge } from "@/lib/mercadopago";
+import { getValidSellerToken } from "@/lib/mpAccount";
 import { ticketCharge } from "@/lib/planPricing";
 
 const emailOk = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
@@ -39,12 +40,23 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: "Ingresso esgotado.", code: "SOLD_OUT" }, { status: 409 });
   }
 
+  // Split: a cobrança sai na conta do organizador. Sem conexão MP, não há como vender.
+  const sellerToken = await getValidSellerToken(event.tenantId);
+  if (!sellerToken) {
+    return NextResponse.json(
+      { error: "Este organizador ainda não habilitou o recebimento de pagamentos." },
+      { status: 503 },
+    );
+  }
+
   // Valor cobrado depende de quem paga a taxa (escolha do criador no ingresso):
   // repassada → comprador paga preço + taxa; absorvida → comprador paga só o preço.
   const ticketPrice = Number(ticket.price);
   const { fee, buyerTotal: total } = ticketCharge(event.tenant.plan, ticketPrice, ticket.passFeeToBuyer);
 
   const charge = await createPixCharge({
+    sellerToken,
+    applicationFee: fee, // taxa da Peltrack — o MP separa no ato do pagamento
     amountReais: total,
     description: `${event.name} — ${ticket.name}`,
     payerEmail: email,
