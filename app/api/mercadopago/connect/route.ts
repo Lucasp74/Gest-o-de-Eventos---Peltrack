@@ -5,7 +5,6 @@
  */
 import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { cookies } from "next/headers";
 import { getCurrentTenantId } from "@/lib/tenant";
 import { buildAuthorizeUrl } from "@/lib/mercadopago";
 
@@ -20,14 +19,14 @@ export async function GET(req: Request) {
     return NextResponse.redirect(new URL("/dashboard/configuracoes?mp=indisponivel", req.url));
   }
 
-  const jar = await cookies();
-  jar.set("mp_oauth_state", state, {
+  const res = NextResponse.redirect(authUrl);
+  // O cookie precisa ir NO response do redirect (setar via cookies() não anexa aqui).
+  res.cookies.set("mp_oauth_state", state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: 600, // 10 min (mesma validade do code)
   });
-
-  return NextResponse.redirect(authUrl);
+  return res;
 }
