@@ -193,3 +193,81 @@ export function exchangeCodeForToken(code: string, redirectUri: string): Promise
 export function refreshAccessToken(refreshToken: string): Promise<MpTokens> {
   return oauthToken({ grant_type: "refresh_token", refresh_token: refreshToken });
 }
+
+// ─────────────────────────────────────────────────────────────
+//  Assinatura recorrente (preapproval) — mensalidade dos planos.
+//  Cobrada pela conta da PRÓPRIA Peltrack (MERCADO_PAGO_ACCESS_TOKEN).
+// ─────────────────────────────────────────────────────────────
+
+const PREAPPROVAL_URL = "https://api.mercadopago.com/preapproval";
+
+export type Preapproval = { ok: boolean; id?: string; initPoint?: string; status?: string; error?: string };
+
+/** Cria a assinatura mensal e devolve o init_point (checkout hospedado do MP). */
+export async function createPreapproval(opts: {
+  planLabel: string;
+  amountReais: number;
+  payerEmail: string;
+  backUrl: string;
+  externalReference: string; // tenantId
+}): Promise<Preapproval> {
+  const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+  if (!token) return { ok: false, error: "ASSINATURA_INDISPONIVEL" };
+  try {
+    const res = await fetch(PREAPPROVAL_URL, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        reason: opts.planLabel,
+        external_reference: opts.externalReference,
+        payer_email: opts.payerEmail,
+        back_url: opts.backUrl,
+        status: "pending",
+        auto_recurring: {
+          frequency: 1,
+          frequency_type: "months",
+          transaction_amount: Number(opts.amountReais.toFixed(2)),
+          currency_id: "BRL",
+        },
+      }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body?.id) {
+      return { ok: false, error: body?.message || body?.error || "Falha ao criar a assinatura." };
+    }
+    return { ok: true, id: String(body.id), initPoint: body.init_point, status: body.status };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+}
+
+/** Consulta o status da assinatura (pending/authorized/paused/cancelled). */
+export async function getPreapproval(id: string): Promise<{ status: string | null; externalReference?: string }> {
+  const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+  if (!token) return { status: null };
+  try {
+    const res = await fetch(`${PREAPPROVAL_URL}/${encodeURIComponent(id)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await res.json().catch(() => ({}));
+    return { status: body?.status ?? null, externalReference: body?.external_reference };
+  } catch {
+    return { status: null };
+  }
+}
+
+/** Cancela a assinatura no MP. */
+export async function cancelPreapproval(id: string): Promise<{ ok: boolean }> {
+  const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+  if (!token) return { ok: false };
+  try {
+    const res = await fetch(`${PREAPPROVAL_URL}/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "cancelled" }),
+    });
+    return { ok: res.ok };
+  } catch {
+    return { ok: false };
+  }
+}

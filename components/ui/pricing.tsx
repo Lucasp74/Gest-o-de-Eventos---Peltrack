@@ -45,12 +45,7 @@ interface PricingSectionProps extends React.ComponentProps<"div"> {
 
 function formatBRL(value: number) {
   if (value === 0) return "Grátis";
-  return value.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 export function PricingSection({

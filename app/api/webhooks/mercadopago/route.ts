@@ -9,6 +9,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { releasePaidPayment } from "@/lib/paymentRelease";
+import { syncSubscription } from "@/lib/subscription";
 
 function isValidSignature(opts: {
   xSignature: string | null;
@@ -54,12 +55,9 @@ export async function POST(req: Request) {
       "",
   );
 
-  // Só reagimos a notificações de pagamento
-  if (type !== "payment" || !dataId) {
-    return NextResponse.json({ received: true });
-  }
+  if (!dataId) return NextResponse.json({ received: true });
 
-  // Assinatura (quando o segredo está configurado no .env)
+  // Assinatura HMAC (quando o segredo está configurado no .env)
   const secret = process.env.MERCADO_PAGO_WEBHOOK_SECRET;
   if (secret) {
     const ok = isValidSignature({
@@ -71,10 +69,18 @@ export async function POST(req: Request) {
     if (!ok) return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
   }
 
-  // Dupla checagem: só libera se o Mercado Pago confirmar que está aprovado.
-  await releasePaidPayment(dataId, { verifyWithApi: true }).catch((e) =>
-    console.error("[webhook mercadopago] erro:", e),
-  );
+  // Ambos os fluxos reconsultam o MP via API antes de agir (guarda anti-fraude).
+  if (type === "payment") {
+    // Ingresso pago: só libera o convite se o MP confirmar "approved".
+    await releasePaidPayment(dataId, { verifyWithApi: true }).catch((e) =>
+      console.error("[webhook mercadopago] pagamento:", e),
+    );
+  } else if (type === "subscription_preapproval" || type === "preapproval") {
+    // Assinatura da mensalidade: ajusta o plano do tenant conforme o status.
+    await syncSubscription(dataId).catch((e) =>
+      console.error("[webhook mercadopago] assinatura:", e),
+    );
+  }
 
   return NextResponse.json({ received: true });
 }

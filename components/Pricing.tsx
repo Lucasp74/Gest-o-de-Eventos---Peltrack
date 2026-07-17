@@ -22,7 +22,7 @@ const PLANS: Plan[] = [
     name: "Pro",
     info: "Para quem organiza com frequência",
     highlighted: true,
-    price: { mensal: 79, anual: Math.round(79 * 12 * 0.8) },
+    price: { mensal: 79.9, anual: Math.round(79.9 * 12 * 0.8 * 100) / 100 },
     features: [
       { text: "Eventos ilimitados" },
       { text: "Até 500 convidados por evento" },
@@ -42,7 +42,7 @@ const PLANS: Plan[] = [
   {
     name: "Enterprise",
     info: "Para instituições e grande volume",
-    customPrice: "Sob consulta",
+    price: { mensal: 120, anual: Math.round(120 * 12 * 0.8 * 100) / 100 },
     features: [
       { text: "Volume de convidados customizado" },
       { text: "Integração via API" },
@@ -54,7 +54,7 @@ const PLANS: Plan[] = [
       { text: "Onboarding personalizado" },
       { text: "Relatórios avançados" },
     ],
-    btn: { text: "Falar com vendas", href: "mailto:contato@peltrack.com.br?subject=Interesse no plano Enterprise (Peltrack)" },
+    btn: { text: "Começar agora", href: "/cadastro" },
   },
 ];
 

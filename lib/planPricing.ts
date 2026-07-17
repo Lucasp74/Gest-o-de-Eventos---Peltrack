@@ -4,15 +4,25 @@
  */
 export const PLAN_DEFAULT_PRICE: Record<string, number | null> = {
   STARTER: 0,
-  PRO: 79,
-  ENTERPRISE: null, // sob consulta — sem valor até ser definido no admin
+  PRO: 79.9,
+  ENTERPRISE: 120,
 };
 
-/** Valor mensal efetivo do cliente. null = ainda não definido (Enterprise). */
+/** Valor mensal efetivo do cliente. null = ainda não definido. */
 export function effectiveMonthlyPrice(plan: string, monthlyPrice: number | null): number | null {
   if (monthlyPrice !== null) return monthlyPrice;
   return PLAN_DEFAULT_PRICE[plan] ?? null;
 }
+
+/** Limites e recursos padrão de cada plano — aplicados ao assinar/cancelar. */
+export const PLAN_DEFAULTS: Record<
+  string,
+  { maxEventsPerMonth: number; maxGuestsPerEvent: number; flagAdvancedReports: boolean; flagDesktopSync: boolean; flagApiAccess: boolean }
+> = {
+  STARTER: { maxEventsPerMonth: 2, maxGuestsPerEvent: 50, flagAdvancedReports: false, flagDesktopSync: false, flagApiAccess: false },
+  PRO: { maxEventsPerMonth: 0, maxGuestsPerEvent: 500, flagAdvancedReports: true, flagDesktopSync: true, flagApiAccess: false },
+  ENTERPRISE: { maxEventsPerMonth: 0, maxGuestsPerEvent: 0, flagAdvancedReports: true, flagDesktopSync: true, flagApiAccess: true },
+};
 
 export function formatBRL(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });

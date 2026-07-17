@@ -88,6 +88,11 @@ model Tenant {
   mpTokenExpiresAt DateTime? // quando o access token expira
   mpConnectedAt    DateTime? // quando conectou (null = não conectado)
 
+  // Assinatura recorrente da mensalidade (Mercado Pago preapproval).
+  subscriptionId     String? @unique // id da preapproval no MP
+  subscriptionStatus String? // pending | authorized | paused | cancelled
+  subscriptionPlan   String? // plano que a assinatura cobre (PRO | ENTERPRISE)
+
   users     User[]
   events    Event[]
 
