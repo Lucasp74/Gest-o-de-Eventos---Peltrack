@@ -29,7 +29,7 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-card">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
@@ -37,7 +37,7 @@ export default function Testimonials() {
           <span className="text-laranja text-sm font-semibold uppercase tracking-widest">
             Depoimentos
           </span>
-          <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-grafite tracking-tight">
+          <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
             Quem usa, recomenda
           </h2>
         </div>
@@ -46,21 +46,21 @@ export default function Testimonials() {
           {testimonials.map((t) => (
             <div
               key={t.name}
-              className="bg-fundo rounded-2xl p-7 border border-gray-100 flex flex-col justify-between hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+              className="bg-fundo rounded-2xl p-7 border border-border flex flex-col justify-between hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
             >
               <div>
                 <Quote className="w-7 h-7 text-laranja/30 mb-4" />
-                <p className="text-grafite text-sm leading-relaxed mb-6">
+                <p className="text-foreground text-sm leading-relaxed mb-6">
                   "{t.text}"
                 </p>
               </div>
-              <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+              <div className="flex items-center gap-3 pt-4 border-t border-border">
                 <div className={`w-10 h-10 rounded-full ${t.color} flex items-center justify-center flex-shrink-0`}>
                   <span className="text-white text-xs font-bold">{t.initials}</span>
                 </div>
                 <div>
-                  <p className="text-grafite font-semibold text-sm">{t.name}</p>
-                  <p className="text-grafite-muted text-xs">{t.role} · {t.org}</p>
+                  <p className="text-foreground font-semibold text-sm">{t.name}</p>
+                  <p className="text-muted-foreground text-xs">{t.role} · {t.org}</p>
                 </div>
               </div>
             </div>

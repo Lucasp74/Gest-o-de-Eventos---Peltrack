@@ -78,37 +78,37 @@ export default async function AdminDashboard() {
       <AdminSidebar />
       <div className="lg:pl-64 pt-14 lg:pt-0">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-2xl font-bold text-grafite">Visão geral</h1>
-          <p className="text-grafite-muted text-sm mt-1 mb-8">Métricas gerais da plataforma Peltrack.</p>
+          <h1 className="text-2xl font-bold text-foreground">Visão geral</h1>
+          <p className="text-muted-foreground text-sm mt-1 mb-8">Métricas gerais da plataforma Peltrack.</p>
 
           {/* KPIs */}
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
             {stats.map((s) => (
-              <div key={s.label} className="bg-white rounded-2xl p-5 border border-gray-100">
+              <div key={s.label} className="bg-card rounded-2xl p-5 border border-border">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.accent ? "bg-laranja/10" : "bg-grafite/5"}`}>
-                  <s.icon className={`w-5 h-5 ${s.accent ? "text-laranja" : "text-grafite"}`} />
+                  <s.icon className={`w-5 h-5 ${s.accent ? "text-laranja" : "text-foreground"}`} />
                 </div>
-                <p className={`font-bold text-grafite ${s.value.length > 8 ? "text-lg" : "text-2xl"}`}>{s.value}</p>
-                <p className="text-grafite-muted text-sm mt-0.5">{s.label}</p>
+                <p className={`font-bold text-foreground ${s.value.length > 8 ? "text-lg" : "text-2xl"}`}>{s.value}</p>
+                <p className="text-muted-foreground text-sm mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
 
           {/* Crescimento acumulado */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 mb-6">
-            <h2 className="text-grafite font-semibold">Crescimento da plataforma</h2>
-            <p className="text-grafite-muted text-sm mb-4">Clientes e usuários acumulados por mês</p>
+          <div className="bg-card rounded-2xl p-6 border border-border mb-6">
+            <h2 className="text-foreground font-semibold">Crescimento da plataforma</h2>
+            <p className="text-muted-foreground text-sm mb-4">Clientes e usuários acumulados por mês</p>
             {growth.length === 0 ? (
-              <p className="text-grafite-muted text-sm py-12 text-center">Sem dados ainda.</p>
+              <p className="text-muted-foreground text-sm py-12 text-center">Sem dados ainda.</p>
             ) : (
               <GrowthChart data={growth} />
             )}
           </div>
 
           {/* Distribuição por plano */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100">
-            <h2 className="text-grafite font-semibold">Clientes por plano</h2>
-            <p className="text-grafite-muted text-sm mb-4">Distribuição atual da base</p>
+          <div className="bg-card rounded-2xl p-6 border border-border">
+            <h2 className="text-foreground font-semibold">Clientes por plano</h2>
+            <p className="text-muted-foreground text-sm mb-4">Distribuição atual da base</p>
             <PlanDonut data={byPlan} />
           </div>
         </div>

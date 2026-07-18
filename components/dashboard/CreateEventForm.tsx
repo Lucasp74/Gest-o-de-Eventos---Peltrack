@@ -242,7 +242,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
   }
 
   const inputBase =
-    "w-full h-11 px-4 rounded-xl border bg-white text-sm text-grafite outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja";
+    "w-full h-11 px-4 rounded-xl border bg-card text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja";
 
   return (
     <form onSubmit={handleSubmit} className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32">
@@ -252,13 +252,13 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
         <button
           type="button"
           onClick={() => router.push("/dashboard/eventos")}
-          className="flex items-center gap-1.5 text-grafite-muted hover:text-grafite text-sm mb-4 transition-colors"
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm mb-4 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Voltar para Meus eventos
         </button>
-        <h1 className="text-2xl font-bold text-grafite">Criar evento</h1>
-        <p className="text-grafite-muted text-sm mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Criar evento</h1>
+        <p className="text-muted-foreground text-sm mt-1">
           Preencha as informações abaixo para publicar seu evento.
         </p>
       </div>
@@ -283,7 +283,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
               rows={4}
               placeholder="Conte os detalhes do seu evento: programação, o que esperar, informações importantes..."
               className={fieldCls(
-                "w-full px-4 py-3 rounded-xl border bg-white text-sm text-grafite outline-none transition-all resize-y placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja",
+                "w-full px-4 py-3 rounded-xl border bg-card text-sm text-foreground outline-none transition-all resize-y placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja",
                 errors.description,
               )}
             />
@@ -300,7 +300,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
             onChange={(e) => handleImage(e.target.files?.[0])}
           />
           {image ? (
-            <div className="relative rounded-xl overflow-hidden border border-gray-200 group">
+            <div className="relative rounded-xl overflow-hidden border border-border group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={image} alt="Prévia da divulgação" className="w-full aspect-[1600/838] object-cover" />
               <button
@@ -316,12 +316,12 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="w-full aspect-[1600/838] rounded-xl border-2 border-dashed border-gray-200 hover:border-laranja/40 hover:bg-fundo/50 transition-colors flex flex-col items-center justify-center gap-2 text-grafite-muted"
+              className="w-full aspect-[1600/838] rounded-xl border-2 border-dashed border-border hover:border-laranja/40 hover:bg-fundo/50 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground"
             >
               <div className="w-12 h-12 rounded-xl bg-fundo flex items-center justify-center">
                 <ImagePlus className="w-6 h-6 text-laranja" />
               </div>
-              <p className="text-sm font-medium text-grafite">Clique para enviar uma imagem</p>
+              <p className="text-sm font-medium text-foreground">Clique para enviar uma imagem</p>
               <p className="text-xs">Recomendado 1600 × 838 px · JPG ou PNG</p>
             </button>
           )}
@@ -383,10 +383,10 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
               type="checkbox"
               checked={regEnabled}
               onChange={(e) => setRegEnabled(e.target.checked)}
-              className="w-4 h-4 mt-0.5 rounded border-gray-300 accent-laranja cursor-pointer flex-shrink-0"
+              className="w-4 h-4 mt-0.5 rounded border-border accent-laranja cursor-pointer flex-shrink-0"
             />
-            <span className="text-sm text-grafite-muted leading-relaxed">
-              <span className="font-medium text-grafite">Definir período de inscrições</span>
+            <span className="text-sm text-muted-foreground leading-relaxed">
+              <span className="font-medium text-foreground">Definir período de inscrições</span>
               <br />
               Se ativado, os convidados só conseguem confirmar presença dentro da janela definida.
               Se desativado, as inscrições ficam abertas até o evento lotar.
@@ -499,7 +499,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
 
           {/* Mapa embutido */}
           {mapQuery && (
-            <div className="rounded-xl overflow-hidden border border-gray-200 mt-1">
+            <div className="rounded-xl overflow-hidden border border-border mt-1">
               <iframe
                 title="Mapa do evento"
                 width="100%"
@@ -519,26 +519,26 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
               type="button"
               onClick={() => setVisibility("restrito")}
               className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all ${
-                visibility === "restrito" ? "border-laranja bg-laranja/5" : "border-gray-200 hover:border-gray-300"
+                visibility === "restrito" ? "border-laranja bg-laranja/5" : "border-border hover:border-border"
               }`}
             >
-              <Lock className={`w-5 h-5 mt-0.5 flex-shrink-0 ${visibility === "restrito" ? "text-laranja" : "text-grafite-muted"}`} />
+              <Lock className={`w-5 h-5 mt-0.5 flex-shrink-0 ${visibility === "restrito" ? "text-laranja" : "text-muted-foreground"}`} />
               <span>
-                <span className={`block font-semibold text-sm ${visibility === "restrito" ? "text-laranja" : "text-grafite"}`}>Restrito</span>
-                <span className="block text-grafite-muted text-xs mt-0.5">Só quem tem o link ou convite. Não aparece na vitrine pública.</span>
+                <span className={`block font-semibold text-sm ${visibility === "restrito" ? "text-laranja" : "text-foreground"}`}>Restrito</span>
+                <span className="block text-muted-foreground text-xs mt-0.5">Só quem tem o link ou convite. Não aparece na vitrine pública.</span>
               </span>
             </button>
             <button
               type="button"
               onClick={() => setVisibility("publico")}
               className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all ${
-                visibility === "publico" ? "border-laranja bg-laranja/5" : "border-gray-200 hover:border-gray-300"
+                visibility === "publico" ? "border-laranja bg-laranja/5" : "border-border hover:border-border"
               }`}
             >
-              <Globe className={`w-5 h-5 mt-0.5 flex-shrink-0 ${visibility === "publico" ? "text-laranja" : "text-grafite-muted"}`} />
+              <Globe className={`w-5 h-5 mt-0.5 flex-shrink-0 ${visibility === "publico" ? "text-laranja" : "text-muted-foreground"}`} />
               <span>
-                <span className={`block font-semibold text-sm ${visibility === "publico" ? "text-laranja" : "text-grafite"}`}>Público</span>
-                <span className="block text-grafite-muted text-xs mt-0.5">Aparece na vitrine de eventos da plataforma. Qualquer pessoa pode se inscrever.</span>
+                <span className={`block font-semibold text-sm ${visibility === "publico" ? "text-laranja" : "text-foreground"}`}>Público</span>
+                <span className="block text-muted-foreground text-xs mt-0.5">Aparece na vitrine de eventos da plataforma. Qualquer pessoa pode se inscrever.</span>
               </span>
             </button>
           </div>
@@ -552,21 +552,21 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
               type="button"
               onClick={() => setPaid(false)}
               className={`p-4 rounded-xl border text-left transition-all ${
-                !paid ? "border-laranja bg-laranja/5" : "border-gray-200 hover:border-gray-300"
+                !paid ? "border-laranja bg-laranja/5" : "border-border hover:border-border"
               }`}
             >
-              <p className={`font-semibold text-sm ${!paid ? "text-laranja" : "text-grafite"}`}>Gratuito</p>
-              <p className="text-grafite-muted text-xs mt-0.5">Confirmação sem cobrança</p>
+              <p className={`font-semibold text-sm ${!paid ? "text-laranja" : "text-foreground"}`}>Gratuito</p>
+              <p className="text-muted-foreground text-xs mt-0.5">Confirmação sem cobrança</p>
             </button>
             <button
               type="button"
               onClick={() => setPaid(true)}
               className={`p-4 rounded-xl border text-left transition-all ${
-                paid ? "border-laranja bg-laranja/5" : "border-gray-200 hover:border-gray-300"
+                paid ? "border-laranja bg-laranja/5" : "border-border hover:border-border"
               }`}
             >
-              <p className={`font-semibold text-sm ${paid ? "text-laranja" : "text-grafite"}`}>Pago</p>
-              <p className="text-grafite-muted text-xs mt-0.5">Cobrança via Pix (Mercado Pago)</p>
+              <p className={`font-semibold text-sm ${paid ? "text-laranja" : "text-foreground"}`}>Pago</p>
+              <p className="text-muted-foreground text-xs mt-0.5">Cobrança via Pix (Mercado Pago)</p>
             </button>
           </div>
 
@@ -580,7 +580,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                   : priceNum;
                 const youGet = Math.round((buyerPays - feeVal) * 100) / 100;
                 return (
-                  <div key={t.id} className="bg-fundo/50 rounded-xl p-3 border border-gray-100 space-y-2.5">
+                  <div key={t.id} className="bg-fundo/50 rounded-xl p-3 border border-border space-y-2.5">
                     <div className="flex gap-3 items-end">
                       <Field label={i === 0 ? "Tipo de ingresso" : ""} className="flex-1">
                         <input
@@ -612,7 +612,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                         type="button"
                         onClick={() => removeTicket(t.id)}
                         disabled={tickets.length === 1}
-                        className="h-11 w-11 flex items-center justify-center rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        className="h-11 w-11 flex items-center justify-center rounded-xl text-muted-foreground hover:text-red-500 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         aria-label="Remover ingresso"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -621,26 +621,26 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
 
                     {/* Taxa: repassar ao comprador ou absorver */}
                     <div className="flex items-center justify-between flex-wrap gap-x-4 gap-y-1.5 pt-0.5">
-                      <label className="flex items-center gap-2 cursor-pointer text-sm text-grafite select-none">
+                      <label className="flex items-center gap-2 cursor-pointer text-sm text-foreground select-none">
                         <input
                           type="checkbox"
                           checked={t.passFeeToBuyer}
                           onChange={() => toggleTicketFee(t.id)}
-                          className="w-4 h-4 rounded border-gray-300 accent-laranja cursor-pointer"
+                          className="w-4 h-4 rounded border-border accent-laranja cursor-pointer"
                         />
                         Repassar taxa ao cliente
                         <span
                           title={`Taxa de conveniência de ${(feePct * 100).toFixed(0).replace(".", ",")}%. Marcado: o comprador paga a taxa. Desmarcado: você absorve (recebe o preço menos a taxa).`}
-                          className="w-4 h-4 rounded-full bg-grafite/10 text-grafite-muted text-[10px] font-bold flex items-center justify-center cursor-help"
+                          className="w-4 h-4 rounded-full bg-grafite/10 text-muted-foreground text-[10px] font-bold flex items-center justify-center cursor-help"
                         >
                           ?
                         </span>
                       </label>
                       {priceNum > 0 && (
-                        <p className="text-xs text-grafite-muted">
-                          Preço do ingresso: <span className="font-semibold text-grafite">{formatBRL(buyerPays)}</span>
-                          <span className="mx-1.5 text-gray-300">·</span>
-                          Você recebe: <span className="font-semibold text-grafite">{formatBRL(youGet)}</span>
+                        <p className="text-xs text-muted-foreground">
+                          Preço do ingresso: <span className="font-semibold text-foreground">{formatBRL(buyerPays)}</span>
+                          <span className="mx-1.5 text-muted-foreground">·</span>
+                          Você recebe: <span className="font-semibold text-foreground">{formatBRL(youGet)}</span>
                         </p>
                       )}
                     </div>
@@ -658,9 +658,9 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
 
               {/* Aviso Mercado Pago */}
               <div className="flex items-start gap-2.5 bg-grafite/5 rounded-xl p-3.5 mt-2">
-                <QrCode className="w-4 h-4 text-grafite mt-0.5 flex-shrink-0" />
-                <p className="text-grafite-muted text-xs leading-relaxed">
-                  Os pagamentos serão processados via <span className="font-semibold text-grafite">Mercado Pago</span> (Pix).
+                <QrCode className="w-4 h-4 text-foreground mt-0.5 flex-shrink-0" />
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  Os pagamentos serão processados via <span className="font-semibold text-foreground">Mercado Pago</span> (Pix).
                   A integração com a conta de recebimento é configurada em <span className="font-medium">Configurações → Pagamentos</span>.
                 </p>
               </div>
@@ -671,16 +671,16 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
         {/* 8 — Termos */}
         <div
           data-error={errors.accepted ? "true" : undefined}
-          className={`rounded-2xl border p-5 ${errors.accepted ? "border-red-300 bg-red-50/50" : "border-gray-100 bg-white"}`}
+          className={`rounded-2xl border p-5 ${errors.accepted ? "border-red-300 bg-red-50/50" : "border-border bg-card"}`}
         >
           <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={accepted}
               onChange={(e) => setAccepted(e.target.checked)}
-              className="w-4 h-4 mt-0.5 rounded border-gray-300 accent-laranja cursor-pointer flex-shrink-0"
+              className="w-4 h-4 mt-0.5 rounded border-border accent-laranja cursor-pointer flex-shrink-0"
             />
-            <span className="text-sm text-grafite-muted leading-relaxed">
+            <span className="text-sm text-muted-foreground leading-relaxed">
               Declaro que li e concordo com os{" "}
               <a href="/termos" className="text-laranja hover:underline font-medium">Termos de Uso</a>{" "}
               e a{" "}
@@ -695,7 +695,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
       </div>
 
       {/* Barra de submit fixa */}
-      <div className="fixed bottom-0 left-0 right-0 lg:left-64 bg-white border-t border-gray-100 px-4 sm:px-6 lg:px-8 py-3.5 z-30">
+      <div className="fixed bottom-0 left-0 right-0 lg:left-64 bg-card border-t border-border px-4 sm:px-6 lg:px-8 py-3.5 z-30">
         {submitError && (
           <div className="max-w-3xl mx-auto mb-3 flex items-start gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2.5 rounded-xl">
             <span>{submitError}</span>
@@ -705,7 +705,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
           <button
             type="button"
             onClick={() => router.push("/dashboard/eventos")}
-            className="px-5 py-2.5 rounded-xl border border-gray-200 text-grafite text-sm font-medium hover:border-gray-300 transition-colors"
+            className="px-5 py-2.5 rounded-xl border border-border text-foreground text-sm font-medium hover:border-border transition-colors"
           >
             Cancelar
           </button>
@@ -736,14 +736,14 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 space-y-4">
+    <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 space-y-4">
       <div className="flex items-center gap-2.5">
         <div className="w-9 h-9 rounded-lg bg-laranja/10 flex items-center justify-center">
           <Icon className="w-[18px] h-[18px] text-laranja" />
         </div>
-        <h2 className="text-grafite font-semibold text-base">{title}</h2>
+        <h2 className="text-foreground font-semibold text-base">{title}</h2>
         {optional && (
-          <span className="text-xs text-grafite-muted bg-fundo px-2 py-0.5 rounded-full border border-gray-100">
+          <span className="text-xs text-muted-foreground bg-fundo px-2 py-0.5 rounded-full border border-border">
             Opcional
           </span>
         )}
@@ -765,7 +765,7 @@ function Field({
   return (
     <div className={className} data-error={error ? "true" : undefined}>
       {label && (
-        <label className="block text-sm font-medium text-grafite mb-1.5">
+        <label className="block text-sm font-medium text-foreground mb-1.5">
           {label}
           {required && <span className="text-laranja ml-0.5">*</span>}
         </label>
@@ -777,5 +777,5 @@ function Field({
 }
 
 function fieldCls(base: string, error?: string) {
-  return `${base} ${error ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-gray-200 hover:border-gray-300"}`;
+  return `${base} ${error ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-border hover:border-border"}`;
 }

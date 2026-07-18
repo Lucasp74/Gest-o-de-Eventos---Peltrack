@@ -43,10 +43,10 @@ export default function SettingsView({
   const [deleting, setDeleting] = useState(false);
 
   const input =
-    "w-full h-11 px-4 rounded-xl border bg-white text-sm text-grafite outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja";
+    "w-full h-11 px-4 rounded-xl border bg-card text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja";
 
   function cls(err?: string) {
-    return `${input} ${err ? "border-red-400" : "border-gray-200 hover:border-gray-300"}`;
+    return `${input} ${err ? "border-red-400" : "border-border hover:border-border"}`;
   }
 
   function validate() {
@@ -142,16 +142,16 @@ export default function SettingsView({
     <div className="max-w-2xl space-y-6">
       <form onSubmit={handleSave} className="space-y-6">
         {/* Imagem de divulgação */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 space-y-4">
+        <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-laranja/10 flex items-center justify-center">
               <ImagePlus className="w-[18px] h-[18px] text-laranja" />
             </div>
-            <h3 className="text-grafite font-semibold">Imagem de divulgação</h3>
+            <h3 className="text-foreground font-semibold">Imagem de divulgação</h3>
           </div>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImage(e.target.files?.[0])} />
           {image ? (
-            <div className="relative rounded-xl overflow-hidden border border-gray-200 group">
+            <div className="relative rounded-xl overflow-hidden border border-border group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={image} alt="Prévia" className="w-full aspect-[16/9] object-cover" />
               <button type="button" onClick={removeImage} className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-grafite/80 text-white flex items-center justify-center hover:bg-grafite transition-colors" aria-label="Remover imagem">
@@ -159,40 +159,40 @@ export default function SettingsView({
               </button>
             </div>
           ) : (
-            <button type="button" onClick={() => fileRef.current?.click()} className="w-full aspect-[16/9] rounded-xl border-2 border-dashed border-gray-200 hover:border-laranja/40 hover:bg-fundo/50 transition-colors flex flex-col items-center justify-center gap-2 text-grafite-muted">
+            <button type="button" onClick={() => fileRef.current?.click()} className="w-full aspect-[16/9] rounded-xl border-2 border-dashed border-border hover:border-laranja/40 hover:bg-fundo/50 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground">
               <ImagePlus className="w-6 h-6 text-laranja" />
-              <p className="text-sm font-medium text-grafite">Adicionar imagem</p>
+              <p className="text-sm font-medium text-foreground">Adicionar imagem</p>
               <p className="text-xs">Recomendado 1600 × 900 px · JPG ou PNG</p>
             </button>
           )}
         </div>
 
         {/* Dados do evento */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 space-y-4">
-          <h3 className="text-grafite font-semibold">Dados do evento</h3>
+        <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 space-y-4">
+          <h3 className="text-foreground font-semibold">Dados do evento</h3>
 
           <div>
-            <label className="block text-sm font-medium text-grafite mb-1.5">Nome do evento</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Nome do evento</label>
             <input value={name} onChange={(e) => setName(e.target.value)} className={cls(errors.name)} />
             {errors.name && <p className="text-xs text-red-500 mt-1.5">{errors.name}</p>}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-grafite mb-1.5">Data e hora</label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Data e hora</label>
               <input type="datetime-local" value={startAt} onChange={(e) => setStartAt(e.target.value)} className={cls(errors.startAt)} />
               {errors.startAt && <p className="text-xs text-red-500 mt-1.5">{errors.startAt}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-grafite mb-1.5">Local</label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Local</label>
               <input value={local} onChange={(e) => setLocal(e.target.value)} className={cls()} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-grafite mb-1.5">
-                Capacidade <span className="text-grafite-muted font-normal">(0 = ilimitada)</span>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                Capacidade <span className="text-muted-foreground font-normal">(0 = ilimitada)</span>
               </label>
               <input
                 type="number"
@@ -204,7 +204,7 @@ export default function SettingsView({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-grafite mb-1.5">Status</label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Status</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as EventStatus)}
@@ -219,50 +219,50 @@ export default function SettingsView({
         </div>
 
         {/* Visibilidade */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 space-y-4">
+        <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-laranja/10 flex items-center justify-center">
               <Globe className="w-[18px] h-[18px] text-laranja" />
             </div>
-            <h3 className="text-grafite font-semibold">Visibilidade</h3>
+            <h3 className="text-foreground font-semibold">Visibilidade</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => setVisibility("restrito")}
               className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all ${
-                visibility === "restrito" ? "border-laranja bg-laranja/5" : "border-gray-200 hover:border-gray-300"
+                visibility === "restrito" ? "border-laranja bg-laranja/5" : "border-border hover:border-border"
               }`}
             >
-              <Lock className={`w-5 h-5 mt-0.5 flex-shrink-0 ${visibility === "restrito" ? "text-laranja" : "text-grafite-muted"}`} />
+              <Lock className={`w-5 h-5 mt-0.5 flex-shrink-0 ${visibility === "restrito" ? "text-laranja" : "text-muted-foreground"}`} />
               <span>
-                <span className={`block font-semibold text-sm ${visibility === "restrito" ? "text-laranja" : "text-grafite"}`}>Restrito</span>
-                <span className="block text-grafite-muted text-xs mt-0.5">Só com link/convite. Fora da vitrine.</span>
+                <span className={`block font-semibold text-sm ${visibility === "restrito" ? "text-laranja" : "text-foreground"}`}>Restrito</span>
+                <span className="block text-muted-foreground text-xs mt-0.5">Só com link/convite. Fora da vitrine.</span>
               </span>
             </button>
             <button
               type="button"
               onClick={() => setVisibility("publico")}
               className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all ${
-                visibility === "publico" ? "border-laranja bg-laranja/5" : "border-gray-200 hover:border-gray-300"
+                visibility === "publico" ? "border-laranja bg-laranja/5" : "border-border hover:border-border"
               }`}
             >
-              <Globe className={`w-5 h-5 mt-0.5 flex-shrink-0 ${visibility === "publico" ? "text-laranja" : "text-grafite-muted"}`} />
+              <Globe className={`w-5 h-5 mt-0.5 flex-shrink-0 ${visibility === "publico" ? "text-laranja" : "text-muted-foreground"}`} />
               <span>
-                <span className={`block font-semibold text-sm ${visibility === "publico" ? "text-laranja" : "text-grafite"}`}>Público</span>
-                <span className="block text-grafite-muted text-xs mt-0.5">Aparece na vitrine. Qualquer um se inscreve.</span>
+                <span className={`block font-semibold text-sm ${visibility === "publico" ? "text-laranja" : "text-foreground"}`}>Público</span>
+                <span className="block text-muted-foreground text-xs mt-0.5">Aparece na vitrine. Qualquer um se inscreve.</span>
               </span>
             </button>
           </div>
         </div>
 
         {/* Período de inscrições */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 space-y-4">
+        <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-laranja/10 flex items-center justify-center">
               <CalendarClock className="w-[18px] h-[18px] text-laranja" />
             </div>
-            <h3 className="text-grafite font-semibold">Período de inscrições</h3>
+            <h3 className="text-foreground font-semibold">Período de inscrições</h3>
           </div>
 
           <label className="flex items-start gap-3 cursor-pointer">
@@ -270,10 +270,10 @@ export default function SettingsView({
               type="checkbox"
               checked={regEnabled}
               onChange={(e) => setRegEnabled(e.target.checked)}
-              className="w-4 h-4 mt-0.5 rounded border-gray-300 accent-laranja cursor-pointer flex-shrink-0"
+              className="w-4 h-4 mt-0.5 rounded border-border accent-laranja cursor-pointer flex-shrink-0"
             />
-            <span className="text-sm text-grafite-muted leading-relaxed">
-              <span className="font-medium text-grafite">Definir período de inscrições</span>
+            <span className="text-sm text-muted-foreground leading-relaxed">
+              <span className="font-medium text-foreground">Definir período de inscrições</span>
               <br />
               Se ativado, os convidados só confirmam presença dentro da janela. Se desativado, fica aberto até lotar.
             </span>
@@ -282,12 +282,12 @@ export default function SettingsView({
           {regEnabled && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-grafite mb-1.5">Abertura</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Abertura</label>
                 <input type="datetime-local" value={regOpensAt} onChange={(e) => setRegOpensAt(e.target.value)} className={cls(errors.regOpensAt)} />
                 {errors.regOpensAt && <p className="text-xs text-red-500 mt-1.5">{errors.regOpensAt}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-grafite mb-1.5">Fechamento</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Fechamento</label>
                 <input type="datetime-local" value={regClosesAt} onChange={(e) => setRegClosesAt(e.target.value)} className={cls(errors.regClosesAt)} />
                 {errors.regClosesAt && <p className="text-xs text-red-500 mt-1.5">{errors.regClosesAt}</p>}
               </div>
@@ -321,7 +321,7 @@ export default function SettingsView({
           <AlertTriangle className="w-4 h-4 text-red-500" />
           <h3 className="text-red-600 font-semibold">Zona de perigo</h3>
         </div>
-        <p className="text-grafite-muted text-sm mb-4">
+        <p className="text-muted-foreground text-sm mb-4">
           Excluir o evento remove permanentemente os dados, confirmações e registros de presença. Esta ação não pode ser desfeita.
         </p>
         <button
@@ -340,21 +340,21 @@ export default function SettingsView({
           role="dialog"
           aria-modal="true"
         >
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <h3 className="text-grafite font-bold">Excluir evento</h3>
-              <button onClick={() => setConfirmDelete(false)} aria-label="Fechar" className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-grafite hover:bg-gray-50 transition-colors">
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <h3 className="text-foreground font-bold">Excluir evento</h3>
+              <button onClick={() => setConfirmDelete(false)} aria-label="Fechar" className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
             <div className="p-5">
-              <p className="text-grafite text-sm leading-relaxed">
+              <p className="text-foreground text-sm leading-relaxed">
                 Tem certeza que deseja excluir <span className="font-semibold">&ldquo;{event.name}&rdquo;</span>?
                 Todos os dados serão removidos permanentemente.
               </p>
             </div>
-            <div className="flex justify-end gap-2 px-5 py-4 border-t border-gray-100 bg-fundo/30">
-              <button onClick={() => setConfirmDelete(false)} className="px-4 py-2 rounded-xl border border-gray-200 text-grafite text-sm font-medium hover:border-gray-300 transition-colors">
+            <div className="flex justify-end gap-2 px-5 py-4 border-t border-border bg-fundo/30">
+              <button onClick={() => setConfirmDelete(false)} className="px-4 py-2 rounded-xl border border-border text-foreground text-sm font-medium hover:border-border transition-colors">
                 Cancelar
               </button>
               <button onClick={handleDelete} disabled={deleting} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white text-sm font-semibold transition-colors">

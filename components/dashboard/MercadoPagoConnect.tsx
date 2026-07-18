@@ -33,14 +33,14 @@ export default function MercadoPagoConnect({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6">
+    <div className="bg-card rounded-2xl border border-border p-6">
       <div className="flex items-start gap-3 mb-4">
         <div className="w-10 h-10 rounded-xl bg-laranja/10 flex items-center justify-center flex-shrink-0">
           <Wallet className="w-5 h-5 text-laranja" />
         </div>
         <div>
-          <h2 className="text-grafite font-semibold">Recebimento de pagamentos</h2>
-          <p className="text-grafite-muted text-sm mt-0.5">
+          <h2 className="text-foreground font-semibold">Recebimento de pagamentos</h2>
+          <p className="text-muted-foreground text-sm mt-0.5">
             Conecte sua conta do Mercado Pago para vender ingressos pagos. O valor do ingresso cai
             direto na sua conta; a Peltrack recebe apenas a taxa de conveniência.
           </p>
@@ -60,16 +60,16 @@ export default function MercadoPagoConnect({
       )}
 
       {connected ? (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-fundo/50 border border-gray-100 rounded-xl p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-fundo/50 border border-border rounded-xl p-4">
           <div className="flex items-center gap-2 text-sm">
             <CheckCircle2 className="w-4 h-4 text-green-600" />
-            <span className="text-grafite font-medium">Conta conectada</span>
-            {mpUserId && <span className="text-grafite-muted">· conta #{mpUserId}</span>}
+            <span className="text-foreground font-medium">Conta conectada</span>
+            {mpUserId && <span className="text-muted-foreground">· conta #{mpUserId}</span>}
           </div>
           <button
             onClick={disconnect}
             disabled={disconnecting}
-            className="flex items-center justify-center gap-2 border border-gray-200 hover:border-red-300 hover:text-red-500 text-grafite text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-60"
+            className="flex items-center justify-center gap-2 border border-border hover:border-red-300 hover:text-red-500 text-foreground text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-60"
           >
             {disconnecting ? <><Loader2 className="w-4 h-4 animate-spin" /> Desconectando...</> : "Desconectar"}
           </button>
@@ -83,7 +83,7 @@ export default function MercadoPagoConnect({
         </a>
       )}
 
-      <p className="text-xs text-gray-400 mt-4">
+      <p className="text-xs text-muted-foreground mt-4">
         Importante: sua conta do Mercado Pago precisa ter uma <span className="font-medium">chave Pix</span> cadastrada
         para receber por Pix.
       </p>

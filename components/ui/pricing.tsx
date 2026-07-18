@@ -65,11 +65,11 @@ export function PricingSection({
       {...props}
     >
       <div className="mx-auto max-w-xl space-y-2 text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-grafite md:text-4xl">
+        <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           {heading}
         </h2>
         {description && (
-          <p className="text-grafite-muted text-sm md:text-base">{description}</p>
+          <p className="text-muted-foreground text-sm md:text-base">{description}</p>
         )}
       </div>
 
@@ -97,7 +97,7 @@ export function PricingFrequencyToggle({
   return (
     <div
       className={cn(
-        "mx-auto flex w-fit rounded-full border border-gray-200 bg-white p-1",
+        "mx-auto flex w-fit rounded-full border border-border bg-card p-1",
         props.className,
       )}
       {...props}
@@ -111,7 +111,7 @@ export function PricingFrequencyToggle({
           <span
             className={cn(
               "relative z-10 flex items-center gap-1.5",
-              frequency === freq ? "text-white" : "text-grafite-muted",
+              frequency === freq ? "text-white" : "text-muted-foreground",
             )}
           >
             {freq}
@@ -166,10 +166,10 @@ export function PricingCard({
     <div
       key={plan.name}
       className={cn(
-        "relative flex w-full flex-col overflow-hidden rounded-2xl border bg-white transition-shadow",
+        "relative flex w-full flex-col overflow-hidden rounded-2xl border bg-card transition-shadow",
         plan.highlighted
           ? "border-laranja shadow-xl shadow-laranja/10"
-          : "border-gray-100 hover:shadow-lg",
+          : "border-border hover:shadow-lg",
         className,
       )}
       {...props}
@@ -189,7 +189,7 @@ export function PricingCard({
       <div
         className={cn(
           "relative border-b p-6",
-          plan.highlighted ? "border-laranja/15 bg-laranja/5" : "border-gray-100 bg-fundo/40",
+          plan.highlighted ? "border-laranja/15 bg-laranja/5" : "border-border bg-fundo/40",
         )}
       >
         <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
@@ -206,23 +206,23 @@ export function PricingCard({
           )}
         </div>
 
-        <h3 className="text-lg font-bold text-grafite">{plan.name}</h3>
-        <p className="text-grafite-muted text-sm">{plan.info}</p>
+        <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
+        <p className="text-muted-foreground text-sm">{plan.info}</p>
 
         <div className="mt-4 flex items-end gap-1">
           {hasPrice ? (
             <>
-              <span className="text-3xl font-black text-grafite">
+              <span className="text-3xl font-black text-foreground">
                 {formatBRL(plan.price![frequency])}
               </span>
               {plan.price![frequency] > 0 && (
-                <span className="text-grafite-muted pb-1 text-sm">
+                <span className="text-muted-foreground pb-1 text-sm">
                   /{frequency === "mensal" ? "mês" : "ano"}
                 </span>
               )}
             </>
           ) : (
-            <span className="text-3xl font-black text-grafite">
+            <span className="text-3xl font-black text-foreground">
               {plan.customPrice}
             </span>
           )}
@@ -239,7 +239,7 @@ export function PricingCard({
                 <Tooltip>
                   <TooltipTrigger
                     render={
-                      <span className="cursor-help border-b border-dashed border-gray-300 text-grafite-muted" />
+                      <span className="cursor-help border-b border-dashed border-border text-muted-foreground" />
                     }
                   >
                     {feature.text}
@@ -248,7 +248,7 @@ export function PricingCard({
                 </Tooltip>
               </TooltipProvider>
             ) : (
-              <span className="text-grafite-muted">{feature.text}</span>
+              <span className="text-muted-foreground">{feature.text}</span>
             )}
           </div>
         ))}
@@ -258,7 +258,7 @@ export function PricingCard({
       <div
         className={cn(
           "mt-auto w-full border-t p-4",
-          plan.highlighted ? "border-laranja/15 bg-laranja/5" : "border-gray-100",
+          plan.highlighted ? "border-laranja/15 bg-laranja/5" : "border-border",
         )}
       >
         <Link
@@ -267,7 +267,7 @@ export function PricingCard({
             "flex w-full items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200",
             plan.highlighted
               ? "bg-laranja text-white shadow-lg shadow-laranja/25 hover:bg-laranja-dark hover:-translate-y-0.5"
-              : "border border-gray-200 text-grafite hover:border-laranja hover:text-laranja",
+              : "border border-border text-foreground hover:border-laranja hover:text-laranja",
           )}
         >
           {plan.btn.text}

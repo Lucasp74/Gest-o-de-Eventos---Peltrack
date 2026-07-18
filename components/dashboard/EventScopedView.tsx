@@ -50,27 +50,27 @@ export default function EventScopedView({ kind }: { kind: Kind }) {
       {/* Cabeçalho + seletor */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-grafite">{meta.title}</h1>
-          <p className="text-grafite-muted text-sm mt-1">{meta.subtitle}</p>
+          <h1 className="text-2xl font-bold text-foreground">{meta.title}</h1>
+          <p className="text-muted-foreground text-sm mt-1">{meta.subtitle}</p>
         </div>
 
         {events && events.length > 0 && (
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-grafite-muted">Evento</span>
+            <span className="text-xs font-medium text-muted-foreground">Evento</span>
             <div className="relative">
               <select
                 value={selectedId}
                 onChange={(e) => setSelectedId(e.target.value)}
                 aria-label="Selecionar evento"
-                className="appearance-none w-full sm:w-64 h-11 pl-4 pr-10 rounded-xl border border-gray-200 bg-white
-                  text-sm text-grafite font-medium outline-none cursor-pointer
+                className="appearance-none w-full sm:w-64 h-11 pl-4 pr-10 rounded-xl border border-border bg-card
+                  text-sm text-foreground font-medium outline-none cursor-pointer
                   focus:ring-2 focus:ring-laranja/20 focus:border-laranja transition-all"
               >
                 {events.map((e) => (
                   <option key={e.id} value={e.id}>{e.name}</option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             </div>
           </label>
         )}
@@ -78,7 +78,7 @@ export default function EventScopedView({ kind }: { kind: Kind }) {
 
       {/* Conteúdo */}
       {events === null ? (
-        <div className="h-64 rounded-2xl bg-gray-100 animate-pulse" />
+        <div className="h-64 rounded-2xl bg-muted animate-pulse" />
       ) : events.length === 0 ? (
         <EmptyState />
       ) : selected ? (
@@ -96,12 +96,12 @@ export default function EventScopedView({ kind }: { kind: Kind }) {
 
 function EmptyState() {
   return (
-    <div className="bg-white rounded-2xl border border-dashed border-gray-200 py-16 flex flex-col items-center text-center">
+    <div className="bg-card rounded-2xl border border-dashed border-border py-16 flex flex-col items-center text-center">
       <div className="w-14 h-14 rounded-2xl bg-fundo flex items-center justify-center mb-4">
-        <CalendarX className="w-7 h-7 text-gray-300" />
+        <CalendarX className="w-7 h-7 text-muted-foreground" />
       </div>
-      <h3 className="text-grafite font-semibold text-base mb-1">Você ainda não tem eventos</h3>
-      <p className="text-grafite-muted text-sm max-w-xs mb-6">
+      <h3 className="text-foreground font-semibold text-base mb-1">Você ainda não tem eventos</h3>
+      <p className="text-muted-foreground text-sm max-w-xs mb-6">
         Crie seu primeiro evento para começar a receber confirmações.
       </p>
       <a

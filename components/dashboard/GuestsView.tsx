@@ -26,7 +26,7 @@ const STATUS_BADGE: Record<DisplayStatus, { label: string; className: string }> 
   presente:     { label: "Presente",        className: "bg-green-100 text-green-700 border-green-200" },
   confirmado:   { label: "Confirmado",      className: "bg-blue-100 text-blue-700 border-blue-200" },
   lista_espera: { label: "Lista de espera", className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
-  cancelado:    { label: "Cancelado",       className: "bg-gray-100 text-gray-500 border-gray-200" },
+  cancelado:    { label: "Cancelado",       className: "bg-muted text-muted-foreground border-border" },
 };
 
 const FILTERS: { key: FilterKey; label: string }[] = [
@@ -166,8 +166,8 @@ export default function GuestsView({ event, liveTick = 0 }: { event: EventItem; 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold text-grafite">Convidados</h2>
-          <p className="text-grafite-muted text-sm">
+          <h2 className="text-lg font-bold text-foreground">Convidados</h2>
+          <p className="text-muted-foreground text-sm">
             {rows.length} {rows.length === 1 ? "pessoa" : "pessoas"} na lista
           </p>
         </div>
@@ -175,7 +175,7 @@ export default function GuestsView({ event, liveTick = 0 }: { event: EventItem; 
           <button
             onClick={exportCsv}
             disabled={rows.length === 0}
-            className="flex items-center gap-1.5 border border-gray-200 hover:border-gray-300 disabled:opacity-50 text-grafite px-3.5 py-2 rounded-xl text-sm font-medium transition-colors"
+            className="flex items-center gap-1.5 border border-border hover:border-border disabled:opacity-50 text-foreground px-3.5 py-2 rounded-xl text-sm font-medium transition-colors"
           >
             <Download className="w-4 h-4" /> Exportar
           </button>
@@ -191,12 +191,12 @@ export default function GuestsView({ event, liveTick = 0 }: { event: EventItem; 
       {/* Busca + filtros */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por nome ou e-mail..."
-            className="w-full h-11 pl-10 pr-4 rounded-xl border border-gray-200 bg-white text-sm text-grafite outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja transition-all"
+            className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-card text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja transition-all"
           />
         </div>
       </div>
@@ -208,12 +208,12 @@ export default function GuestsView({ event, liveTick = 0 }: { event: EventItem; 
             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors ${
               filter === f.key
                 ? "bg-grafite text-white border-grafite"
-                : "bg-white text-grafite-muted border-gray-200 hover:border-gray-300"
+                : "bg-card text-muted-foreground border-border hover:border-border"
             }`}
           >
             {f.label}
             {counts[f.key] != null && (
-              <span className={`text-xs px-1.5 rounded-full ${filter === f.key ? "bg-white/20" : "bg-gray-100 text-grafite-muted"}`}>
+              <span className={`text-xs px-1.5 rounded-full ${filter === f.key ? "bg-white/20" : "bg-muted text-muted-foreground"}`}>
                 {counts[f.key]}
               </span>
             )}
@@ -223,30 +223,30 @@ export default function GuestsView({ event, liveTick = 0 }: { event: EventItem; 
 
       {/* Lista */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-dashed border-gray-200 py-16 flex flex-col items-center text-center">
+        <div className="bg-card rounded-2xl border border-dashed border-border py-16 flex flex-col items-center text-center">
           <div className="w-14 h-14 rounded-2xl bg-fundo flex items-center justify-center mb-4">
-            <Users className="w-7 h-7 text-gray-300" />
+            <Users className="w-7 h-7 text-muted-foreground" />
           </div>
-          <h3 className="text-grafite font-semibold text-base mb-1">
+          <h3 className="text-foreground font-semibold text-base mb-1">
             {rows.length === 0 ? "Nenhum convidado ainda" : "Nenhum resultado"}
           </h3>
-          <p className="text-grafite-muted text-sm max-w-xs">
+          <p className="text-muted-foreground text-sm max-w-xs">
             {rows.length === 0
               ? "Compartilhe o link de confirmação ou adicione convidados manualmente."
               : "Ajuste a busca ou os filtros para encontrar convidados."}
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
           {/* Header da tabela (desktop) */}
-          <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-gray-100 bg-fundo text-xs font-semibold text-grafite-muted uppercase tracking-wider">
+          <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border bg-fundo text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             <div className="col-span-4">Convidado</div>
             <div className="col-span-2">Status</div>
             <div className="col-span-3">Check-in</div>
             <div className="col-span-3 text-right">Ações</div>
           </div>
 
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-border">
             {filtered.map((g) => (
               <GuestRowItem
                 key={g.confirmation.id}
@@ -290,11 +290,11 @@ function GuestRowItem({
       {/* Convidado */}
       <div className="md:col-span-4 flex items-center gap-3 min-w-0">
         <div className="w-9 h-9 rounded-full bg-grafite/5 flex items-center justify-center flex-shrink-0">
-          <span className="text-grafite text-xs font-bold">{initials}</span>
+          <span className="text-foreground text-xs font-bold">{initials}</span>
         </div>
         <div className="min-w-0">
-          <p className="text-grafite font-medium text-sm truncate">{c.name}</p>
-          <p className="text-grafite-muted text-xs truncate">{c.email}</p>
+          <p className="text-foreground font-medium text-sm truncate">{c.name}</p>
+          <p className="text-muted-foreground text-xs truncate">{c.email}</p>
         </div>
       </div>
 
@@ -306,19 +306,19 @@ function GuestRowItem({
       </div>
 
       {/* Check-in */}
-      <div className="md:col-span-3 text-sm text-grafite-muted">
+      <div className="md:col-span-3 text-sm text-muted-foreground">
         {checkin ? (
           <div className="flex flex-col">
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5" />
               {new Date(checkin.checkedInAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
             </span>
-            <span className="flex items-center gap-1.5 text-xs text-gray-400">
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <MapPin className="w-3 h-3" /> {checkin.terminal}
             </span>
           </div>
         ) : (
-          <span className="text-gray-300">—</span>
+          <span className="text-muted-foreground">—</span>
         )}
       </div>
 
@@ -365,8 +365,8 @@ function ActionBtn({
         primary
           ? "text-laranja hover:bg-laranja/10"
           : danger
-          ? "text-gray-400 hover:text-red-500 hover:bg-red-50"
-          : "text-gray-400 hover:text-grafite hover:bg-gray-100"
+          ? "text-muted-foreground hover:text-red-500 hover:bg-red-50"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted"
       }`}
     >
       <Icon className="w-4 h-4" />
@@ -408,45 +408,45 @@ function AddGuestDialog({
     >
       <form
         onSubmit={submit}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h3 className="text-grafite font-bold">Adicionar convidado</h3>
-          <button type="button" onClick={onClose} aria-label="Fechar" className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-grafite hover:bg-gray-50 transition-colors">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h3 className="text-foreground font-bold">Adicionar convidado</h3>
+          <button type="button" onClick={onClose} aria-label="Fechar" className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="p-5 space-y-4">
-          <p className="text-grafite-muted text-sm">
-            O convidado será adicionado como <span className="font-semibold text-grafite">confirmado</span> e contará como uma vaga ocupada.
+          <p className="text-muted-foreground text-sm">
+            O convidado será adicionado como <span className="font-semibold text-foreground">confirmado</span> e contará como uma vaga ocupada.
           </p>
           <div>
-            <label className="block text-sm font-medium text-grafite mb-1.5">Nome completo</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Nome completo</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nome do convidado"
-              className={`w-full h-11 px-4 rounded-xl border text-sm text-grafite outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja ${errors.name ? "border-red-400" : "border-gray-200"}`}
+              className={`w-full h-11 px-4 rounded-xl border text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja ${errors.name ? "border-red-400" : "border-border"}`}
             />
             {errors.name && <p className="text-xs text-red-500 mt-1.5">{errors.name}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-grafite mb-1.5">E-mail</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">E-mail</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="email@convidado.com"
-              className={`w-full h-11 px-4 rounded-xl border text-sm text-grafite outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja ${errors.email ? "border-red-400" : "border-gray-200"}`}
+              className={`w-full h-11 px-4 rounded-xl border text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja ${errors.email ? "border-red-400" : "border-border"}`}
             />
             {errors.email && <p className="text-xs text-red-500 mt-1.5">{errors.email}</p>}
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 px-5 py-4 border-t border-gray-100 bg-fundo/30">
-          <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl border border-gray-200 text-grafite text-sm font-medium hover:border-gray-300 transition-colors">
+        <div className="flex justify-end gap-2 px-5 py-4 border-t border-border bg-fundo/30">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl border border-border text-foreground text-sm font-medium hover:border-border transition-colors">
             Cancelar
           </button>
           <button type="submit" disabled={saving} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-laranja hover:bg-laranja-dark disabled:opacity-60 text-white text-sm font-semibold transition-colors">

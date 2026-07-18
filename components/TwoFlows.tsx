@@ -22,10 +22,10 @@ export default function TwoFlows() {
           <span className="text-laranja text-sm font-semibold uppercase tracking-widest">
             Modos de operação
           </span>
-          <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-grafite tracking-tight">
+          <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
             Dois fluxos, uma plataforma
           </h2>
-          <p className="mt-4 text-grafite-muted text-lg leading-relaxed">
+          <p className="mt-4 text-muted-foreground text-lg leading-relaxed">
             Escolha o modo que melhor se adapta ao seu evento — ou use os dois ao mesmo tempo.
           </p>
         </div>
@@ -67,18 +67,18 @@ export default function TwoFlows() {
           </div>
 
           {/* Flow B — Excel */}
-          <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm relative overflow-hidden">
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-gray-100 rounded-full blur-2xl pointer-events-none" />
+          <div className="bg-card rounded-2xl p-8 border border-border shadow-sm relative overflow-hidden">
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-muted rounded-full blur-2xl pointer-events-none" />
 
             <div className="relative">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-9 h-9 rounded-lg bg-grafite flex items-center justify-center">
                   <FileSpreadsheet className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-grafite-muted text-xs font-bold uppercase tracking-widest">Legado / Offline</span>
+                <span className="text-muted-foreground text-xs font-bold uppercase tracking-widest">Legado / Offline</span>
               </div>
-              <h3 className="text-2xl font-bold text-grafite mb-2">Fluxo Lista Excel</h3>
-              <p className="text-grafite-muted text-sm mb-8 leading-relaxed">
+              <h3 className="text-2xl font-bold text-foreground mb-2">Fluxo Lista Excel</h3>
+              <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
                 Compatível com o app desktop. Perfeito para eventos sem internet ou com listas pré-existentes.
               </p>
 
@@ -86,19 +86,19 @@ export default function TwoFlows() {
                 {flowB.map((step, i) => (
                   <div key={step.label} className="flex items-center gap-4">
                     <div className="flex-shrink-0 flex flex-col items-center">
-                      <div className="w-9 h-9 rounded-xl bg-fundo border border-gray-100 flex items-center justify-center">
-                        <step.icon className="w-4 h-4 text-grafite" />
+                      <div className="w-9 h-9 rounded-xl bg-fundo border border-border flex items-center justify-center">
+                        <step.icon className="w-4 h-4 text-foreground" />
                       </div>
                       {i < flowB.length - 1 && (
-                        <div className="w-px h-4 bg-gray-100 mt-1" />
+                        <div className="w-px h-4 bg-muted mt-1" />
                       )}
                     </div>
-                    <span className="text-grafite-muted text-sm">{step.label}</span>
+                    <span className="text-muted-foreground text-sm">{step.label}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-8 flex items-center gap-2 text-grafite-muted text-sm border-t border-gray-100 pt-6">
+              <div className="mt-8 flex items-center gap-2 text-muted-foreground text-sm border-t border-border pt-6">
                 <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
                 App Desktop disponível para download na plataforma
               </div>

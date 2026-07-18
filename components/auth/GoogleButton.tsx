@@ -17,9 +17,9 @@ export default function GoogleButton({ label = "Entrar com Google" }: { label?: 
       type="button"
       onClick={handleClick}
       disabled={loading}
-      className="w-full h-12 flex items-center justify-center gap-3 rounded-xl border border-gray-200
-        bg-white text-grafite font-medium text-sm transition-all duration-200
-        hover:bg-gray-50 hover:border-gray-300 hover:shadow-md hover:-translate-y-0.5
+      className="w-full h-12 flex items-center justify-center gap-3 rounded-xl border border-border
+        bg-card text-foreground font-medium text-sm transition-all duration-200
+        hover:bg-muted hover:border-border hover:shadow-md hover:-translate-y-0.5
         active:translate-y-0 active:shadow-sm
         disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0"
     >

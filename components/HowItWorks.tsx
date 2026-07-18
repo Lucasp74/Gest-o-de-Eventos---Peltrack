@@ -41,7 +41,7 @@ export default function HowItWorks() {
           <span className="text-laranja text-sm font-semibold uppercase tracking-widest">
             Como funciona
           </span>
-          <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-grafite tracking-tight">
+          <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
             De zero ao evento controlado em quatro passos
           </h2>
         </div>
@@ -55,19 +55,19 @@ export default function HowItWorks() {
                 <div className="hidden lg:block absolute top-7 left-full w-full h-px bg-gradient-to-r from-laranja/30 to-transparent z-10 -translate-x-1/2" />
               )}
 
-              <div className="bg-white rounded-2xl p-6 border border-gray-100 h-full hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+              <div className="bg-card rounded-2xl p-6 border border-border h-full hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
                 {/* Step number + icon */}
                 <div className="flex items-center gap-3 mb-5">
                   <div className="w-11 h-11 rounded-xl bg-laranja flex items-center justify-center flex-shrink-0 shadow-md shadow-laranja/25">
                     <step.icon className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-3xl font-black text-gray-100 select-none leading-none">
+                  <span className="text-3xl font-black text-foreground/10 select-none leading-none">
                     {step.step}
                   </span>
                 </div>
 
-                <h3 className="text-grafite font-bold text-base mb-2">{step.title}</h3>
-                <p className="text-grafite-muted text-sm leading-relaxed mb-5">
+                <h3 className="text-foreground font-bold text-base mb-2">{step.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed mb-5">
                   {step.description}
                 </p>
 
@@ -76,7 +76,7 @@ export default function HowItWorks() {
                   {step.detail.map((d) => (
                     <span
                       key={d}
-                      className="text-xs bg-fundo border border-gray-100 text-grafite-muted px-2.5 py-1 rounded-full"
+                      className="text-xs bg-fundo border border-border text-muted-foreground px-2.5 py-1 rounded-full"
                     >
                       {d}
                     </span>

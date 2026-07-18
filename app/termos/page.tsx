@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function TermosPage() {
   return (
     <LegalLayout title="Termos de Uso" updatedAt="24 de junho de 2026">
-      <p className="text-grafite-muted text-sm leading-relaxed">
+      <p className="text-muted-foreground text-sm leading-relaxed">
         Estes Termos de Uso regem o acesso e a utilização da plataforma Peltrack, operada por
         [Razão Social], inscrita no CNPJ [CNPJ] (&ldquo;Peltrack&rdquo;, &ldquo;nós&rdquo;). Ao criar uma conta ou
         utilizar o serviço, você concorda com estes termos.

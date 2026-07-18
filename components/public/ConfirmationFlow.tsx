@@ -91,9 +91,9 @@ export default function ConfirmationFlow({ eventId }: { eventId: string }) {
     return (
       <div className="min-h-screen bg-fundo flex items-center justify-center px-4">
         <div className="text-center">
-          <AlertCircle className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <h1 className="text-grafite font-bold text-lg">Evento não encontrado</h1>
-          <p className="text-grafite-muted text-sm mt-1">
+          <AlertCircle className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <h1 className="text-foreground font-bold text-lg">Evento não encontrado</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             O link pode estar incorreto ou o evento foi removido.
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function ConfirmationFlow({ eventId }: { eventId: string }) {
           <img
             src={event.imageUrl}
             alt={event.name}
-            className="w-full aspect-[16/9] object-cover rounded-2xl mb-4 border border-gray-100"
+            className="w-full aspect-[16/9] object-cover rounded-2xl mb-4 border border-border"
           />
         )}
 
@@ -169,27 +169,27 @@ export default function ConfirmationFlow({ eventId }: { eventId: string }) {
           />
         ) : regClosed ? (
           <RegistrationNotice
-            icon={<CalendarX className="w-6 h-6 text-gray-400" />}
+            icon={<CalendarX className="w-6 h-6 text-muted-foreground" />}
             title="As inscrições foram encerradas"
             message={`O período de confirmação se encerrou em ${formatWindow(event.registrationClosesAt!)}.`}
           />
         ) : event.paid ? (
           <PaidPurchaseFlow event={event} />
         ) : (
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <div className="bg-card rounded-2xl border border-border p-6">
             {isFull && (
               <div className="flex items-start gap-2.5 bg-laranja/5 border border-laranja/15 rounded-xl p-3.5 mb-5">
                 <AlertCircle className="w-4 h-4 text-laranja mt-0.5 flex-shrink-0" />
-                <p className="text-grafite-muted text-sm">
-                  As vagas se esgotaram. Você pode entrar na <span className="font-semibold text-grafite">lista de espera</span> — avisaremos por e-mail se uma vaga for liberada.
+                <p className="text-muted-foreground text-sm">
+                  As vagas se esgotaram. Você pode entrar na <span className="font-semibold text-foreground">lista de espera</span> — avisaremos por e-mail se uma vaga for liberada.
                 </p>
               </div>
             )}
 
-            <h2 className="text-grafite font-bold text-lg mb-1">
+            <h2 className="text-foreground font-bold text-lg mb-1">
               {isFull ? "Entrar na lista de espera" : "Confirme sua presença"}
             </h2>
-            <p className="text-grafite-muted text-sm mb-6">
+            <p className="text-muted-foreground text-sm mb-6">
               Preencha seus dados para {isFull ? "entrar na fila" : "receber seu convite com QR Code por e-mail"}.
             </p>
 
@@ -201,7 +201,7 @@ export default function ConfirmationFlow({ eventId }: { eventId: string }) {
 
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
               <div>
-                <label htmlFor="nome" className="block text-sm font-medium text-grafite mb-1.5">
+                <label htmlFor="nome" className="block text-sm font-medium text-foreground mb-1.5">
                   Nome completo
                 </label>
                 <input
@@ -212,13 +212,13 @@ export default function ConfirmationFlow({ eventId }: { eventId: string }) {
                     if (errors.name) setErrors((er) => ({ ...er, name: undefined }));
                   }}
                   placeholder="Seu nome"
-                  className={`w-full h-12 px-4 rounded-xl border text-sm text-grafite outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja ${errors.name ? "border-red-400" : "border-gray-200 hover:border-gray-300"}`}
+                  className={`w-full h-12 px-4 rounded-xl border text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja ${errors.name ? "border-red-400" : "border-border hover:border-border"}`}
                 />
                 {errors.name && <p className="text-xs text-red-500 mt-1.5">{errors.name}</p>}
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-grafite mb-1.5">
+                <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
                   E-mail
                 </label>
                 <input
@@ -230,7 +230,7 @@ export default function ConfirmationFlow({ eventId }: { eventId: string }) {
                     if (errors.email) setErrors((er) => ({ ...er, email: undefined }));
                   }}
                   placeholder="seu@email.com"
-                  className={`w-full h-12 px-4 rounded-xl border text-sm text-grafite outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja ${errors.email ? "border-red-400" : "border-gray-200 hover:border-gray-300"}`}
+                  className={`w-full h-12 px-4 rounded-xl border text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja ${errors.email ? "border-red-400" : "border-border hover:border-border"}`}
                 />
                 {errors.email && <p className="text-xs text-red-500 mt-1.5">{errors.email}</p>}
               </div>
@@ -249,7 +249,7 @@ export default function ConfirmationFlow({ eventId }: { eventId: string }) {
                 )}
               </button>
 
-              <p className="text-center text-xs text-gray-400">
+              <p className="text-center text-xs text-muted-foreground">
                 Ao confirmar, você concorda com os termos do organizador.
               </p>
             </form>
@@ -269,12 +269,12 @@ function RegistrationNotice({
   message: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+    <div className="bg-card rounded-2xl border border-border p-8 text-center">
       <div className="w-14 h-14 rounded-2xl bg-fundo flex items-center justify-center mx-auto mb-4">
         {icon}
       </div>
-      <h2 className="text-grafite font-bold text-lg mb-2">{title}</h2>
-      <p className="text-grafite-muted text-sm max-w-sm mx-auto leading-relaxed">{message}</p>
+      <h2 className="text-foreground font-bold text-lg mb-2">{title}</h2>
+      <p className="text-muted-foreground text-sm max-w-sm mx-auto leading-relaxed">{message}</p>
     </div>
   );
 }
@@ -300,10 +300,10 @@ function InviteCard({
           )}
         </div>
         <div>
-          <p className="text-grafite font-semibold text-sm">
+          <p className="text-foreground font-semibold text-sm">
             {isWaitlist ? "Você está na lista de espera!" : "Presença confirmada!"}
           </p>
-          <p className="text-grafite-muted text-sm mt-0.5 flex items-center gap-1.5">
+          <p className="text-muted-foreground text-sm mt-0.5 flex items-center gap-1.5">
             <Mail className="w-3.5 h-3.5" />
             Enviamos uma cópia para {confirmation.email}
           </p>
@@ -311,7 +311,7 @@ function InviteCard({
       </div>
 
       {!isWaitlist && (
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
           {/* Cabeçalho do convite */}
           <div className="bg-grafite p-6 text-center text-white relative">
             <div className="absolute top-0 left-0 right-0 h-1 bg-laranja" />
@@ -327,7 +327,7 @@ function InviteCard({
 
           {/* QR Code */}
           <div className="p-6 flex flex-col items-center">
-            <div className="bg-white p-4 rounded-2xl border-2 border-gray-100">
+            <div className="bg-white p-4 rounded-2xl border-2 border-border">
               <QRCodeSVG
                 value={confirmation.id}
                 size={180}
@@ -336,19 +336,19 @@ function InviteCard({
                 bgColor="#ffffff"
               />
             </div>
-            <p className="text-grafite font-semibold mt-4">{confirmation.name}</p>
-            <p className="text-grafite-muted text-sm">Apresente este QR Code na entrada</p>
+            <p className="text-foreground font-semibold mt-4">{confirmation.name}</p>
+            <p className="text-muted-foreground text-sm">Apresente este QR Code na entrada</p>
 
             {/* Linha pontilhada decorativa */}
-            <div className="w-full border-t border-dashed border-gray-200 my-5" />
+            <div className="w-full border-t border-dashed border-border my-5" />
 
-            <p className="text-gray-400 text-xs text-center">
+            <p className="text-muted-foreground text-xs text-center">
               Código do convite: <span className="font-mono">{confirmation.id.slice(0, 8)}</span>
             </p>
 
             <button
               onClick={() => window.print()}
-              className="mt-4 flex items-center gap-2 border border-gray-200 hover:border-laranja hover:text-laranja text-grafite text-sm font-medium px-5 py-2.5 rounded-xl transition-colors"
+              className="mt-4 flex items-center gap-2 border border-border hover:border-laranja hover:text-laranja text-foreground text-sm font-medium px-5 py-2.5 rounded-xl transition-colors"
             >
               <Download className="w-4 h-4" />
               Salvar / imprimir convite

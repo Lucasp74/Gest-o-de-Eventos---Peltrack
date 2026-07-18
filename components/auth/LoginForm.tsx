@@ -62,21 +62,21 @@ export default function LoginForm() {
             <div className="w-10 h-10 rounded-xl bg-laranja flex items-center justify-center shadow-lg shadow-laranja/30">
               <Zap className="w-5 h-5 text-white" fill="white" />
             </div>
-            <span className="text-grafite font-bold text-2xl tracking-tight">
+            <span className="text-foreground font-bold text-2xl tracking-tight">
               Pel<span className="text-laranja">track</span>
             </span>
           </a>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl shadow-black/5 border border-gray-100 p-8">
+        <div className="bg-card rounded-2xl shadow-xl shadow-black/5 border border-border p-8">
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-grafite mb-1">
+            <h1 className="text-2xl font-bold text-foreground mb-1">
               Bem-vindo de volta
             </h1>
-            <p className="text-grafite-muted text-sm">
+            <p className="text-muted-foreground text-sm">
               Acesse sua conta para gerenciar seus eventos
             </p>
           </div>
@@ -98,7 +98,7 @@ export default function LoginForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-grafite mb-1.5"
+                className="block text-sm font-medium text-foreground mb-1.5"
               >
                 E-mail
               </label>
@@ -112,12 +112,12 @@ export default function LoginForm() {
                   setForm((f) => ({ ...f, email: e.target.value }));
                   if (errors.email) setErrors((er) => ({ ...er, email: undefined }));
                 }}
-                className={`w-full h-12 px-4 rounded-xl border text-sm text-grafite bg-white outline-none transition-all
-                  placeholder:text-gray-400
+                className={`w-full h-12 px-4 rounded-xl border text-sm text-foreground bg-card outline-none transition-all
+                  placeholder:text-muted-foreground
                   focus:ring-2 focus:ring-laranja/20 focus:border-laranja
                   ${errors.email
                     ? "border-red-400 focus:border-red-400 focus:ring-red-100"
-                    : "border-gray-200 hover:border-gray-300"
+                    : "border-border hover:border-border"
                   }`}
               />
               {errors.email && (
@@ -130,7 +130,7 @@ export default function LoginForm() {
               <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-grafite"
+                  className="block text-sm font-medium text-foreground"
                 >
                   Senha
                 </label>
@@ -153,18 +153,18 @@ export default function LoginForm() {
                     if (errors.password)
                       setErrors((er) => ({ ...er, password: undefined }));
                   }}
-                  className={`w-full h-12 px-4 pr-12 rounded-xl border text-sm text-grafite bg-white outline-none transition-all
-                    placeholder:text-gray-400
+                  className={`w-full h-12 px-4 pr-12 rounded-xl border text-sm text-foreground bg-card outline-none transition-all
+                    placeholder:text-muted-foreground
                     focus:ring-2 focus:ring-laranja/20 focus:border-laranja
                     ${errors.password
                       ? "border-red-400 focus:border-red-400 focus:ring-red-100"
-                      : "border-gray-200 hover:border-gray-300"
+                      : "border-border hover:border-border"
                     }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-grafite transition-colors p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
                   aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 >
                   {showPassword
@@ -182,11 +182,11 @@ export default function LoginForm() {
               <input
                 id="remember"
                 type="checkbox"
-                className="w-4 h-4 rounded border-gray-300 accent-laranja cursor-pointer"
+                className="w-4 h-4 rounded border-border accent-laranja cursor-pointer"
               />
               <label
                 htmlFor="remember"
-                className="text-sm text-grafite-muted cursor-pointer select-none"
+                className="text-sm text-muted-foreground cursor-pointer select-none"
               >
                 Manter conectado
               </label>
@@ -217,16 +217,16 @@ export default function LoginForm() {
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-gray-100" />
-            <span className="text-xs text-gray-400">ou</span>
-            <div className="flex-1 h-px bg-gray-100" />
+            <div className="flex-1 h-px bg-muted" />
+            <span className="text-xs text-muted-foreground">ou</span>
+            <div className="flex-1 h-px bg-muted" />
           </div>
 
           {/* Login com Google */}
           <GoogleButton label="Entrar com Google" />
 
           {/* Criar conta */}
-          <p className="text-center text-sm text-grafite-muted mt-6">
+          <p className="text-center text-sm text-muted-foreground mt-6">
             Ainda não tem conta?{" "}
             <a
               href="/cadastro"
@@ -238,13 +238,13 @@ export default function LoginForm() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-muted-foreground mt-6">
           © 2026 Peltrack ·
-          <a href="/privacidade" className="hover:text-gray-600 transition-colors ml-1">
+          <a href="/privacidade" className="hover:text-muted-foreground transition-colors ml-1">
             Privacidade
           </a>
           {" "}·{" "}
-          <a href="/termos" className="hover:text-gray-600 transition-colors">
+          <a href="/termos" className="hover:text-muted-foreground transition-colors">
             Termos
           </a>
         </p>

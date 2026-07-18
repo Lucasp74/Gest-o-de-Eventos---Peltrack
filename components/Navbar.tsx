@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Menu, X, Zap } from "lucide-react";
+import ThemeSwitch from "@/components/ui/ThemeSwitch";
 
 const links = [
   { label: "Eventos", href: "/eventos" },
@@ -55,6 +56,7 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeSwitch className="text-white/70 hover:text-white" />
             <a
               href="/login"
               className="text-white/70 hover:text-white text-sm font-medium transition-colors"
@@ -69,14 +71,17 @@ export default function Navbar() {
             </a>
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
-            aria-label="Menu"
-          >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          {/* Mobile actions */}
+          <div className="md:hidden flex items-center gap-1">
+            <ThemeSwitch className="text-white/70 hover:text-white" />
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+              aria-label="Menu"
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </div>
 

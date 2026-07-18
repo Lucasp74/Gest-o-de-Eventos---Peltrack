@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function PrivacidadePage() {
   return (
     <LegalLayout title="Política de Privacidade" updatedAt="24 de junho de 2026">
-      <p className="text-grafite-muted text-sm leading-relaxed">
+      <p className="text-muted-foreground text-sm leading-relaxed">
         Esta Política de Privacidade descreve como o Peltrack, operado por [Razão Social],
         inscrita no CNPJ [CNPJ] (&ldquo;Peltrack&rdquo;, &ldquo;nós&rdquo;), trata os dados pessoais coletados
         em sua plataforma de controle de acesso a eventos, em conformidade com a Lei Geral de

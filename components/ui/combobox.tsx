@@ -95,18 +95,18 @@ export function Combobox({
         aria-haspopup="listbox"
         aria-expanded={open}
         className={cn(
-          "flex w-full items-center justify-between h-11 px-4 rounded-xl border bg-white text-sm outline-none transition-all",
+          "flex w-full items-center justify-between h-11 px-4 rounded-xl border bg-card text-sm outline-none transition-all",
           "focus:ring-2 focus:ring-laranja/20 focus:border-laranja",
-          error ? "border-red-400" : "border-gray-200 hover:border-gray-300",
+          error ? "border-red-400" : "border-border hover:border-border",
           open && "ring-2 ring-laranja/20 border-laranja",
         )}
       >
-        <span className={value ? "text-grafite" : "text-gray-400"}>
+        <span className={value ? "text-foreground" : "text-muted-foreground"}>
           {value ?? placeholder}
         </span>
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-gray-400 transition-transform",
+            "w-4 h-4 text-muted-foreground transition-transform",
             open && "rotate-180",
           )}
         />
@@ -114,18 +114,18 @@ export function Combobox({
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute z-40 mt-1.5 w-full rounded-xl border border-gray-200 bg-white shadow-xl shadow-black/5 overflow-hidden">
+        <div className="absolute z-40 mt-1.5 w-full rounded-xl border border-border bg-card shadow-xl shadow-black/5 overflow-hidden">
           {/* Busca */}
-          <div className="p-2 border-b border-gray-100">
+          <div className="p-2 border-b border-border">
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <input
                 ref={inputRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder="Buscar ou criar..."
-                className="w-full h-9 pl-8 pr-3 rounded-lg border border-gray-200 bg-fundo/50 text-sm text-grafite outline-none placeholder:text-gray-400 focus:border-laranja focus:bg-white transition-colors"
+                className="w-full h-9 pl-8 pr-3 rounded-lg border border-border bg-fundo/50 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-laranja focus:bg-card transition-colors"
               />
             </div>
           </div>
@@ -140,7 +140,7 @@ export function Combobox({
                   onMouseEnter={() => setActive(i)}
                   className={cn(
                     "w-full text-left px-3 py-2 text-sm flex items-center justify-between transition-colors",
-                    active === i ? "bg-laranja/10 text-laranja" : "text-grafite hover:bg-fundo",
+                    active === i ? "bg-laranja/10 text-laranja" : "text-foreground hover:bg-fundo",
                   )}
                 >
                   {o}
@@ -150,7 +150,7 @@ export function Combobox({
             ))}
 
             {filtered.length === 0 && !canCreate && (
-              <li className="px-3 py-6 text-center text-sm text-gray-400">
+              <li className="px-3 py-6 text-center text-sm text-muted-foreground">
                 Nenhuma opção encontrada
               </li>
             )}
@@ -162,7 +162,7 @@ export function Combobox({
                   onClick={create}
                   onMouseEnter={() => setActive(filtered.length)}
                   className={cn(
-                    "w-full text-left px-3 py-2 text-sm flex items-center gap-2 border-t border-gray-100 transition-colors",
+                    "w-full text-left px-3 py-2 text-sm flex items-center gap-2 border-t border-border transition-colors",
                     active === filtered.length
                       ? "bg-laranja/10 text-laranja"
                       : "text-laranja hover:bg-laranja/5",

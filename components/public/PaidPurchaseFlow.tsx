@@ -101,13 +101,13 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
   /* ── Pagamento confirmado ────────────────────────── */
   if (pix && payStatus === "aprovado") {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+      <div className="bg-card rounded-2xl border border-border p-8 text-center">
         <div className="w-14 h-14 rounded-2xl bg-green-100 flex items-center justify-center mx-auto mb-4">
           <PartyPopper className="w-7 h-7 text-green-600" />
         </div>
-        <h2 className="text-grafite font-bold text-lg mb-1">Pagamento confirmado!</h2>
-        <p className="text-grafite-muted text-sm max-w-sm mx-auto">
-          Seu convite com QR Code foi enviado para <span className="font-semibold text-grafite">{email}</span>. Apresente-o na entrada do evento.
+        <h2 className="text-foreground font-bold text-lg mb-1">Pagamento confirmado!</h2>
+        <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+          Seu convite com QR Code foi enviado para <span className="font-semibold text-foreground">{email}</span>. Apresente-o na entrada do evento.
         </p>
       </div>
     );
@@ -116,12 +116,12 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
   /* ── Pix expirado ────────────────────────────────── */
   if (pix && payStatus === "expirado") {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+      <div className="bg-card rounded-2xl border border-border p-8 text-center">
         <div className="w-14 h-14 rounded-2xl bg-fundo flex items-center justify-center mx-auto mb-4">
-          <CalendarX className="w-7 h-7 text-gray-400" />
+          <CalendarX className="w-7 h-7 text-muted-foreground" />
         </div>
-        <h2 className="text-grafite font-bold text-lg mb-1">Pix expirado</h2>
-        <p className="text-grafite-muted text-sm max-w-sm mx-auto">
+        <h2 className="text-foreground font-bold text-lg mb-1">Pix expirado</h2>
+        <p className="text-muted-foreground text-sm max-w-sm mx-auto">
           O tempo para pagamento acabou. Recarregue a página para gerar uma nova cobrança.
         </p>
       </div>
@@ -131,43 +131,43 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
   /* ── Tela do Pix ─────────────────────────────────── */
   if (pix) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-6">
+      <div className="bg-card rounded-2xl border border-border p-6">
         <div className="flex items-center gap-2 text-laranja mb-1">
           <QrCode className="w-5 h-5" />
-          <h2 className="text-grafite font-bold text-lg">Pague com Pix para garantir seu ingresso</h2>
+          <h2 className="text-foreground font-bold text-lg">Pague com Pix para garantir seu ingresso</h2>
         </div>
-        <p className="text-grafite-muted text-sm mb-5">
+        <p className="text-muted-foreground text-sm mb-5">
           Escaneie o QR Code ou use o código copia-e-cola no app do seu banco.
         </p>
 
         <div className="flex flex-col items-center">
           {pix.brCodeBase64 ? (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={pix.brCodeBase64} alt="QR Code Pix" className="w-56 h-56 border border-gray-100 rounded-xl p-2" />
+            <img src={pix.brCodeBase64} alt="QR Code Pix" className="w-56 h-56 border border-border rounded-xl p-2 bg-white" />
           ) : (
-            <div className="w-56 h-56 bg-gray-100 rounded-xl animate-pulse" />
+            <div className="w-56 h-56 bg-muted rounded-xl animate-pulse" />
           )}
 
           <button
             onClick={() => { navigator.clipboard?.writeText(pix.brCode); setCopied(true); setTimeout(() => setCopied(false), 1800); }}
-            className="mt-4 flex items-center gap-2 border border-gray-200 hover:border-laranja hover:text-laranja text-grafite text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+            className="mt-4 flex items-center gap-2 border border-border hover:border-laranja hover:text-laranja text-foreground text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
           >
             {copied ? <><Check className="w-4 h-4 text-green-600" /> Código copiado!</> : <><Copy className="w-4 h-4" /> Copiar código Pix</>}
           </button>
         </div>
 
         {/* Resumo do valor — a taxa só aparece quando é repassada ao comprador */}
-        <div className="mt-6 bg-fundo/50 border border-gray-100 rounded-xl p-4 text-sm space-y-1.5">
-          <div className="flex justify-between text-grafite-muted"><span>Ingresso</span><span>{formatBRL(pix.ticketPrice)}</span></div>
+        <div className="mt-6 bg-fundo/50 border border-border rounded-xl p-4 text-sm space-y-1.5">
+          <div className="flex justify-between text-muted-foreground"><span>Ingresso</span><span>{formatBRL(pix.ticketPrice)}</span></div>
           {(pix.passFeeToBuyer ?? true) && (
-            <div className="flex justify-between text-grafite-muted"><span>Taxa de conveniência</span><span>{formatBRL(pix.fee)}</span></div>
+            <div className="flex justify-between text-muted-foreground"><span>Taxa de conveniência</span><span>{formatBRL(pix.fee)}</span></div>
           )}
-          <div className="flex justify-between text-grafite font-bold pt-1.5 border-t border-gray-100"><span>Total</span><span>{formatBRL(pix.total)}</span></div>
+          <div className="flex justify-between text-foreground font-bold pt-1.5 border-t border-border"><span>Total</span><span>{formatBRL(pix.total)}</span></div>
         </div>
 
         <div className="mt-5 flex items-start gap-2.5 bg-yellow-50 border border-yellow-200 rounded-xl p-3.5">
           <Loader2 className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0 animate-spin" />
-          <p className="text-grafite text-sm">
+          <p className="text-foreground text-sm">
             <span className="font-semibold">Aguardando pagamento.</span> Esta tela detecta o pagamento automaticamente — assim que confirmar, seu convite com QR Code é enviado por e-mail.
           </p>
         </div>
@@ -177,7 +177,7 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
           <button
             onClick={simulate}
             disabled={simulating}
-            className="w-full mt-3 flex items-center justify-center gap-2 border border-dashed border-gray-300 text-grafite-muted hover:text-grafite hover:border-gray-400 text-sm py-2.5 rounded-xl transition-colors disabled:opacity-60"
+            className="w-full mt-3 flex items-center justify-center gap-2 border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-border text-sm py-2.5 rounded-xl transition-colors disabled:opacity-60"
           >
             {simulating ? <><Loader2 className="w-4 h-4 animate-spin" /> Simulando...</> : "🧪 Simular pagamento (dev)"}
           </button>
@@ -188,12 +188,12 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
 
   /* ── Tela de seleção + dados ─────────────────────── */
   return (
-    <form onSubmit={pay} className="bg-white rounded-2xl border border-gray-100 p-6">
+    <form onSubmit={pay} className="bg-card rounded-2xl border border-border p-6">
       <div className="flex items-center gap-2 mb-1">
         <Ticket className="w-5 h-5 text-laranja" />
-        <h2 className="text-grafite font-bold text-lg">Escolha seu ingresso</h2>
+        <h2 className="text-foreground font-bold text-lg">Escolha seu ingresso</h2>
       </div>
-      <p className="text-grafite-muted text-sm mb-5">A taxa de conveniência, quando aplicável, já está inclusa no total.</p>
+      <p className="text-muted-foreground text-sm mb-5">A taxa de conveniência, quando aplicável, já está inclusa no total.</p>
 
       {error && (
         <div role="alert" className="mb-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">{error}</div>
@@ -213,16 +213,16 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
               disabled={soldOut}
               onClick={() => setTicketId(t.id)}
               className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                ticketId === t.id ? "border-laranja bg-laranja/5" : "border-gray-200 hover:border-gray-300"
+                ticketId === t.id ? "border-laranja bg-laranja/5" : "border-border hover:border-border"
               }`}
             >
               <div>
-                <p className="font-semibold text-sm text-grafite">{t.name}</p>
-                <p className="text-grafite-muted text-xs mt-0.5">
+                <p className="font-semibold text-sm text-foreground">{t.name}</p>
+                <p className="text-muted-foreground text-xs mt-0.5">
                   {soldOut ? "Esgotado" : tPass ? `${formatBRL(t.price)} + ${formatBRL(tFee)} de taxa` : formatBRL(t.price)}
                 </p>
               </div>
-              <span className={`font-bold text-sm ${ticketId === t.id ? "text-laranja" : "text-grafite"}`}>
+              <span className={`font-bold text-sm ${ticketId === t.id ? "text-laranja" : "text-foreground"}`}>
                 {formatBRL(tTotal)}
               </span>
             </button>
@@ -233,25 +233,25 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
       {/* Dados */}
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-grafite mb-1.5">Nome completo</label>
+          <label className="block text-sm font-medium text-foreground mb-1.5">Nome completo</label>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome"
-            className="w-full h-12 px-4 rounded-xl border border-gray-200 text-sm text-grafite outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja" />
+            className="w-full h-12 px-4 rounded-xl border border-border text-sm text-foreground outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-grafite mb-1.5">E-mail</label>
+          <label className="block text-sm font-medium text-foreground mb-1.5">E-mail</label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com"
-            className="w-full h-12 px-4 rounded-xl border border-gray-200 text-sm text-grafite outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja" />
-          <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1"><Mail className="w-3 h-3" /> O convite será enviado para este e-mail após o pagamento.</p>
+            className="w-full h-12 px-4 rounded-xl border border-border text-sm text-foreground outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja" />
+          <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1"><Mail className="w-3 h-3" /> O convite será enviado para este e-mail após o pagamento.</p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-grafite mb-1.5">CPF</label>
+          <label className="block text-sm font-medium text-foreground mb-1.5">CPF</label>
           <input
             inputMode="numeric"
             value={cpf}
             onChange={(e) => setCpf(maskCpf(e.target.value))}
             placeholder="000.000.000-00"
-            className="w-full h-12 px-4 rounded-xl border border-gray-200 text-sm text-grafite outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja" />
-          <p className="text-xs text-gray-400 mt-1.5">Exigido pelo Pix para identificar o pagador.</p>
+            className="w-full h-12 px-4 rounded-xl border border-border text-sm text-foreground outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja" />
+          <p className="text-xs text-muted-foreground mt-1.5">Exigido pelo Pix para identificar o pagador.</p>
         </div>
       </div>
 

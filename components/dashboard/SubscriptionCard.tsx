@@ -36,15 +36,15 @@ export default function SubscriptionCard({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6">
+    <div className="bg-card rounded-2xl border border-border p-6">
       <div className="flex items-start gap-3 mb-4">
         <div className="w-10 h-10 rounded-xl bg-laranja/10 flex items-center justify-center flex-shrink-0">
           <CreditCard className="w-5 h-5 text-laranja" />
         </div>
         <div>
-          <h2 className="text-grafite font-semibold">Sua assinatura</h2>
-          <p className="text-grafite-muted text-sm mt-0.5">
-            Plano atual: <span className="font-medium text-grafite">{PLAN_LABEL[plan] ?? plan}</span>
+          <h2 className="text-foreground font-semibold">Sua assinatura</h2>
+          <p className="text-muted-foreground text-sm mt-0.5">
+            Plano atual: <span className="font-medium text-foreground">{PLAN_LABEL[plan] ?? plan}</span>
             {active && " · ativo"}
           </p>
         </div>
@@ -63,15 +63,15 @@ export default function SubscriptionCard({
       )}
 
       {active ? (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-fundo/50 border border-gray-100 rounded-xl p-4">
-          <span className="flex items-center gap-2 text-sm text-grafite">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-fundo/50 border border-border rounded-xl p-4">
+          <span className="flex items-center gap-2 text-sm text-foreground">
             <CheckCircle2 className="w-4 h-4 text-green-600" />
             Assinatura ativa do plano <span className="font-medium">{PLAN_LABEL[plan]}</span>
           </span>
           <button
             onClick={cancel}
             disabled={cancelling}
-            className="flex items-center justify-center gap-2 border border-gray-200 hover:border-red-300 hover:text-red-500 text-grafite text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-60"
+            className="flex items-center justify-center gap-2 border border-border hover:border-red-300 hover:text-red-500 text-foreground text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-60"
           >
             {cancelling ? <><Loader2 className="w-4 h-4 animate-spin" /> Cancelando...</> : "Cancelar assinatura"}
           </button>
@@ -88,11 +88,11 @@ export default function SubscriptionCard({
               <a
                 key={p}
                 href={`/api/subscription/create?plan=${p}`}
-                className="flex items-center justify-between gap-2 border border-gray-200 hover:border-laranja rounded-xl px-4 py-3 transition-colors"
+                className="flex items-center justify-between gap-2 border border-border hover:border-laranja rounded-xl px-4 py-3 transition-colors"
               >
                 <span className="text-sm">
-                  <span className="font-semibold text-grafite">Assinar {PLAN_LABEL[p]}</span>
-                  <span className="block text-grafite-muted text-xs">{formatBRL(PLAN_DEFAULT_PRICE[p] ?? 0)}/mês</span>
+                  <span className="font-semibold text-foreground">Assinar {PLAN_LABEL[p]}</span>
+                  <span className="block text-muted-foreground text-xs">{formatBRL(PLAN_DEFAULT_PRICE[p] ?? 0)}/mês</span>
                 </span>
                 <CreditCard className="w-4 h-4 text-laranja" />
               </a>
@@ -101,7 +101,7 @@ export default function SubscriptionCard({
         </>
       )}
 
-      <p className="text-xs text-gray-400 mt-4">
+      <p className="text-xs text-muted-foreground mt-4">
         A cobrança é mensal e automática no cartão, pelo Mercado Pago. Você pode cancelar a qualquer momento.
       </p>
     </div>

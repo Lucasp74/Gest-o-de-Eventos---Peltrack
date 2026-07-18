@@ -190,15 +190,15 @@ export default function ScannerView({ event, liveTick = 0 }: { event: EventItem;
       {/* Barra superior: direção + terminal + contador */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Direção (check-in / check-out futuro) */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <p className="text-grafite-muted text-xs uppercase tracking-wider mb-2">Operação</p>
+        <div className="bg-card rounded-2xl border border-border p-4">
+          <p className="text-muted-foreground text-xs uppercase tracking-wider mb-2">Operação</p>
           <div className="flex gap-2">
             <span className="flex-1 flex items-center justify-center gap-1.5 bg-laranja text-white text-sm font-semibold py-2 rounded-xl">
               <LogIn className="w-4 h-4" /> Check-in
             </span>
             <span
               title="Check-out será habilitado em breve"
-              className="flex-1 flex items-center justify-center gap-1.5 bg-gray-50 text-gray-300 text-sm font-semibold py-2 rounded-xl border border-gray-100 cursor-not-allowed select-none"
+              className="flex-1 flex items-center justify-center gap-1.5 bg-muted text-muted-foreground text-sm font-semibold py-2 rounded-xl border border-border cursor-not-allowed select-none"
             >
               <LogOut className="w-4 h-4" /> Check-out
             </span>
@@ -206,13 +206,13 @@ export default function ScannerView({ event, liveTick = 0 }: { event: EventItem;
         </div>
 
         {/* Terminal */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <p className="text-grafite-muted text-xs uppercase tracking-wider mb-2">Terminal</p>
+        <div className="bg-card rounded-2xl border border-border p-4">
+          <p className="text-muted-foreground text-xs uppercase tracking-wider mb-2">Terminal</p>
           <div className="flex gap-2">
             <select
               value={terminal}
               onChange={(e) => setTerminal(e.target.value)}
-              className="flex-1 h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm text-grafite outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja"
+              className="flex-1 h-10 px-3 rounded-xl border border-border bg-card text-sm text-foreground outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja"
             >
               {terminals.map((t) => (
                 <option key={t} value={t}>{t}</option>
@@ -222,7 +222,7 @@ export default function ScannerView({ event, liveTick = 0 }: { event: EventItem;
               onClick={() => setManageOpen(true)}
               title="Gerenciar terminais"
               aria-label="Gerenciar terminais"
-              className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-grafite-muted hover:border-laranja hover:text-laranja transition-colors flex-shrink-0"
+              className="w-10 h-10 flex items-center justify-center rounded-xl border border-border text-muted-foreground hover:border-laranja hover:text-laranja transition-colors flex-shrink-0"
             >
               <Settings2 className="w-4 h-4" />
             </button>
@@ -246,13 +246,13 @@ export default function ScannerView({ event, liveTick = 0 }: { event: EventItem;
 
       {/* Área principal */}
       {mode === "idle" && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-8">
+        <div className="bg-card rounded-2xl border border-border p-8">
           <div className="text-center mb-8">
             <div className="w-14 h-14 rounded-2xl bg-laranja/10 flex items-center justify-center mx-auto mb-4">
               <ScanLine className="w-7 h-7 text-laranja" />
             </div>
-            <h2 className="text-grafite font-bold text-lg">Como você vai ler os QR Codes?</h2>
-            <p className="text-grafite-muted text-sm mt-1">
+            <h2 className="text-foreground font-bold text-lg">Como você vai ler os QR Codes?</h2>
+            <p className="text-muted-foreground text-sm mt-1">
               Escolha o método de leitura para iniciar o check-in.
             </p>
           </div>
@@ -267,26 +267,26 @@ export default function ScannerView({ event, liveTick = 0 }: { event: EventItem;
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
             <button
               onClick={startCamera}
-              className="group p-6 rounded-2xl border-2 border-gray-100 hover:border-laranja hover:bg-laranja/5 transition-all text-center"
+              className="group p-6 rounded-2xl border-2 border-border hover:border-laranja hover:bg-laranja/5 transition-all text-center"
             >
               <div className="w-12 h-12 rounded-xl bg-fundo group-hover:bg-laranja/10 flex items-center justify-center mx-auto mb-3 transition-colors">
                 <Camera className="w-6 h-6 text-laranja" />
               </div>
-              <p className="text-grafite font-semibold text-sm">Câmera</p>
-              <p className="text-grafite-muted text-xs mt-1">
+              <p className="text-foreground font-semibold text-sm">Câmera</p>
+              <p className="text-muted-foreground text-xs mt-1">
                 Celular ou webcam — aponte para o QR Code do convidado
               </p>
             </button>
 
             <button
               onClick={() => setMode("usb")}
-              className="group p-6 rounded-2xl border-2 border-gray-100 hover:border-laranja hover:bg-laranja/5 transition-all text-center"
+              className="group p-6 rounded-2xl border-2 border-border hover:border-laranja hover:bg-laranja/5 transition-all text-center"
             >
               <div className="w-12 h-12 rounded-xl bg-fundo group-hover:bg-laranja/10 flex items-center justify-center mx-auto mb-3 transition-colors">
                 <Usb className="w-6 h-6 text-laranja" />
               </div>
-              <p className="text-grafite font-semibold text-sm">Leitor USB</p>
-              <p className="text-grafite-muted text-xs mt-1">
+              <p className="text-foreground font-semibold text-sm">Leitor USB</p>
+              <p className="text-muted-foreground text-xs mt-1">
                 Leitor de QR Code conectado ao notebook ou desktop
               </p>
             </button>
@@ -295,14 +295,14 @@ export default function ScannerView({ event, liveTick = 0 }: { event: EventItem;
       )}
 
       {mode === "camera" && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-grafite font-semibold flex items-center gap-2">
+            <h2 className="text-foreground font-semibold flex items-center gap-2">
               <Camera className="w-4 h-4 text-laranja" /> Leitura pela câmera
             </h2>
             <button
               onClick={backToIdle}
-              className="flex items-center gap-1.5 text-grafite-muted hover:text-grafite text-sm transition-colors"
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm transition-colors"
             >
               <ArrowLeft className="w-4 h-4" /> Trocar método
             </button>
@@ -310,12 +310,12 @@ export default function ScannerView({ event, liveTick = 0 }: { event: EventItem;
 
           <div className="max-w-sm mx-auto">
             {cameraStarting && (
-              <div className="flex items-center justify-center gap-2 text-grafite-muted text-sm py-12">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm py-12">
                 <Loader2 className="w-4 h-4 animate-spin" /> Iniciando câmera...
               </div>
             )}
             <div id="qr-reader" className="rounded-xl overflow-hidden [&_video]:rounded-xl" />
-            <p className="text-grafite-muted text-xs text-center mt-3">
+            <p className="text-muted-foreground text-xs text-center mt-3">
               Posicione o QR Code do convidado dentro da área de leitura
             </p>
           </div>
@@ -323,14 +323,14 @@ export default function ScannerView({ event, liveTick = 0 }: { event: EventItem;
       )}
 
       {mode === "usb" && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <div className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-grafite font-semibold flex items-center gap-2">
+            <h2 className="text-foreground font-semibold flex items-center gap-2">
               <Usb className="w-4 h-4 text-laranja" /> Leitura por leitor USB
             </h2>
             <button
               onClick={backToIdle}
-              className="flex items-center gap-1.5 text-grafite-muted hover:text-grafite text-sm transition-colors"
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm transition-colors"
             >
               <ArrowLeft className="w-4 h-4" /> Trocar método
             </button>
@@ -342,9 +342,9 @@ export default function ScannerView({ event, liveTick = 0 }: { event: EventItem;
               onKeyDown={handleUsbKeyDown}
               placeholder="Aguardando leitura do leitor..."
               autoComplete="off"
-              className="w-full h-14 px-4 text-center text-base rounded-xl border-2 border-laranja/40 bg-fundo/30 text-grafite outline-none placeholder:text-gray-400 focus:border-laranja focus:ring-4 focus:ring-laranja/10 transition-all"
+              className="w-full h-14 px-4 text-center text-base rounded-xl border-2 border-laranja/40 bg-fundo/30 text-foreground outline-none placeholder:text-muted-foreground focus:border-laranja focus:ring-4 focus:ring-laranja/10 transition-all"
             />
-            <p className="text-grafite-muted text-xs text-center mt-3">
+            <p className="text-muted-foreground text-xs text-center mt-3">
               O campo permanece focado automaticamente — basta passar o convite no leitor.
               Também é possível digitar o código e pressionar Enter.
             </p>
@@ -429,16 +429,16 @@ function TerminalsDialog({
       aria-label="Gerenciar terminais"
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h3 className="text-grafite font-bold">Gerenciar terminais</h3>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h3 className="text-foreground font-bold">Gerenciar terminais</h3>
           <button
             onClick={onClose}
             aria-label="Fechar"
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-grafite hover:bg-gray-50 transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -458,7 +458,7 @@ function TerminalsDialog({
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && add()}
               placeholder="Nome do novo terminal (ex: Entrada VIP)"
-              className="flex-1 h-10 px-3.5 rounded-xl border border-gray-200 text-sm text-grafite outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja transition-all"
+              className="flex-1 h-10 px-3.5 rounded-xl border border-border text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja transition-all"
             />
             <button
               onClick={add}
@@ -473,7 +473,7 @@ function TerminalsDialog({
             {list.map((t, i) => (
               <li
                 key={`${t}-${i}`}
-                className="flex items-center gap-2 bg-fundo/50 border border-gray-100 rounded-xl px-3.5 py-2.5"
+                className="flex items-center gap-2 bg-fundo/50 border border-border rounded-xl px-3.5 py-2.5"
               >
                 {editingIndex === i ? (
                   <>
@@ -485,7 +485,7 @@ function TerminalsDialog({
                         if (e.key === "Escape") setEditingIndex(null);
                       }}
                       autoFocus
-                      className="flex-1 h-8 px-2.5 rounded-lg border border-laranja text-sm text-grafite outline-none focus:ring-2 focus:ring-laranja/20"
+                      className="flex-1 h-8 px-2.5 rounded-lg border border-laranja text-sm text-foreground outline-none focus:ring-2 focus:ring-laranja/20"
                     />
                     <button
                       onClick={confirmRename}
@@ -497,12 +497,12 @@ function TerminalsDialog({
                   </>
                 ) : (
                   <>
-                    <span className="flex-1 text-sm text-grafite font-medium">{t}</span>
+                    <span className="flex-1 text-sm text-foreground font-medium">{t}</span>
                     <button
                       onClick={() => startRename(i)}
                       aria-label={`Renomear ${t}`}
                       title="Renomear"
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-grafite hover:bg-gray-100 transition-colors"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
@@ -510,7 +510,7 @@ function TerminalsDialog({
                       onClick={() => remove(i)}
                       aria-label={`Remover ${t}`}
                       title="Remover"
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -522,10 +522,10 @@ function TerminalsDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 px-5 py-4 border-t border-gray-100 bg-fundo/30">
+        <div className="flex justify-end gap-2 px-5 py-4 border-t border-border bg-fundo/30">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-gray-200 text-grafite text-sm font-medium hover:border-gray-300 transition-colors"
+            className="px-4 py-2 rounded-xl border border-border text-foreground text-sm font-medium hover:border-border transition-colors"
           >
             Cancelar
           </button>
@@ -545,13 +545,13 @@ function TerminalsDialog({
 function FeedbackPanel({ feedback }: { feedback: Feedback | null }) {
   if (!feedback) {
     return (
-      <div className="rounded-2xl border border-gray-100 bg-white p-5 flex items-center gap-4 min-h-[88px]">
-        <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0">
-          <ScanLine className="w-5 h-5 text-gray-300" />
+      <div className="rounded-2xl border border-border bg-card p-5 flex items-center gap-4 min-h-[88px]">
+        <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
+          <ScanLine className="w-5 h-5 text-muted-foreground" />
         </div>
         <div>
-          <p className="text-gray-400 text-sm">Aguardando leitura…</p>
-          <p className="text-gray-300 text-xs mt-0.5">O resultado do scan aparece aqui</p>
+          <p className="text-muted-foreground text-sm">Aguardando leitura…</p>
+          <p className="text-muted-foreground text-xs mt-0.5">O resultado do scan aparece aqui</p>
         </div>
       </div>
     );
@@ -590,10 +590,10 @@ function FeedbackPanel({ feedback }: { feedback: Feedback | null }) {
         {s.icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-grafite font-bold text-lg leading-tight truncate">{feedback.title}</p>
+        <p className="text-foreground font-bold text-lg leading-tight truncate">{feedback.title}</p>
         <p className={`text-sm mt-0.5 font-medium ${s.text}`}>{feedback.subtitle}</p>
       </div>
-      <span className="text-grafite-muted text-sm font-mono flex-shrink-0">{feedback.time}</span>
+      <span className="text-muted-foreground text-sm font-mono flex-shrink-0">{feedback.time}</span>
     </div>
   );
 }

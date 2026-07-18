@@ -60,7 +60,7 @@ const PLANS: Plan[] = [
 
 export default function Pricing() {
   return (
-    <section id="planos" className="py-24 bg-white">
+    <section id="planos" className="py-24 bg-card">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <PricingSection
           plans={PLANS}

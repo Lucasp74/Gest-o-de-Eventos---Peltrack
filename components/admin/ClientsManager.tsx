@@ -68,10 +68,10 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
 
   if (tenants.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-dashed border-gray-200 py-16 text-center">
-        <Building2 className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-        <p className="text-grafite font-semibold">Nenhum cliente ainda</p>
-        <p className="text-grafite-muted text-sm">Os clientes aparecem aqui conforme se cadastram na plataforma.</p>
+      <div className="bg-card rounded-2xl border border-dashed border-border py-16 text-center">
+        <Building2 className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+        <p className="text-foreground font-semibold">Nenhum cliente ainda</p>
+        <p className="text-muted-foreground text-sm">Os clientes aparecem aqui conforme se cadastram na plataforma.</p>
       </div>
     );
   }
@@ -85,12 +85,12 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
         </div>
       )}
       {/* Gráfico: clientes por plano (clicar numa barra filtra a lista) */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
+      <div className="bg-card rounded-2xl border border-border p-6 mb-6">
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-grafite font-semibold">Clientes por plano</h2>
-          <span className="text-grafite-muted text-xs">clique numa barra para filtrar</span>
+          <h2 className="text-foreground font-semibold">Clientes por plano</h2>
+          <span className="text-muted-foreground text-xs">clique numa barra para filtrar</span>
         </div>
-        <p className="text-grafite-muted text-sm mb-4">{tenants.length} cliente{tenants.length === 1 ? "" : "s"} no total</p>
+        <p className="text-muted-foreground text-sm mb-4">{tenants.length} cliente{tenants.length === 1 ? "" : "s"} no total</p>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={byPlan} margin={{ top: 20, right: 8, left: -24, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#eef0f4" vertical={false} />
@@ -135,11 +135,11 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                 filter === key
                   ? "bg-grafite text-white border-grafite"
-                  : "bg-white text-grafite-muted border-gray-200 hover:border-gray-300"
+                  : "bg-card text-muted-foreground border-border hover:border-border"
               }`}
             >
               {key === "TODOS" ? "Todos" : PLAN_LABELS[key]}
-              <span className={`text-xs px-1.5 rounded-full ${filter === key ? "bg-white/20" : "bg-gray-100 text-grafite-muted"}`}>
+              <span className={`text-xs px-1.5 rounded-full ${filter === key ? "bg-white/20" : "bg-muted text-muted-foreground"}`}>
                 {count}
               </span>
             </button>
@@ -148,17 +148,17 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
       </div>
 
       {/* Lista */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-gray-100 bg-fundo text-xs font-semibold text-grafite-muted uppercase tracking-wider">
+      <div className="bg-card rounded-2xl border border-border overflow-hidden">
+        <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border bg-fundo text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           <div className="col-span-4">Cliente</div>
           <div className="col-span-2">Plano</div>
           <div className="col-span-3">Uso</div>
           <div className="col-span-2">Receita/mês</div>
           <div className="col-span-1 text-right">Ação</div>
         </div>
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-border">
           {filtered.length === 0 ? (
-            <p className="text-grafite-muted text-sm text-center py-10">Nenhum cliente neste plano.</p>
+            <p className="text-muted-foreground text-sm text-center py-10">Nenhum cliente neste plano.</p>
           ) : (
             filtered.map((t) => {
               const price = effectiveMonthlyPrice(t.plan, t.monthlyPrice);
@@ -169,9 +169,9 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
                   {/* Cliente */}
                   <div className="md:col-span-4 flex items-center gap-2.5 min-w-0">
                     <div className="w-9 h-9 rounded-lg bg-grafite/5 flex items-center justify-center flex-shrink-0">
-                      <Building2 className="w-4 h-4 text-grafite" />
+                      <Building2 className="w-4 h-4 text-foreground" />
                     </div>
-                    <span className="text-grafite font-medium text-sm truncate">{t.name}</span>
+                    <span className="text-foreground font-medium text-sm truncate">{t.name}</span>
                   </div>
 
                   {/* Plano */}
@@ -183,7 +183,7 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
 
                   {/* Uso: usuários + eventos no mês / limite */}
                   <div className="md:col-span-3 text-sm">
-                    <div className="flex items-center gap-3 text-grafite-muted">
+                    <div className="flex items-center gap-3 text-muted-foreground">
                       <span className="flex items-center gap-1" title="Usuários">
                         <Users className="w-3.5 h-3.5" /> {t.users}
                       </span>
@@ -193,14 +193,14 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
                       </span>
                     </div>
                     {usagePct !== null ? (
-                      <div className="mt-1.5 h-1.5 w-full max-w-[140px] bg-gray-100 rounded-full overflow-hidden">
+                      <div className="mt-1.5 h-1.5 w-full max-w-[140px] bg-muted rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${usagePct >= 100 ? "bg-laranja" : "bg-grafite"}`}
                           style={{ width: `${usagePct}%` }}
                         />
                       </div>
                     ) : (
-                      <p className="text-xs text-gray-400 mt-1">eventos ilimitados · {t.events} no total</p>
+                      <p className="text-xs text-muted-foreground mt-1">eventos ilimitados · {t.events} no total</p>
                     )}
                   </div>
 
@@ -211,7 +211,7 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
                         A definir
                       </span>
                     ) : (
-                      <span className={`text-sm font-semibold ${price > 0 ? "text-grafite" : "text-gray-400"}`}>
+                      <span className={`text-sm font-semibold ${price > 0 ? "text-foreground" : "text-muted-foreground"}`}>
                         {formatBRL(price)}
                       </span>
                     )}
@@ -299,14 +299,14 @@ function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose
     if (data?.apiKey) setApiKey(data.apiKey);
   }
 
-  const input = "w-full h-10 px-3 rounded-xl border border-gray-200 text-sm text-grafite outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja";
+  const input = "w-full h-10 px-3 rounded-xl border border-border text-sm text-foreground outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja";
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h3 className="text-grafite font-bold">{tenant.name}</h3>
-          <button onClick={onClose} aria-label="Fechar" className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-grafite hover:bg-gray-50 transition-colors">
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h3 className="text-foreground font-bold">{tenant.name}</h3>
+          <button onClick={onClose} aria-label="Fechar" className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -320,7 +320,7 @@ function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose
           {/* Plano + valor */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-grafite mb-1.5">Plano</label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Plano</label>
               <select value={plan} onChange={(e) => setPlan(e.target.value as AdminTenant["plan"])} className={input}>
                 <option value="STARTER">Starter</option>
                 <option value="PRO">Pro</option>
@@ -328,7 +328,7 @@ function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-grafite mb-1.5">
+              <label className="block text-sm font-medium text-foreground mb-1.5">
                 Valor mensal (R$)
               </label>
               <input
@@ -338,25 +338,25 @@ function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose
                 inputMode="decimal"
                 className={input}
               />
-              <p className="text-[11px] text-gray-400 mt-1">Vazio = padrão do plano{plan === "ENTERPRISE" ? " (Enterprise: defina o valor negociado)" : ""}</p>
+              <p className="text-[11px] text-muted-foreground mt-1">Vazio = padrão do plano{plan === "ENTERPRISE" ? " (Enterprise: defina o valor negociado)" : ""}</p>
             </div>
           </div>
 
           {/* Limites */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-grafite mb-1.5">Máx. eventos/mês <span className="text-grafite-muted font-normal">(0=ilimitado)</span></label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Máx. eventos/mês <span className="text-muted-foreground font-normal">(0=ilimitado)</span></label>
               <input type="number" min={0} value={maxEvents} onChange={(e) => setMaxEvents(e.target.value)} className={input} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-grafite mb-1.5">Máx. convidados <span className="text-grafite-muted font-normal">(0=ilimitado)</span></label>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Máx. convidados <span className="text-muted-foreground font-normal">(0=ilimitado)</span></label>
               <input type="number" min={0} value={maxGuests} onChange={(e) => setMaxGuests(e.target.value)} className={input} />
             </div>
           </div>
 
           {/* Flags */}
           <div>
-            <p className="text-sm font-medium text-grafite mb-2">Recursos liberados</p>
+            <p className="text-sm font-medium text-foreground mb-2">Recursos liberados</p>
             <div className="space-y-2">
               {[
                 { label: "Relatórios avançados", value: advReports, set: setAdvReports },
@@ -364,25 +364,25 @@ function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose
                 { label: "Acesso à API", value: apiAccess, set: setApiAccess },
               ].map((f) => (
                 <label key={f.label} className="flex items-center gap-2.5 cursor-pointer">
-                  <input type="checkbox" checked={f.value} onChange={(e) => f.set(e.target.checked)} className="w-4 h-4 rounded border-gray-300 accent-laranja cursor-pointer" />
-                  <span className="text-sm text-grafite">{f.label}</span>
+                  <input type="checkbox" checked={f.value} onChange={(e) => f.set(e.target.checked)} className="w-4 h-4 rounded border-border accent-laranja cursor-pointer" />
+                  <span className="text-sm text-foreground">{f.label}</span>
                 </label>
               ))}
             </div>
           </div>
 
           {/* Chave de API */}
-          <div className="bg-fundo/50 border border-gray-100 rounded-xl p-4">
+          <div className="bg-fundo/50 border border-border rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <KeyRound className="w-4 h-4 text-laranja" />
-              <span className="text-sm font-medium text-grafite">Chave de API (Enterprise)</span>
+              <span className="text-sm font-medium text-foreground">Chave de API (Enterprise)</span>
             </div>
             {apiKey ? (
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 text-grafite font-mono truncate">{apiKey}</code>
+                <code className="flex-1 text-xs bg-card border border-border rounded-lg px-3 py-2 text-foreground font-mono truncate">{apiKey}</code>
                 <button
                   onClick={() => { navigator.clipboard?.writeText(apiKey); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-                  className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-grafite transition-colors"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground transition-colors"
                   aria-label="Copiar"
                 >
                   {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
@@ -396,8 +396,8 @@ function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 px-5 py-4 border-t border-gray-100 bg-fundo/30">
-          <button onClick={onClose} className="px-4 py-2 rounded-xl border border-gray-200 text-grafite text-sm font-medium hover:border-gray-300 transition-colors">Cancelar</button>
+        <div className="flex justify-end gap-2 px-5 py-4 border-t border-border bg-fundo/30">
+          <button onClick={onClose} className="px-4 py-2 rounded-xl border border-border text-foreground text-sm font-medium hover:border-border transition-colors">Cancelar</button>
           <button onClick={save} disabled={saving} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-laranja hover:bg-laranja-dark disabled:opacity-60 text-white text-sm font-semibold transition-colors">
             {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</> : "Salvar"}
           </button>

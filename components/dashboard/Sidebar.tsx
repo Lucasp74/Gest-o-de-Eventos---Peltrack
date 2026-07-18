@@ -7,6 +7,7 @@ import {
   Zap, LayoutDashboard, Calendar, Users, ScanLine,
   BarChart3, Settings, Menu, X, LogOut, Monitor,
 } from "lucide-react";
+import ThemeSwitch from "@/components/ui/ThemeSwitch";
 
 function getInitials(name?: string | null, email?: string | null) {
   if (name?.trim()) {
@@ -119,13 +120,16 @@ export default function Sidebar() {
               <p className="text-white/40 text-xs truncate">{user?.email ?? ""}</p>
             </div>
           </a>
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex items-center gap-3 px-3 py-2.5 mt-1 w-full rounded-xl text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition-colors"
-          >
-            <LogOut className="w-[18px] h-[18px]" />
-            Sair
-          </button>
+          <div className="flex items-center gap-2 mt-1">
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="flex flex-1 items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition-colors"
+            >
+              <LogOut className="w-[18px] h-[18px]" />
+              Sair
+            </button>
+            <ThemeSwitch className="flex-shrink-0 text-white/60 hover:text-white" />
+          </div>
         </div>
       </aside>
     </>

@@ -54,25 +54,25 @@ export default function EventsShowcase({ events }: { events: ShowcaseEvent[] }) 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Cabeçalho */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-grafite">Descubra eventos</h1>
-          <p className="text-grafite-muted mt-1">Encontre eventos públicos e garanta sua presença.</p>
+          <h1 className="text-3xl font-bold text-foreground">Descubra eventos</h1>
+          <p className="text-muted-foreground mt-1">Encontre eventos públicos e garanta sua presença.</p>
         </div>
 
         {/* Filtros */}
         <div className="flex flex-col lg:flex-row gap-3 mb-5">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar por nome ou cidade..."
-              className="w-full h-11 pl-10 pr-4 rounded-xl border border-gray-200 bg-white text-sm text-grafite outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja transition-all"
+              className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-card text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja transition-all"
             />
           </div>
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm text-grafite outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja lg:w-56"
+            className="h-11 px-4 rounded-xl border border-border bg-card text-sm text-foreground outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja lg:w-56"
           >
             <option value="">Todas as cidades</option>
             {cities.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -91,12 +91,12 @@ export default function EventsShowcase({ events }: { events: ShowcaseEvent[] }) 
 
         {/* Vazio */}
         {filtered.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-dashed border-gray-200 py-20 flex flex-col items-center text-center">
+          <div className="bg-card rounded-2xl border border-dashed border-border py-20 flex flex-col items-center text-center">
             <div className="w-14 h-14 rounded-2xl bg-fundo flex items-center justify-center mb-4">
-              <CalendarSearch className="w-7 h-7 text-gray-300" />
+              <CalendarSearch className="w-7 h-7 text-muted-foreground" />
             </div>
-            <h3 className="text-grafite font-semibold text-base mb-1">Nenhum evento encontrado</h3>
-            <p className="text-grafite-muted text-sm max-w-xs">
+            <h3 className="text-foreground font-semibold text-base mb-1">Nenhum evento encontrado</h3>
+            <p className="text-muted-foreground text-sm max-w-xs">
               {events.length === 0
                 ? "Ainda não há eventos públicos por aqui. Volte em breve!"
                 : "Ajuste a busca ou os filtros para encontrar eventos."}
@@ -108,14 +108,14 @@ export default function EventsShowcase({ events }: { events: ShowcaseEvent[] }) 
               <section>
                 <div className="flex items-center gap-2 mb-4">
                   <span className="w-2 h-2 rounded-full bg-laranja animate-pulse" />
-                  <h2 className="text-lg font-bold text-grafite">Acontece hoje</h2>
+                  <h2 className="text-lg font-bold text-foreground">Acontece hoje</h2>
                 </div>
                 <Grid events={today} />
               </section>
             )}
             {upcoming.length > 0 && (
               <section>
-                <h2 className="text-lg font-bold text-grafite mb-4">
+                <h2 className="text-lg font-bold text-foreground mb-4">
                   {today.length > 0 ? "Próximos eventos" : "Eventos"}
                 </h2>
                 <Grid events={upcoming} />
@@ -133,7 +133,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
     <button
       onClick={onClick}
       className={`px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-        active ? "bg-grafite text-white border-grafite" : "bg-white text-grafite-muted border-gray-200 hover:border-gray-300"
+        active ? "bg-grafite text-white border-grafite" : "bg-card text-muted-foreground border-border hover:border-border"
       }`}
     >
       {children}
@@ -157,7 +157,7 @@ function Card({ event: e }: { event: ShowcaseEvent }) {
   return (
     <a
       href={`/e/${e.id}`}
-      className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+      className="group bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
     >
       {/* Imagem ou placeholder */}
       <div className="relative aspect-[16/9] bg-grafite overflow-hidden">
@@ -170,7 +170,7 @@ function Card({ event: e }: { event: ShowcaseEvent }) {
           </div>
         )}
         {e.category && (
-          <span className="absolute top-3 left-3 bg-white/95 text-grafite text-xs font-semibold px-2.5 py-1 rounded-full">
+          <span className="absolute top-3 left-3 bg-white/95 text-foreground text-xs font-semibold px-2.5 py-1 rounded-full">
             {e.category}
           </span>
         )}
@@ -178,10 +178,10 @@ function Card({ event: e }: { event: ShowcaseEvent }) {
 
       {/* Conteúdo */}
       <div className="p-4">
-        <h3 className="text-grafite font-semibold leading-snug line-clamp-2 min-h-[2.6rem] group-hover:text-laranja transition-colors">
+        <h3 className="text-foreground font-semibold leading-snug line-clamp-2 min-h-[2.6rem] group-hover:text-laranja transition-colors">
           {e.name}
         </h3>
-        <div className="mt-2.5 space-y-1 text-sm text-grafite-muted">
+        <div className="mt-2.5 space-y-1 text-sm text-muted-foreground">
           <p className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {e.dateLabel} · {e.time}</p>
           {(e.city || e.uf) && (
             <p className="flex items-center gap-1.5">
@@ -189,9 +189,9 @@ function Card({ event: e }: { event: ShowcaseEvent }) {
             </p>
           )}
         </div>
-        <div className="mt-3 pt-3 border-t border-gray-50 flex items-center gap-1.5">
+        <div className="mt-3 pt-3 border-t border-border flex items-center gap-1.5">
           <Ticket className="w-4 h-4 text-laranja" />
-          <span className={`text-sm font-semibold ${e.paid ? "text-grafite" : "text-green-600"}`}>{price}</span>
+          <span className={`text-sm font-semibold ${e.paid ? "text-foreground" : "text-green-600"}`}>{price}</span>
         </div>
       </div>
     </a>

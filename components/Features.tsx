@@ -5,7 +5,7 @@ import {
 
 export default function Features() {
   return (
-    <section id="funcionalidades" className="py-24 bg-white">
+    <section id="funcionalidades" className="py-24 bg-card">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
@@ -13,10 +13,10 @@ export default function Features() {
           <span className="text-laranja text-sm font-semibold uppercase tracking-widest">
             Funcionalidades
           </span>
-          <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-grafite tracking-tight">
+          <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
             Cada detalhe pensado para o dia do evento
           </h2>
-          <p className="mt-4 text-grafite-muted text-base leading-relaxed">
+          <p className="mt-4 text-muted-foreground text-base leading-relaxed">
             Não é só um leitor de QR Code. É uma plataforma completa de controle de acesso com gestão de convidados, capacidade e relatórios.
           </p>
         </div>
@@ -63,21 +63,21 @@ export default function Features() {
           </div>
 
           {/* Card — Controle de vagas */}
-          <div className="bg-fundo rounded-2xl p-7 border border-gray-100 group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
-            <div className="w-11 h-11 rounded-xl bg-white border border-gray-100 group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
+          <div className="bg-fundo rounded-2xl p-7 border border-border group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-card border border-border group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
               <Users className="w-5 h-5 text-laranja" />
             </div>
-            <h3 className="text-grafite text-base font-bold mb-2">Controle de capacidade</h3>
-            <p className="text-grafite-muted text-sm leading-relaxed mb-5">
+            <h3 className="text-foreground text-base font-bold mb-2">Controle de capacidade</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-5">
               Defina o limite de vagas. Quando lotado, o sistema fecha inscrições automaticamente e ativa a lista de espera.
             </p>
             {/* Visual mini */}
             <div className="space-y-2">
-              <div className="flex justify-between text-xs text-grafite-muted">
+              <div className="flex justify-between text-xs text-muted-foreground">
                 <span>Vagas ocupadas</span>
-                <span className="font-semibold text-grafite">48 / 50</span>
+                <span className="font-semibold text-foreground">48 / 50</span>
               </div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div className="h-full rounded-full bg-laranja" style={{ width: "96%" }} />
               </div>
               <p className="text-xs text-laranja font-medium">2 vagas restantes · 3 na lista de espera</p>
@@ -85,36 +85,36 @@ export default function Features() {
           </div>
 
           {/* Card — Lista de espera */}
-          <div className="bg-fundo rounded-2xl p-7 border border-gray-100 group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
-            <div className="w-11 h-11 rounded-xl bg-white border border-gray-100 group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
+          <div className="bg-fundo rounded-2xl p-7 border border-border group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-card border border-border group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
               <ListOrdered className="w-5 h-5 text-laranja" />
             </div>
-            <h3 className="text-grafite text-base font-bold mb-2">Lista de espera automática</h3>
-            <p className="text-grafite-muted text-sm leading-relaxed">
+            <h3 className="text-foreground text-base font-bold mb-2">Lista de espera automática</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
               Cancelamentos liberam vagas e notificam o próximo da fila por e-mail sem nenhuma ação manual da sua parte.
             </p>
           </div>
 
           {/* Card grande — Scanner */}
-          <div className="lg:col-span-2 bg-fundo rounded-2xl p-7 border border-gray-100 group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
+          <div className="lg:col-span-2 bg-fundo rounded-2xl p-7 border border-border group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
             <div className="flex gap-7 items-start">
               <div className="flex-1">
-                <div className="w-11 h-11 rounded-xl bg-white border border-gray-100 group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
+                <div className="w-11 h-11 rounded-xl bg-card border border-border group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
                   <Smartphone className="w-5 h-5 text-laranja" />
                 </div>
-                <h3 className="text-grafite text-base font-bold mb-2">Scanner pelo celular — sem app</h3>
-                <p className="text-grafite-muted text-sm leading-relaxed">
+                <h3 className="text-foreground text-base font-bold mb-2">Scanner pelo celular — sem app</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   Abra o painel de scanner no navegador do celular e leia QR Codes com a câmera. Sem instalar nada, funciona em qualquer dispositivo.
                 </p>
                 <div className="flex flex-wrap gap-2 mt-4">
                   {["iOS Safari", "Android Chrome", "Tablet", "Desktop + leitor USB"].map((d) => (
-                    <span key={d} className="text-xs bg-white border border-gray-100 text-grafite-muted px-2.5 py-1 rounded-full">
+                    <span key={d} className="text-xs bg-card border border-border text-muted-foreground px-2.5 py-1 rounded-full">
                       {d}
                     </span>
                   ))}
                 </div>
               </div>
-              <div className="hidden sm:flex flex-col items-center gap-2 bg-white border border-gray-100 rounded-2xl p-4 min-w-[120px]">
+              <div className="hidden sm:flex flex-col items-center gap-2 bg-card border border-border rounded-2xl p-4 min-w-[120px]">
                 <div className="w-16 h-16 rounded-xl bg-grafite flex items-center justify-center">
                   <svg viewBox="0 0 24 24" className="w-9 h-9 text-laranja" fill="none" stroke="currentColor" strokeWidth={1.5}>
                     <rect x="3" y="3" width="8" height="8" rx="1.5" />
@@ -123,7 +123,7 @@ export default function Features() {
                     <circle cx="17" cy="17" r="2" fill="currentColor" stroke="none" />
                   </svg>
                 </div>
-                <p className="text-grafite text-xs font-semibold text-center">Aponte e leia</p>
+                <p className="text-foreground text-xs font-semibold text-center">Aponte e leia</p>
                 <span className="text-green-600 text-xs font-medium bg-green-50 border border-green-100 px-2 py-0.5 rounded-full">
                   &lt; 100ms
                 </span>
@@ -132,12 +132,12 @@ export default function Features() {
           </div>
 
           {/* Card — Relatórios */}
-          <div className="bg-fundo rounded-2xl p-7 border border-gray-100 group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
-            <div className="w-11 h-11 rounded-xl bg-white border border-gray-100 group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
+          <div className="bg-fundo rounded-2xl p-7 border border-border group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-card border border-border group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
               <BarChart3 className="w-5 h-5 text-laranja" />
             </div>
-            <h3 className="text-grafite text-base font-bold mb-2">Relatórios em tempo real</h3>
-            <p className="text-grafite-muted text-sm leading-relaxed mb-5">
+            <h3 className="text-foreground text-base font-bold mb-2">Relatórios em tempo real</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-5">
               Acompanhe entradas por hora, por guichê e total de presentes. Exporte em Excel ao fim do evento.
             </p>
             {/* Mini bar chart */}
@@ -150,38 +150,38 @@ export default function Features() {
                 />
               ))}
             </div>
-            <p className="text-grafite-muted text-xs mt-2">Entradas por hora — pico às 20h</p>
+            <p className="text-muted-foreground text-xs mt-2">Entradas por hora — pico às 20h</p>
           </div>
 
           {/* Card — Offline */}
-          <div className="bg-fundo rounded-2xl p-7 border border-gray-100 group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
-            <div className="w-11 h-11 rounded-xl bg-white border border-gray-100 group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
+          <div className="bg-fundo rounded-2xl p-7 border border-border group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-card border border-border group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
               <Monitor className="w-5 h-5 text-laranja" />
             </div>
-            <h3 className="text-grafite text-base font-bold mb-2">App Desktop para eventos offline</h3>
-            <p className="text-grafite-muted text-sm leading-relaxed">
+            <h3 className="text-foreground text-base font-bold mb-2">App Desktop para eventos offline</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
               Para locais sem internet estável. O app desktop com leitor USB funciona offline e sincroniza quando a conexão retornar.
             </p>
           </div>
 
           {/* Card — Segurança */}
-          <div className="bg-fundo rounded-2xl p-7 border border-gray-100 group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
-            <div className="w-11 h-11 rounded-xl bg-white border border-gray-100 group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
+          <div className="bg-fundo rounded-2xl p-7 border border-border group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-card border border-border group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
               <ShieldCheck className="w-5 h-5 text-laranja" />
             </div>
-            <h3 className="text-grafite text-base font-bold mb-2">Dados isolados por cliente</h3>
-            <p className="text-grafite-muted text-sm leading-relaxed">
+            <h3 className="text-foreground text-base font-bold mb-2">Dados isolados por cliente</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
               Cada organização opera em ambiente isolado. Seus convidados e eventos nunca são visíveis para outros clientes da plataforma.
             </p>
           </div>
 
           {/* Card — Multi-terminal */}
-          <div className="bg-fundo rounded-2xl p-7 border border-gray-100 group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
-            <div className="w-11 h-11 rounded-xl bg-white border border-gray-100 group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
+          <div className="bg-fundo rounded-2xl p-7 border border-border group hover:border-laranja/20 hover:shadow-lg transition-all duration-300">
+            <div className="w-11 h-11 rounded-xl bg-card border border-border group-hover:bg-laranja/5 group-hover:border-laranja/20 flex items-center justify-center mb-5 transition-all">
               <Wifi className="w-5 h-5 text-laranja" />
             </div>
-            <h3 className="text-grafite text-base font-bold mb-2">Múltiplos guichês simultâneos</h3>
-            <p className="text-grafite-muted text-sm leading-relaxed">
+            <h3 className="text-foreground text-base font-bold mb-2">Múltiplos guichês simultâneos</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
               10 guichês operando ao mesmo tempo? Sem problema. Todos sincronizados em tempo real — a mesma pessoa não entra duas vezes por portas diferentes.
             </p>
           </div>

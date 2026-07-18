@@ -66,10 +66,10 @@ export default function SignupForm() {
   }
 
   const inputBase =
-    "w-full h-12 px-4 rounded-xl border text-sm text-grafite bg-white outline-none transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja";
+    "w-full h-12 px-4 rounded-xl border text-sm text-foreground bg-card outline-none transition-all placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja";
 
   function cls(err?: string) {
-    return `${inputBase} ${err ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-gray-200 hover:border-gray-300"}`;
+    return `${inputBase} ${err ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-border hover:border-border"}`;
   }
 
   return (
@@ -81,16 +81,16 @@ export default function SignupForm() {
             <div className="w-10 h-10 rounded-xl bg-laranja flex items-center justify-center shadow-lg shadow-laranja/30">
               <Zap className="w-5 h-5 text-white" fill="white" />
             </div>
-            <span className="text-grafite font-bold text-2xl tracking-tight">
+            <span className="text-foreground font-bold text-2xl tracking-tight">
               Pel<span className="text-laranja">track</span>
             </span>
           </a>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl shadow-black/5 border border-gray-100 p-8">
+        <div className="bg-card rounded-2xl shadow-xl shadow-black/5 border border-border p-8">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-grafite mb-1">Criar sua conta</h1>
-            <p className="text-grafite-muted text-sm">Comece grátis a gerenciar seus eventos</p>
+            <h1 className="text-2xl font-bold text-foreground mb-1">Criar sua conta</h1>
+            <p className="text-muted-foreground text-sm">Comece grátis a gerenciar seus eventos</p>
           </div>
 
           {authError && (
@@ -101,7 +101,7 @@ export default function SignupForm() {
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-grafite mb-1.5">Nome</label>
+              <label htmlFor="name" className="block text-sm font-medium text-foreground mb-1.5">Nome</label>
               <input
                 id="name"
                 autoComplete="name"
@@ -114,7 +114,7 @@ export default function SignupForm() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-grafite mb-1.5">E-mail</label>
+              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">E-mail</label>
               <input
                 id="email"
                 type="email"
@@ -128,7 +128,7 @@ export default function SignupForm() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-grafite mb-1.5">Senha</label>
+              <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1.5">Senha</label>
               <div className="relative">
                 <input
                   id="password"
@@ -139,7 +139,7 @@ export default function SignupForm() {
                   onChange={(e) => { setForm((f) => ({ ...f, password: e.target.value })); if (errors.password) setErrors((er) => ({ ...er, password: undefined })); }}
                   className={`${cls(errors.password)} pr-12`}
                 />
-                <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-grafite transition-colors p-1" aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}>
+                <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1" aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}>
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -156,14 +156,14 @@ export default function SignupForm() {
           </form>
 
           <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-gray-100" />
-            <span className="text-xs text-gray-400">ou</span>
-            <div className="flex-1 h-px bg-gray-100" />
+            <div className="flex-1 h-px bg-muted" />
+            <span className="text-xs text-muted-foreground">ou</span>
+            <div className="flex-1 h-px bg-muted" />
           </div>
 
           <GoogleButton label="Cadastrar com Google" />
 
-          <p className="text-center text-sm text-grafite-muted mt-6">
+          <p className="text-center text-sm text-muted-foreground mt-6">
             Já tem conta?{" "}
             <a href="/login" className="text-laranja hover:text-laranja-dark font-semibold transition-colors">
               Entrar
@@ -171,10 +171,10 @@ export default function SignupForm() {
           </p>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-muted-foreground mt-6">
           Ao criar conta, você concorda com os{" "}
-          <a href="/termos" className="hover:text-gray-600 transition-colors">Termos</a> e a{" "}
-          <a href="/privacidade" className="hover:text-gray-600 transition-colors">Privacidade</a>.
+          <a href="/termos" className="hover:text-muted-foreground transition-colors">Termos</a> e a{" "}
+          <a href="/privacidade" className="hover:text-muted-foreground transition-colors">Privacidade</a>.
         </p>
       </div>
     </div>

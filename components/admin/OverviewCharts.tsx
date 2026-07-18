@@ -115,8 +115,8 @@ export function PlanDonut({ data }: { data: { plan: string; count: number }[] })
         </ResponsiveContainer>
         {/* Total no centro */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-3xl font-bold text-grafite leading-none">{total}</span>
-          <span className="text-grafite-muted text-xs mt-1">clientes</span>
+          <span className="text-3xl font-bold text-foreground leading-none">{total}</span>
+          <span className="text-muted-foreground text-xs mt-1">clientes</span>
         </div>
       </div>
 
@@ -125,9 +125,9 @@ export function PlanDonut({ data }: { data: { plan: string; count: number }[] })
         {data.map((d) => (
           <div key={d.plan} className="flex items-center gap-2.5">
             <span className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: PLAN_COLORS[d.plan] }} />
-            <span className="text-sm text-grafite-muted">{PLAN_LABELS[d.plan] ?? d.plan}</span>
-            <span className="text-sm font-semibold text-grafite ml-auto">{d.count}</span>
-            <span className="text-xs text-gray-400 w-10 text-right">
+            <span className="text-sm text-muted-foreground">{PLAN_LABELS[d.plan] ?? d.plan}</span>
+            <span className="text-sm font-semibold text-foreground ml-auto">{d.count}</span>
+            <span className="text-xs text-muted-foreground w-10 text-right">
               {total > 0 ? Math.round((d.count / total) * 100) : 0}%
             </span>
           </div>

@@ -47,8 +47,8 @@ export default async function AdminClientesPage() {
       <AdminSidebar />
       <div className="lg:pl-64 pt-14 lg:pt-0">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-2xl font-bold text-grafite">Clientes</h1>
-          <p className="text-grafite-muted text-sm mt-1 mb-8">
+          <h1 className="text-2xl font-bold text-foreground">Clientes</h1>
+          <p className="text-muted-foreground text-sm mt-1 mb-8">
             Gerencie planos, limites e recursos de cada cliente. É aqui que você libera o Enterprise.
           </p>
           <ClientsManager tenants={tenants} />

@@ -31,8 +31,8 @@ export default async function ConfiguracoesPage({
       <div className="lg:pl-64 pt-14 lg:pt-0">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           <div>
-            <h1 className="text-2xl font-bold text-grafite">Configurações</h1>
-            <p className="text-grafite-muted text-sm mt-1">Plano, pagamentos e integrações da sua conta.</p>
+            <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
+            <p className="text-muted-foreground text-sm mt-1">Plano, pagamentos e integrações da sua conta.</p>
           </div>
 
           <SubscriptionCard

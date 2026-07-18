@@ -36,19 +36,19 @@ export default function AccountPasswordForm({ hasPassword }: { hasPassword: bool
   }
 
   const input =
-    "w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm text-grafite outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-laranja/20 focus:border-laranja transition-all";
+    "w-full h-11 px-4 rounded-xl border border-border bg-card text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-laranja/20 focus:border-laranja transition-all";
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6">
+    <div className="bg-card rounded-2xl border border-border p-5 sm:p-6">
       <div className="flex items-center gap-2.5 mb-1">
         <div className="w-9 h-9 rounded-lg bg-laranja/10 flex items-center justify-center">
           <KeyRound className="w-[18px] h-[18px] text-laranja" />
         </div>
-        <h2 className="text-grafite font-semibold">
+        <h2 className="text-foreground font-semibold">
           {hasPassword ? "Alterar senha" : "Criar uma senha"}
         </h2>
       </div>
-      <p className="text-grafite-muted text-sm mb-5">
+      <p className="text-muted-foreground text-sm mb-5">
         {hasPassword
           ? "Atualize a senha usada no login por e-mail."
           : "Você entrou com o Google. Crie uma senha para também poder entrar com e-mail e senha."}
@@ -63,12 +63,12 @@ export default function AccountPasswordForm({ hasPassword }: { hasPassword: bool
       <form onSubmit={submit} className="space-y-4 max-w-sm">
         {hasPassword && (
           <div>
-            <label className="block text-sm font-medium text-grafite mb-1.5">Senha atual</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Senha atual</label>
             <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} className={input} autoComplete="current-password" />
           </div>
         )}
         <div>
-          <label className="block text-sm font-medium text-grafite mb-1.5">Nova senha</label>
+          <label className="block text-sm font-medium text-foreground mb-1.5">Nova senha</label>
           <input type="password" value={next} onChange={(e) => setNext(e.target.value)} placeholder="Mínimo de 6 caracteres" className={input} autoComplete="new-password" />
         </div>
         <div className="flex items-center gap-3">

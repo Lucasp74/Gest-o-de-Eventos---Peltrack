@@ -71,7 +71,7 @@ export default function EventManageView({ id }: { id: string }) {
   if (event === undefined) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="h-32 rounded-2xl bg-gray-100 animate-pulse" />
+        <div className="h-32 rounded-2xl bg-muted animate-pulse" />
       </div>
     );
   }
@@ -81,10 +81,10 @@ export default function EventManageView({ id }: { id: string }) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <div className="w-14 h-14 rounded-2xl bg-fundo flex items-center justify-center mx-auto mb-4">
-          <Calendar className="w-7 h-7 text-gray-300" />
+          <Calendar className="w-7 h-7 text-muted-foreground" />
         </div>
-        <h2 className="text-grafite font-semibold text-lg mb-1">Evento não encontrado</h2>
-        <p className="text-grafite-muted text-sm mb-6">
+        <h2 className="text-foreground font-semibold text-lg mb-1">Evento não encontrado</h2>
+        <p className="text-muted-foreground text-sm mb-6">
           O evento que você procura não existe ou foi removido.
         </p>
         <button
@@ -104,14 +104,14 @@ export default function EventManageView({ id }: { id: string }) {
       {/* Voltar */}
       <button
         onClick={() => router.push("/dashboard/eventos")}
-        className="flex items-center gap-1.5 text-grafite-muted hover:text-grafite text-sm mb-4 transition-colors"
+        className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm mb-4 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Meus eventos
       </button>
 
       {/* Cabeçalho */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 mb-6">
+      <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
           <div className="flex gap-4">
             {/* Mini capa */}
@@ -124,10 +124,10 @@ export default function EventManageView({ id }: { id: string }) {
                   {meta.label}
                 </span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold text-grafite leading-tight">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">
                 {event.name}
               </h1>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-grafite-muted text-sm">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-muted-foreground text-sm">
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4" /> {event.dateLabel} · {event.time}
                 </span>
@@ -142,7 +142,7 @@ export default function EventManageView({ id }: { id: string }) {
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={copyLink}
-              className="flex items-center gap-1.5 border border-gray-200 hover:border-gray-300 text-grafite px-3.5 py-2 rounded-xl text-sm font-medium transition-colors"
+              className="flex items-center gap-1.5 border border-border hover:border-border text-foreground px-3.5 py-2 rounded-xl text-sm font-medium transition-colors"
             >
               {copied ? (
                 <><Check className="w-4 h-4 text-green-600" /> Copiado!</>
@@ -161,7 +161,7 @@ export default function EventManageView({ id }: { id: string }) {
       </div>
 
       {/* Abas */}
-      <div className="border-b border-gray-200 mb-6 overflow-x-auto">
+      <div className="border-b border-border mb-6 overflow-x-auto">
         <div className="flex gap-1 min-w-max">
           {TABS.map((t) => (
             <button
@@ -170,7 +170,7 @@ export default function EventManageView({ id }: { id: string }) {
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 tab === t.id
                   ? "border-laranja text-laranja"
-                  : "border-transparent text-grafite-muted hover:text-grafite"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               <t.icon className="w-4 h-4" />
@@ -248,12 +248,12 @@ function OverviewTab({
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl p-5 border border-gray-100">
+          <div key={s.label} className="bg-card rounded-2xl p-5 border border-border">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.accent ? "bg-laranja/10" : "bg-grafite/5"}`}>
-              <s.icon className={`w-5 h-5 ${s.accent ? "text-laranja" : "text-grafite"}`} />
+              <s.icon className={`w-5 h-5 ${s.accent ? "text-laranja" : "text-foreground"}`} />
             </div>
-            <p className={`text-2xl font-bold ${s.accent ? "text-laranja" : "text-grafite"}`}>{s.value}</p>
-            <p className="text-grafite-muted text-sm mt-0.5">{s.label}</p>
+            <p className={`text-2xl font-bold ${s.accent ? "text-laranja" : "text-foreground"}`}>{s.value}</p>
+            <p className="text-muted-foreground text-sm mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
@@ -262,20 +262,20 @@ function OverviewTab({
         {/* Coluna principal */}
         <div className="lg:col-span-2 space-y-6">
           {/* Ocupação */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100">
+          <div className="bg-card rounded-2xl p-6 border border-border">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-grafite font-semibold">Ocupação do evento</h3>
-              <span className="text-sm font-semibold text-grafite">
+              <h3 className="text-foreground font-semibold">Ocupação do evento</h3>
+              <span className="text-sm font-semibold text-foreground">
                 {event.confirmed}/{event.capacity > 0 ? event.capacity : "∞"}
               </span>
             </div>
-            <div className="h-3 bg-gray-100 rounded-full overflow-hidden mb-2">
+            <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
               <div
                 className={`h-full rounded-full transition-all ${occupancy >= 100 ? "bg-laranja" : "bg-grafite"}`}
                 style={{ width: `${Math.min(occupancy, 100)}%` }}
               />
             </div>
-            <p className="text-grafite-muted text-sm">
+            <p className="text-muted-foreground text-sm">
               {event.capacity > 0
                 ? `${occupancy}% das vagas preenchidas`
                 : "Capacidade ilimitada"}
@@ -283,9 +283,9 @@ function OverviewTab({
           </div>
 
           {/* Gráfico semanal */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100">
-            <h3 className="text-grafite font-semibold mb-1">Confirmações na semana</h3>
-            <p className="text-grafite-muted text-sm mb-6">Novas confirmações por dia</p>
+          <div className="bg-card rounded-2xl p-6 border border-border">
+            <h3 className="text-foreground font-semibold mb-1">Confirmações na semana</h3>
+            <p className="text-muted-foreground text-sm mb-6">Novas confirmações por dia</p>
             <div className="flex items-end gap-3 h-40">
               {weekly.map((w) => (
                 <div key={w.day} className="flex-1 flex flex-col items-center gap-2">
@@ -294,12 +294,12 @@ function OverviewTab({
                       className="w-full rounded-t-md bg-laranja/20 hover:bg-laranja/40 transition-colors relative group"
                       style={{ height: `${(w.value / weeklyMax) * 100}%` }}
                     >
-                      <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-semibold text-grafite opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-semibold text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                         {w.value}
                       </span>
                     </div>
                   </div>
-                  <span className="text-xs text-grafite-muted">{w.day}</span>
+                  <span className="text-xs text-muted-foreground">{w.day}</span>
                 </div>
               ))}
             </div>
@@ -309,8 +309,8 @@ function OverviewTab({
         {/* Coluna lateral */}
         <div className="space-y-6">
           {/* Ações rápidas */}
-          <div className="bg-white rounded-2xl p-5 border border-gray-100">
-            <h3 className="text-grafite font-semibold mb-4">Ações rápidas</h3>
+          <div className="bg-card rounded-2xl p-5 border border-border">
+            <h3 className="text-foreground font-semibold mb-4">Ações rápidas</h3>
             <div className="space-y-2">
               <QuickAction
                 icon={copied ? Check : Share2}
@@ -324,27 +324,27 @@ function OverviewTab({
           </div>
 
           {/* Atividade */}
-          <div className="bg-white rounded-2xl border border-gray-100">
+          <div className="bg-card rounded-2xl border border-border">
             <div className="flex items-center justify-between p-5 pb-3">
-              <h3 className="text-grafite font-semibold">Atividade recente</h3>
+              <h3 className="text-foreground font-semibold">Atividade recente</h3>
               <span className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Ao vivo
               </span>
             </div>
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-border">
               {activity.map((a, i) => (
                 <div key={i} className="px-5 py-3 flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-grafite/5 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-grafite text-xs font-bold">
+                    <span className="text-foreground text-xs font-bold">
                       {a.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                     </span>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-grafite text-sm leading-snug">
+                    <p className="text-foreground text-sm leading-snug">
                       <span className="font-semibold">{a.name}</span>{" "}
-                      <span className="text-grafite-muted">{a.action}</span>
+                      <span className="text-muted-foreground">{a.action}</span>
                     </p>
-                    <p className="text-gray-400 text-xs mt-0.5">{a.time}</p>
+                    <p className="text-muted-foreground text-xs mt-0.5">{a.time}</p>
                   </div>
                 </div>
               ))}
@@ -366,13 +366,13 @@ function QuickAction({
   return (
     <button
       onClick={onClick}
-      className="flex items-center justify-between w-full px-3.5 py-3 rounded-xl border border-gray-100 hover:border-laranja/30 hover:bg-laranja/5 transition-colors group"
+      className="flex items-center justify-between w-full px-3.5 py-3 rounded-xl border border-border hover:border-laranja/30 hover:bg-laranja/5 transition-colors group"
     >
-      <span className="flex items-center gap-2.5 text-sm font-medium text-grafite">
+      <span className="flex items-center gap-2.5 text-sm font-medium text-foreground">
         <Icon className="w-4 h-4 text-laranja" />
         {label}
       </span>
-      <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-laranja transition-colors" />
+      <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-laranja transition-colors" />
     </button>
   );
 }
@@ -400,14 +400,14 @@ function LinkTab({ event }: { event: EventItem }) {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Link + instruções */}
       <div className="lg:col-span-2 space-y-6">
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h3 className="text-grafite font-semibold mb-1">Link público de confirmação</h3>
-          <p className="text-grafite-muted text-sm mb-5">
+        <div className="bg-card rounded-2xl border border-border p-6">
+          <h3 className="text-foreground font-semibold mb-1">Link público de confirmação</h3>
+          <p className="text-muted-foreground text-sm mb-5">
             Compartilhe este link com seus convidados. Ao confirmarem presença, recebem um QR Code único por e-mail.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-2">
-            <div className="flex-1 flex items-center h-11 px-4 rounded-xl border border-gray-200 bg-fundo/50 text-sm text-grafite font-mono truncate">
+            <div className="flex-1 flex items-center h-11 px-4 rounded-xl border border-border bg-fundo/50 text-sm text-foreground font-mono truncate">
               {link || "carregando..."}
             </div>
             <button
@@ -420,7 +420,7 @@ function LinkTab({ event }: { event: EventItem }) {
               href={link}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 border border-gray-200 hover:border-gray-300 text-grafite px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              className="flex items-center justify-center gap-1.5 border border-border hover:border-border text-foreground px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
             >
               <ExternalLink className="w-4 h-4" /> Abrir
             </a>
@@ -428,8 +428,8 @@ function LinkTab({ event }: { event: EventItem }) {
         </div>
 
         {/* Como funciona */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h3 className="text-grafite font-semibold mb-4">Como funciona</h3>
+        <div className="bg-card rounded-2xl border border-border p-6">
+          <h3 className="text-foreground font-semibold mb-4">Como funciona</h3>
           <ol className="space-y-4">
             {[
               "Você compartilha o link (ou QR Code ao lado) com os convidados.",
@@ -441,7 +441,7 @@ function LinkTab({ event }: { event: EventItem }) {
                 <span className="w-6 h-6 rounded-full bg-laranja/10 text-laranja text-xs font-bold flex items-center justify-center flex-shrink-0">
                   {i + 1}
                 </span>
-                <span className="text-grafite-muted text-sm leading-relaxed">{step}</span>
+                <span className="text-muted-foreground text-sm leading-relaxed">{step}</span>
               </li>
             ))}
           </ol>
@@ -450,36 +450,36 @@ function LinkTab({ event }: { event: EventItem }) {
 
       {/* QR do link + status */}
       <div className="space-y-6">
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col items-center text-center">
-          <h3 className="text-grafite font-semibold mb-4 self-start">QR Code do link</h3>
-          <div className="bg-white p-3 rounded-2xl border-2 border-gray-100">
+        <div className="bg-card rounded-2xl border border-border p-6 flex flex-col items-center text-center">
+          <h3 className="text-foreground font-semibold mb-4 self-start">QR Code do link</h3>
+          <div className="bg-white p-3 rounded-2xl border-2 border-border">
             {origin ? (
               <QRCodeSVG value={link} size={150} level="M" fgColor="#1E2535" />
             ) : (
-              <div className="w-[150px] h-[150px] bg-gray-100 animate-pulse rounded" />
+              <div className="w-[150px] h-[150px] bg-muted animate-pulse rounded" />
             )}
           </div>
-          <p className="text-grafite-muted text-xs mt-3">
+          <p className="text-muted-foreground text-xs mt-3">
             Escaneie para abrir a página de confirmação
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 p-5">
-          <h3 className="text-grafite font-semibold mb-3 text-sm">Status das vagas</h3>
+        <div className="bg-card rounded-2xl border border-border p-5">
+          <h3 className="text-foreground font-semibold mb-3 text-sm">Status das vagas</h3>
           <div className="space-y-2.5 text-sm">
             <div className="flex justify-between">
-              <span className="text-grafite-muted">Confirmados</span>
-              <span className="font-semibold text-grafite">{totalConfirmed}</span>
+              <span className="text-muted-foreground">Confirmados</span>
+              <span className="font-semibold text-foreground">{totalConfirmed}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-grafite-muted">Capacidade</span>
-              <span className="font-semibold text-grafite">
+              <span className="text-muted-foreground">Capacidade</span>
+              <span className="font-semibold text-foreground">
                 {event.capacity > 0 ? event.capacity : "Ilimitada"}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-grafite-muted">Vagas restantes</span>
-              <span className={`font-semibold ${remaining === 0 ? "text-laranja" : "text-grafite"}`}>
+              <span className="text-muted-foreground">Vagas restantes</span>
+              <span className={`font-semibold ${remaining === 0 ? "text-laranja" : "text-foreground"}`}>
                 {remaining === null ? "—" : remaining}
               </span>
             </div>
@@ -493,12 +493,12 @@ function LinkTab({ event }: { event: EventItem }) {
 /* ── Placeholder para abas não construídas ───────────── */
 function ComingSoon({ label }: { label: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-dashed border-gray-200 py-20 flex flex-col items-center text-center">
+    <div className="bg-card rounded-2xl border border-dashed border-border py-20 flex flex-col items-center text-center">
       <div className="w-14 h-14 rounded-2xl bg-fundo flex items-center justify-center mb-4">
         <Construction className="w-7 h-7 text-laranja" />
       </div>
-      <h3 className="text-grafite font-semibold text-base mb-1">{label}</h3>
-      <p className="text-grafite-muted text-sm max-w-xs">
+      <h3 className="text-foreground font-semibold text-base mb-1">{label}</h3>
+      <p className="text-muted-foreground text-sm max-w-xs">
         Esta aba está em construção. Em breve estará disponível aqui.
       </p>
     </div>

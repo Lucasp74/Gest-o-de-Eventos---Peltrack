@@ -43,12 +43,12 @@ export default function LegalLayout({
 
       {/* Conteúdo */}
       <main className="max-w-3xl mx-auto px-4 py-10 sm:py-14">
-        <h1 className="text-2xl sm:text-3xl font-bold text-grafite tracking-tight">{title}</h1>
-        <p className="text-grafite-muted text-sm mt-2 mb-8">Última atualização: {updatedAt}</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{title}</h1>
+        <p className="text-muted-foreground text-sm mt-2 mb-8">Última atualização: {updatedAt}</p>
         <div className="space-y-7">{children}</div>
 
         {/* Rodapé simples */}
-        <div className="mt-12 pt-6 border-t border-gray-200 text-grafite-muted text-sm">
+        <div className="mt-12 pt-6 border-t border-border text-muted-foreground text-sm">
           <p>
             Dúvidas? Entre em contato pelo e-mail{" "}
             <a href="mailto:contato@peltrack.com.br" className="text-laranja hover:underline font-medium">
@@ -66,10 +66,10 @@ export default function LegalLayout({
 export function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="text-base font-bold text-grafite mb-2">
+      <h2 className="text-base font-bold text-foreground mb-2">
         {n}. {title}
       </h2>
-      <div className="space-y-2 text-grafite-muted text-sm leading-relaxed">{children}</div>
+      <div className="space-y-2 text-muted-foreground text-sm leading-relaxed">{children}</div>
     </section>
   );
 }
