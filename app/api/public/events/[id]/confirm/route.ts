@@ -34,9 +34,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "As inscrições foram encerradas.", code: "CLOSED" }, { status: 400 });
   }
 
-  // E-mail já confirmado neste evento?
-  const existing = await prisma.confirmation.findUnique({
-    where: { eventId_email: { eventId: id, email } },
+  // E-mail já confirmado neste evento (RSVP gratuito)? Dedup no código, já que
+  // não há mais índice único por (evento, e-mail). Escopo: confirmações sem
+  // pagamento (as pagas podem repetir o e-mail, um QR por ingresso).
+  const existing = await prisma.confirmation.findFirst({
+    where: { eventId: id, email, paymentId: null },
   });
   if (existing && existing.status !== "CANCELADO") {
     return NextResponse.json(
@@ -53,12 +55,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const status = isFull ? "LISTA_ESPERA" : "CONFIRMADO";
 
   try {
-    // Se havia um cancelado com o mesmo e-mail, reaproveita (upsert pelo índice único)
-    const confirmation = await prisma.confirmation.upsert({
-      where: { eventId_email: { eventId: id, email } },
-      update: { name, status },
-      create: { eventId: id, name, email, status },
-    });
+    // Se havia um cancelado com o mesmo e-mail, reaproveita; senão, cria.
+    const confirmation = existing
+      ? await prisma.confirmation.update({ where: { id: existing.id }, data: { name, status } })
+      : await prisma.confirmation.create({ data: { eventId: id, name, email, status } });
 
     // Envia o convite por e-mail (QR gerado no servidor). Não bloqueia a resposta
     // se o e-mail falhar — a confirmação já está salva e o QR aparece na tela.

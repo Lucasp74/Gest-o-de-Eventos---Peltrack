@@ -13,6 +13,10 @@ export interface TicketType {
   sold: number;      // vendidos (incrementado pelo webhook do Mercado Pago quando o Pix é pago)
   /** true = taxa repassada ao comprador; false = criador absorve a taxa. Ausente = true. */
   passFeeToBuyer?: boolean;
+  /** Mínimo de ingressos por compra (padrão 1). */
+  minPerOrder?: number;
+  /** Máximo por compra. 0/ausente = sem limite (teto pelo estoque). */
+  maxPerOrder?: number;
 }
 
 export interface EventItem {

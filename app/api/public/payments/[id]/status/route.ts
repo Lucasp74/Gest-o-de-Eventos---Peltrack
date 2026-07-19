@@ -14,20 +14,20 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params;
   const payment = await prisma.payment.findUnique({
     where: { id },
-    select: { status: true, providerId: true, confirmationId: true, event: { select: { tenantId: true } } },
+    select: { status: true, providerId: true, event: { select: { tenantId: true } } },
   });
   if (!payment) return NextResponse.json({ error: "Não encontrado." }, { status: 404 });
 
   if (payment.status === "APROVADO") {
-    return NextResponse.json({ status: "aprovado", confirmationId: payment.confirmationId });
+    return NextResponse.json({ status: "aprovado" });
   }
 
   const sellerToken = payment.providerId ? await getValidSellerToken(payment.event.tenantId) : null;
   if (payment.providerId && sellerToken) {
     const { status } = await checkPixCharge(payment.providerId, sellerToken);
     if (status === "PAID") {
-      const r = await releasePaidPayment(payment.providerId);
-      return NextResponse.json({ status: "aprovado", confirmationId: r.confirmationId ?? null });
+      await releasePaidPayment(payment.providerId);
+      return NextResponse.json({ status: "aprovado" });
     }
     if (status === "EXPIRED") return NextResponse.json({ status: "expirado" });
   }

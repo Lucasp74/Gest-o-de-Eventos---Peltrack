@@ -88,11 +88,13 @@ export async function POST(req: Request) {
       registrationOpensAt: body.registrationOpensAt ? inputToDate(body.registrationOpensAt) : null,
       registrationClosesAt: body.registrationClosesAt ? inputToDate(body.registrationClosesAt) : null,
       tickets: {
-        create: tickets.map((t: { name?: string; price?: number; quantity?: number; passFeeToBuyer?: boolean }) => ({
+        create: tickets.map((t: { name?: string; price?: number; quantity?: number; passFeeToBuyer?: boolean; minPerOrder?: number; maxPerOrder?: number }) => ({
           name: String(t.name || "Ingresso"),
           price: Number(t.price) || 0,
           quantity: Number(t.quantity) || 0,
           passFeeToBuyer: t.passFeeToBuyer !== false, // padrão: repassa ao comprador
+          minPerOrder: Math.max(1, Math.floor(Number(t.minPerOrder) || 1)),
+          maxPerOrder: Math.max(0, Math.floor(Number(t.maxPerOrder) || 0)), // 0 = sem limite
         })),
       },
     },

@@ -56,7 +56,7 @@ type DbEvent = {
   visibility: string;
   registrationOpensAt: Date | null;
   registrationClosesAt: Date | null;
-  tickets: { id: string; name: string; price: unknown; quantity: number; sold: number; passFeeToBuyer: boolean }[];
+  tickets: { id: string; name: string; price: unknown; quantity: number; sold: number; passFeeToBuyer: boolean; minPerOrder: number; maxPerOrder: number }[];
   _count?: { confirmations: number; checkins: number };
 };
 
@@ -86,6 +86,8 @@ export function serializeEvent(e: DbEvent): EventItem {
             quantity: t.quantity,
             sold: t.sold,
             passFeeToBuyer: t.passFeeToBuyer,
+            minPerOrder: t.minPerOrder,
+            maxPerOrder: t.maxPerOrder,
           })),
         }
       : {}),

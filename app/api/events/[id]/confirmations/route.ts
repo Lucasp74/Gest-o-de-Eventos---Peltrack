@@ -41,17 +41,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Nome e e-mail são obrigatórios." }, { status: 400 });
   }
 
-  const existing = await prisma.confirmation.findUnique({
-    where: { eventId_email: { eventId: id, email } },
+  // Dedup no código (não há mais índice único por evento/e-mail). Escopo: convidados
+  // manuais (sem pagamento) — ingressos pagos podem repetir o e-mail.
+  const existing = await prisma.confirmation.findFirst({
+    where: { eventId: id, email, paymentId: null },
   });
   if (existing && existing.status !== "CANCELADO") {
     return NextResponse.json({ error: "Este e-mail já está na lista.", code: "ALREADY" }, { status: 409 });
   }
 
-  const confirmation = await prisma.confirmation.upsert({
-    where: { eventId_email: { eventId: id, email } },
-    update: { name, status: "CONFIRMADO" },
-    create: { eventId: id, name, email, status: "CONFIRMADO" },
-  });
+  const confirmation = existing
+    ? await prisma.confirmation.update({ where: { id: existing.id }, data: { name, status: "CONFIRMADO" } })
+    : await prisma.confirmation.create({ data: { eventId: id, name, email, status: "CONFIRMADO" } });
   return NextResponse.json(serializeConfirmation(confirmation), { status: 201 });
 }

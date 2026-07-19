@@ -33,6 +33,8 @@ interface TicketType {
   price: string;
   quantity: string;
   passFeeToBuyer: boolean;
+  minPerOrder: string;
+  maxPerOrder: string; // vazio = sem limite
 }
 
 /** "10,00" / "1.500,00" → 10 / 1500 */
@@ -76,7 +78,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
   // Ingressos
   const [paid, setPaid] = useState(false);
   const [tickets, setTickets] = useState<TicketType[]>([
-    { id: "t1", name: "Inteira", price: "", quantity: "", passFeeToBuyer: true },
+    { id: "t1", name: "Inteira", price: "", quantity: "", passFeeToBuyer: true, minPerOrder: "1", maxPerOrder: "" },
   ]);
 
   // Aceite e submit
@@ -131,7 +133,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
   function addTicket() {
     setTickets((t) => [
       ...t,
-      { id: `t${Date.now()}`, name: "", price: "", quantity: "", passFeeToBuyer: true },
+      { id: `t${Date.now()}`, name: "", price: "", quantity: "", passFeeToBuyer: true, minPerOrder: "1", maxPerOrder: "" },
     ]);
   }
   function removeTicket(id: string) {
@@ -140,7 +142,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
   function toggleTicketFee(id: string) {
     setTickets((t) => t.map((x) => (x.id === id ? { ...x, passFeeToBuyer: !x.passFeeToBuyer } : x)));
   }
-  function updateTicket(id: string, field: "name" | "price" | "quantity", value: string) {
+  function updateTicket(id: string, field: "name" | "price" | "quantity" | "minPerOrder" | "maxPerOrder", value: string) {
     setTickets((t) =>
       t.map((x) => (x.id === id ? { ...x, [field]: value } : x)),
     );
@@ -184,6 +186,8 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
           price: parsePrice(t.price),
           quantity: parseInt(t.quantity) || 0,
           passFeeToBuyer: t.passFeeToBuyer,
+          minPerOrder: parseInt(t.minPerOrder) || 1,
+          maxPerOrder: parseInt(t.maxPerOrder) || 0,
         }))
       : [];
 
@@ -617,6 +621,28 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
+                    </div>
+
+                    {/* Limites de quantidade por compra */}
+                    <div className="flex gap-3 items-end">
+                      <Field label="Mín. por compra" className="w-32">
+                        <input
+                          value={t.minPerOrder}
+                          onChange={(e) => updateTicket(t.id, "minPerOrder", e.target.value)}
+                          placeholder="1"
+                          inputMode="numeric"
+                          className={inputBase}
+                        />
+                      </Field>
+                      <Field label="Máx. por compra" className="w-32">
+                        <input
+                          value={t.maxPerOrder}
+                          onChange={(e) => updateTicket(t.id, "maxPerOrder", e.target.value)}
+                          placeholder="Sem limite"
+                          inputMode="numeric"
+                          className={inputBase}
+                        />
+                      </Field>
                     </div>
 
                     {/* Taxa: repassar ao comprador ou absorver */}

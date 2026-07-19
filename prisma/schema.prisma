@@ -261,6 +261,10 @@ model TicketType {
   // false = o criador ABSORVE a taxa (comprador paga só o preço; criador recebe preço − taxa)
   passFeeToBuyer Boolean @default(true)
 
+  // Limites de quantidade por compra. maxPerOrder 0 = sem limite (teto pelo estoque).
+  minPerOrder    Int     @default(1)
+  maxPerOrder    Int     @default(0)
+
   payments  Payment[]
 
   createdAt DateTime @default(now())
@@ -281,12 +285,17 @@ model Confirmation {
   status    ConfirmationStatus @default(CONFIRMADO)
 
   checkin   Checkin?
-  payment   Payment?
+
+  // Vínculo com a compra (ingressos pagos): uma compra gera N confirmações (N QRs).
+  paymentId String?
+  payment   Payment?           @relation(fields: [paymentId], references: [id], onDelete: SetNull)
 
   createdAt DateTime           @default(now())
 
-  @@unique([eventId, email]) // evita confirmação duplicada por e-mail no mesmo evento
+  // Sem índice único por (evento, e-mail): um comprador pode ter vários ingressos
+  // (QRs) no mesmo evento. A dedup do RSVP gratuito é feita no código.
   @@index([eventId])
+  @@index([paymentId])
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -329,9 +338,9 @@ model Payment {
   eventId        String
   event          Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
-  // Preenchido só quando o pagamento é confirmado (webhook, 09/07)
-  confirmationId String?       @unique
-  confirmation   Confirmation? @relation(fields: [confirmationId], references: [id], onDelete: SetNull)
+  // Uma compra pode gerar N confirmações (N QRs), preenchidas na liberação (webhook).
+  confirmations  Confirmation[]
+  quantity       Int           @default(1)
 
   ticketTypeId   String?
   ticketType     TicketType?   @relation(fields: [ticketTypeId], references: [id], onDelete: SetNull)

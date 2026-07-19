@@ -6,7 +6,7 @@
  * é feita pelo webhook (tarefa de 09/07) — aqui fica "aguardando pagamento".
  */
 import { useState, useEffect } from "react";
-import { QrCode, Loader2, Copy, Check, Ticket, Mail, PartyPopper, CalendarX } from "lucide-react";
+import { QrCode, Loader2, Copy, Check, Ticket, Mail, PartyPopper, CalendarX, Minus, Plus } from "lucide-react";
 import { type EventItem } from "@/lib/mockEvents";
 import { formatBRL } from "@/lib/planPricing";
 
@@ -14,7 +14,9 @@ type PixResult = {
   paymentId: string;
   brCode: string;
   brCodeBase64: string;
+  quantity: number;
   ticketPrice: number;
+  subtotal: number;
   fee: number;
   total: number;
   passFeeToBuyer?: boolean;
@@ -35,6 +37,7 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
 
   const firstAvailable = tickets.find((t) => t.quantity === 0 || t.sold < t.quantity);
   const [ticketId, setTicketId] = useState<string | null>(firstAvailable?.id ?? null);
+  const [quantity, setQuantity] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [cpf, setCpf] = useState("");
@@ -61,9 +64,23 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
 
   const selected = tickets.find((t) => t.id === ticketId) ?? null;
   const selPass = selected?.passFeeToBuyer ?? true;
-  const fee = selected ? Math.round(selected.price * pct * 100) / 100 : 0;
+  const unitFee = selected ? Math.round(selected.price * pct * 100) / 100 : 0;
   // Repassa → comprador paga preço + taxa; absorve → comprador paga só o preço.
-  const total = selected ? (selPass ? Math.round((selected.price + fee) * 100) / 100 : selected.price) : 0;
+  const unitTotal = selected ? (selPass ? Math.round((selected.price + unitFee) * 100) / 100 : selected.price) : 0;
+
+  // Limites por compra do ingresso selecionado (mín/máx + estoque disponível).
+  const selMin = selected && selected.minPerOrder && selected.minPerOrder > 0 ? selected.minPerOrder : 1;
+  const selAvail = selected ? (selected.quantity > 0 ? selected.quantity - selected.sold : Infinity) : 0;
+  const selMax = selected
+    ? Math.min(selected.maxPerOrder && selected.maxPerOrder > 0 ? selected.maxPerOrder : Infinity, selAvail)
+    : 1;
+  const grandTotal = Math.round(unitTotal * quantity * 100) / 100;
+
+  // Ao trocar de ingresso, ajusta a quantidade para o mínimo dele.
+  useEffect(() => {
+    const t = tickets.find((x) => x.id === ticketId);
+    setQuantity(t?.minPerOrder && t.minPerOrder > 0 ? t.minPerOrder : 1);
+  }, [ticketId, tickets]);
 
   // Botão de teste (dev): marca o Pix como pago e checa o status na hora
   async function simulate() {
@@ -90,7 +107,7 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
     const res = await fetch(`/api/public/events/${event.id}/purchase`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim(), email: email.trim(), cpf: cpfDigits, ticketTypeId: ticketId }),
+      body: JSON.stringify({ name: name.trim(), email: email.trim(), cpf: cpfDigits, ticketTypeId: ticketId, quantity }),
     });
     const data = await res.json().catch(() => ({}));
     setSubmitting(false);
@@ -107,7 +124,11 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
         </div>
         <h2 className="text-foreground font-bold text-lg mb-1">Pagamento confirmado!</h2>
         <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-          Seu convite com QR Code foi enviado para <span className="font-semibold text-foreground">{email}</span>. Apresente-o na entrada do evento.
+          {pix.quantity > 1 ? (
+            <>Seus {pix.quantity} ingressos com QR Code foram enviados para <span className="font-semibold text-foreground">{email}</span>. Apresente-os na entrada do evento.</>
+          ) : (
+            <>Seu convite com QR Code foi enviado para <span className="font-semibold text-foreground">{email}</span>. Apresente-o na entrada do evento.</>
+          )}
         </p>
       </div>
     );
@@ -158,7 +179,10 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
 
         {/* Resumo do valor — a taxa só aparece quando é repassada ao comprador */}
         <div className="mt-6 bg-fundo/50 border border-border rounded-xl p-4 text-sm space-y-1.5">
-          <div className="flex justify-between text-muted-foreground"><span>Ingresso</span><span>{formatBRL(pix.ticketPrice)}</span></div>
+          <div className="flex justify-between text-muted-foreground">
+            <span>{pix.quantity > 1 ? `Ingressos (${pix.quantity}× ${formatBRL(pix.ticketPrice)})` : "Ingresso"}</span>
+            <span>{formatBRL(pix.subtotal)}</span>
+          </div>
           {(pix.passFeeToBuyer ?? true) && (
             <div className="flex justify-between text-muted-foreground"><span>Taxa de conveniência</span><span>{formatBRL(pix.fee)}</span></div>
           )}
@@ -230,6 +254,40 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
         })}
       </div>
 
+      {/* Quantidade */}
+      {selected && selMax > 0 && (
+        <div className="flex items-center justify-between mb-5 p-4 rounded-xl border border-border">
+          <div>
+            <p className="text-sm font-medium text-foreground">Quantidade</p>
+            <p className="text-xs text-muted-foreground">
+              {selMax !== Infinity ? `Máx. ${selMax} por compra` : "Sem limite por compra"}
+              {selMin > 1 ? ` · mín. ${selMin}` : ""}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.max(selMin, q - 1))}
+              disabled={quantity <= selMin}
+              aria-label="Diminuir"
+              className="w-9 h-9 flex items-center justify-center rounded-lg border border-border text-foreground disabled:opacity-40 hover:border-laranja transition-colors"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <span className="w-8 text-center font-bold text-foreground tabular-nums">{quantity}</span>
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.min(selMax, q + 1))}
+              disabled={quantity >= selMax}
+              aria-label="Aumentar"
+              className="w-9 h-9 flex items-center justify-center rounded-lg border border-border text-foreground disabled:opacity-40 hover:border-laranja transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Dados */}
       <div className="space-y-4">
         <div>
@@ -260,7 +318,7 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
         disabled={submitting || !selected}
         className="w-full h-12 mt-5 bg-laranja hover:bg-laranja-dark disabled:opacity-60 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-laranja/25"
       >
-        {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Gerando Pix...</> : <><QrCode className="w-4 h-4" /> Pagar {selected ? formatBRL(total) : ""} com Pix</>}
+        {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Gerando Pix...</> : <><QrCode className="w-4 h-4" /> Pagar {selected ? formatBRL(grandTotal) : ""} com Pix</>}
       </button>
     </form>
   );
