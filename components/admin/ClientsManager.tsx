@@ -14,7 +14,7 @@ import {
   Building2, Settings2, X, Loader2, Check, KeyRound, Copy, Users, Calendar,
 } from "lucide-react";
 import { PLAN_COLORS } from "@/components/admin/OverviewCharts";
-import { effectiveMonthlyPrice, formatBRL } from "@/lib/planPricing";
+import { effectiveMonthlyPrice, formatBRL, PLAN_DEFAULTS } from "@/lib/planPricing";
 
 export type AdminTenant = {
   id: string;
@@ -321,10 +321,25 @@ function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Plano</label>
-              <select value={plan} onChange={(e) => setPlan(e.target.value as AdminTenant["plan"])} className={input}>
-                <option value="STARTER">Starter</option>
-                <option value="PRO">Pro</option>
-                <option value="ENTERPRISE">Enterprise</option>
+              <select
+                value={plan}
+                onChange={(e) => {
+                  const p = e.target.value as PlanKey;
+                  setPlan(p);
+                  // Ao trocar o plano, já aplica limites e recursos padrão dele
+                  // (o admin ainda pode ajustar manualmente depois).
+                  const d = PLAN_DEFAULTS[p];
+                  setMaxEvents(String(d.maxEventsPerMonth));
+                  setMaxGuests(String(d.maxGuestsPerEvent));
+                  setAdvReports(d.flagAdvancedReports);
+                  setDesktopSync(d.flagDesktopSync);
+                  setApiAccess(d.flagApiAccess);
+                }}
+                className={`${input} bg-card`}
+              >
+                <option className="bg-card text-foreground" value="STARTER">Starter</option>
+                <option className="bg-card text-foreground" value="PRO">Pro</option>
+                <option className="bg-card text-foreground" value="ENTERPRISE">Enterprise</option>
               </select>
             </div>
             <div>
