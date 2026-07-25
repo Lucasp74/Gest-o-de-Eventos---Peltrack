@@ -92,7 +92,8 @@ export default function SettingsView({
       const up = await fetch("/api/upload", { method: "POST", body: fd });
       if (!up.ok) {
         setSaving(false);
-        setSaveError("Não foi possível enviar a imagem.");
+        const j = await up.json().catch(() => ({}));
+        setSaveError(j.error ?? "Não foi possível enviar a imagem.");
         return;
       }
       imageUrl = (await up.json()).url;

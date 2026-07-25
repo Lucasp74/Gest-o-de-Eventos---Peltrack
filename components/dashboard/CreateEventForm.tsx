@@ -202,7 +202,8 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
         imageUrl = (await up.json()).url;
       } else {
         setSubmitting(false);
-        setSubmitError("Não foi possível enviar a imagem. Tente outra ou remova-a.");
+        const j = await up.json().catch(() => ({}));
+        setSubmitError(j.error ?? "Não foi possível enviar a imagem. Tente outra ou remova-a.");
         return;
       }
     }

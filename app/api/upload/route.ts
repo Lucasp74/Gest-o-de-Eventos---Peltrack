@@ -36,7 +36,9 @@ export async function POST(req: Request) {
     await mkdir(dir, { recursive: true });
     await writeFile(path.join(dir, filename), Buffer.from(await file.arrayBuffer()));
     return NextResponse.json({ url: `/uploads/${filename}` });
-  } catch {
-    return NextResponse.json({ error: "Falha ao enviar a imagem." }, { status: 500 });
+  } catch (e) {
+    console.error("[upload] falha ao enviar imagem:", e);
+    const msg = e instanceof Error ? e.message : "Falha ao enviar a imagem.";
+    return NextResponse.json({ error: `Upload: ${msg}` }, { status: 500 });
   }
 }

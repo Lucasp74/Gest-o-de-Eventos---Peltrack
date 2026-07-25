@@ -590,7 +590,7 @@ function FeedbackPanel({ feedback }: { feedback: Feedback | null }) {
         {s.icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-foreground font-bold text-lg leading-tight truncate">{feedback.title}</p>
+        <p className="text-grafite font-bold text-lg leading-tight truncate">{feedback.title}</p>
         <p className={`text-sm mt-0.5 font-medium ${s.text}`}>{feedback.subtitle}</p>
       </div>
       <span className="text-muted-foreground text-sm font-mono flex-shrink-0">{feedback.time}</span>
