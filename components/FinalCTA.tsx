@@ -42,13 +42,13 @@ export default function FinalCTA() {
         </div>
 
         {/* Trust signals */}
-        <div className="border-t border-white/8 pt-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="border-t border-white/8 pt-8 sm:pt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
           {trust.map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center justify-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-white/6 border border-white/10 flex items-center justify-center flex-shrink-0">
-                <Icon className="w-4 h-4 text-white/50" />
+            <div key={label} className="flex items-center justify-center gap-2.5 sm:gap-3">
+              <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-white/6 border border-white/10 flex items-center justify-center flex-shrink-0">
+                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/50" />
               </div>
-              <span className="text-white/50 text-sm">{label}</span>
+              <span className="text-white/50 text-xs sm:text-sm">{label}</span>
             </div>
           ))}
         </div>

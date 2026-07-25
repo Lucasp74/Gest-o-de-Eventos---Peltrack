@@ -90,15 +90,15 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-white/30 text-sm">
+        <div className="border-t border-white/10 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+          <p className="text-white/30 text-xs sm:text-sm text-center">
             © 2026 Peltrack. Todos os direitos reservados.
           </p>
-          <div className="flex items-center gap-6">
-            <a href="/termos" className="text-white/30 hover:text-white/60 text-sm transition-colors">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <a href="/termos" className="text-white/30 hover:text-white/60 text-xs sm:text-sm transition-colors">
               Termos de uso
             </a>
-            <a href="/privacidade" className="text-white/30 hover:text-white/60 text-sm transition-colors">
+            <a href="/privacidade" className="text-white/30 hover:text-white/60 text-xs sm:text-sm transition-colors">
               Política de privacidade
             </a>
           </div>
