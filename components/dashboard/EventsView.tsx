@@ -184,8 +184,14 @@ function GridView({ events }: { events: EventItem[] }) {
             key={e.id}
             className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group"
           >
-            {/* Top accent */}
-            <div className="h-1.5 bg-grafite" />
+            {/* Capa do evento — faixa de destaque quando não há imagem */}
+            {e.imageUrl ? (
+              <div className="h-32 w-full overflow-hidden bg-grafite">
+                <img src={e.imageUrl} alt="" className="h-full w-full object-cover" />
+              </div>
+            ) : (
+              <div className="h-1.5 bg-grafite" />
+            )}
             <div className="p-5">
               <div className="flex items-start justify-between mb-3">
                 <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${meta.className}`}>
@@ -274,13 +280,17 @@ function ListView({ events }: { events: EventItem[] }) {
               {/* Name */}
               <div className="md:col-span-5">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-lg bg-grafite/5 flex items-center justify-center flex-shrink-0">
-                    {e.flow === "qrcode" ? (
-                      <QrCode className="w-4 h-4 text-foreground" />
-                    ) : (
-                      <FileSpreadsheet className="w-4 h-4 text-foreground" />
-                    )}
-                  </div>
+                  {e.imageUrl ? (
+                    <img src={e.imageUrl} alt="" className="w-9 h-9 rounded-lg object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-9 h-9 rounded-lg bg-grafite/5 flex items-center justify-center flex-shrink-0">
+                      {e.flow === "qrcode" ? (
+                        <QrCode className="w-4 h-4 text-foreground" />
+                      ) : (
+                        <FileSpreadsheet className="w-4 h-4 text-foreground" />
+                      )}
+                    </div>
+                  )}
                   <div className="min-w-0">
                     <p className="text-foreground font-medium text-sm truncate">{e.name}</p>
                     <p className="text-muted-foreground text-xs flex items-center gap-1 mt-0.5">
