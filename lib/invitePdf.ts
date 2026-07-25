@@ -6,7 +6,7 @@
 import { jsPDF } from "jspdf";
 
 const GRAFITE = "#1E2535";
-const LARANJA = "#F05A28";
+const LARANJA = "#1F8A7A"; // acento da marca (teal — mesmo valor de --color-laranja)
 const CINZA = "#6b7280";
 const W = 148; // A5 retrato (mm)
 

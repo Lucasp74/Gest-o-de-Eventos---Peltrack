@@ -79,7 +79,7 @@ export async function sendInviteEmail(opts: {
       html: `
         <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;color:#1E2535">
           <div style="background:#1E2535;border-radius:16px 16px 0 0;padding:20px 24px">
-            <span style="color:#fff;font-size:18px;font-weight:bold">Pel<span style="color:#F05A28">track</span></span>
+            <span style="color:#fff;font-size:18px;font-weight:bold">Pel<span style="color:#1F8A7A">track</span></span>
           </div>
           <div style="border:1px solid #eee;border-top:0;border-radius:0 0 16px 16px;padding:24px">
             <p>Olá, ${name}!</p>
@@ -106,7 +106,7 @@ export async function sendInviteEmail(opts: {
     html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;color:#1E2535">
         <div style="background:#1E2535;border-radius:16px 16px 0 0;padding:20px 24px">
-          <span style="color:#fff;font-size:18px;font-weight:bold">Pel<span style="color:#F05A28">track</span></span>
+          <span style="color:#fff;font-size:18px;font-weight:bold">Pel<span style="color:#1F8A7A">track</span></span>
         </div>
         <div style="border:1px solid #eee;border-top:0;border-radius:0 0 16px 16px;padding:24px;text-align:center">
           <p style="text-align:left;margin-top:0">Olá, ${name}! Sua presença está <strong>confirmada</strong>. 🎉</p>

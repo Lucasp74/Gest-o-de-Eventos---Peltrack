@@ -8,7 +8,7 @@ import autoTable from "jspdf-autotable";
 import type { EventItem } from "@/lib/mockEvents";
 
 const GRAFITE = "#1E2535";
-const LARANJA = "#F05A28";
+const LARANJA = "#1F8A7A"; // acento da marca (teal — mesmo valor de --color-laranja)
 const CINZA = "#6b7280";
 
 const PAGE_W = 210; // A4 retrato (mm)

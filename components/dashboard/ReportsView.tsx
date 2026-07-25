@@ -15,7 +15,7 @@ import {
   type Confirmation, type CheckinRecord,
 } from "@/lib/eventData";
 
-const LARANJA = "#F05A28";
+const LARANJA = "#1F8A7A"; // acento da marca (teal — mesmo valor de --color-laranja)
 const GRAFITE = "#1E2535";
 const GRAY = "#d4d8e0";
 
