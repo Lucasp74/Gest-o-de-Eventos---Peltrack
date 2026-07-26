@@ -1,0 +1,23 @@
+/**
+ * Layout base de TODOS os e-mails da Peltrack (Resend): cabeçalho da marca +
+ * corpo em card, na paleta atual (grafite + teal). Centraliza a identidade e a
+ * regra do assunto para que qualquer e-mail novo já saia padronizado.
+ */
+const GRAFITE = "#1E2535";
+const TEAL = "#1F8A7A"; // acento da marca (= --color-laranja no CSS)
+
+/** Assunto padronizado: sempre "Peltrack - <assunto>". */
+export const emailSubject = (assunto: string) => `Peltrack - ${assunto}`;
+
+/** Embrulha o conteúdo (HTML) no layout da marca. `center` centraliza o corpo. */
+export function brandedEmail(body: string, center = false): string {
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;color:${GRAFITE}">
+      <div style="background:${GRAFITE};border-radius:16px 16px 0 0;padding:20px 24px">
+        <span style="color:#fff;font-size:18px;font-weight:bold">Pel<span style="color:${TEAL}">track</span></span>
+      </div>
+      <div style="border:1px solid #eee;border-top:0;border-radius:0 0 16px 16px;padding:24px${center ? ";text-align:center" : ""}">
+        ${body}
+      </div>
+    </div>`;
+}

@@ -11,6 +11,7 @@ import { Resend } from "resend";
 
 import { prisma } from "@/lib/prisma";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { brandedEmail, emailSubject } from "@/lib/emailLayout";
 
 const OTP_TTL_MIN = 10;
 const RESEND_COOLDOWN_S = 60;
@@ -60,14 +61,13 @@ export async function POST(req: Request) {
       {
         from: process.env.MAIL_FROM || "Peltrack <onboarding@resend.dev>",
         to: [admin.email],
-        subject: "Código de Acesso",
-        html: `
-          <div style="font-family:Arial,sans-serif;max-width:440px;margin:0 auto;padding:32px 24px;color:#1E2535">
-            <h2 style="margin:0 0 8px">Peltrack <span style="color:#F05A28">Admin</span></h2>
-            <p>Use o código abaixo para entrar no painel administrativo:</p>
-            <p style="font-size:32px;font-weight:bold;letter-spacing:8px;background:#F8F8F8;border-radius:12px;padding:16px;text-align:center">${code}</p>
-            <p style="color:#666;font-size:13px">O código expira em ${OTP_TTL_MIN} minutos e só funciona uma vez.<br/>Se você não tentou entrar, troque sua senha imediatamente.</p>
-          </div>`,
+        subject: emailSubject("Código de Acesso"),
+        html: brandedEmail(`
+          <p style="margin-top:0"><strong>Painel administrativo</strong></p>
+          <p>Use o código abaixo para entrar:</p>
+          <p style="font-size:32px;font-weight:bold;letter-spacing:8px;background:#F8F8F8;border-radius:12px;padding:16px;text-align:center;margin:16px 0">${code}</p>
+          <p style="color:#666;font-size:13px;margin-bottom:0">O código expira em ${OTP_TTL_MIN} minutos e só funciona uma vez.<br/>Se você não tentou entrar, troque sua senha imediatamente.</p>
+        `),
       },
       { idempotencyKey: `admin-otp/${otp.id}` },
     );
