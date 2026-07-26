@@ -28,6 +28,7 @@ export type AdminTenant = {
   flagApiAccess: boolean;
   apiKey: string | null;
   users: number;
+  ownerEmail: string | null;
   events: number;
   eventsThisMonth: number;
 };
@@ -171,7 +172,12 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
                     <div className="w-9 h-9 rounded-lg bg-grafite/5 flex items-center justify-center flex-shrink-0">
                       <Building2 className="w-4 h-4 text-foreground" />
                     </div>
-                    <span className="text-foreground font-medium text-sm truncate">{t.name}</span>
+                    <div className="min-w-0">
+                      <span className="block text-foreground font-medium text-sm truncate">{t.name}</span>
+                      {t.ownerEmail && (
+                        <span className="block text-muted-foreground text-xs truncate">{t.ownerEmail}</span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Plano */}
@@ -304,9 +310,14 @@ function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true">
       <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <h3 className="text-foreground font-bold">{tenant.name}</h3>
-          <button onClick={onClose} aria-label="Fechar" className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border">
+          <div className="min-w-0">
+            <h3 className="text-foreground font-bold truncate">{tenant.name}</h3>
+            {tenant.ownerEmail && (
+              <p className="text-muted-foreground text-xs truncate">{tenant.ownerEmail}</p>
+            )}
+          </div>
+          <button onClick={onClose} aria-label="Fechar" className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex-shrink-0">
             <X className="w-4 h-4" />
           </button>
         </div>

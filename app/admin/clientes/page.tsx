@@ -19,6 +19,8 @@ export default async function AdminClientesPage() {
     orderBy: { createdAt: "desc" },
     include: {
       _count: { select: { users: true, events: true } },
+      // dono do tenant (usuário mais antigo) — para exibir o e-mail no admin
+      users: { orderBy: { createdAt: "asc" }, take: 1, select: { email: true } },
       events: {
         where: { createdAt: { gte: monthStart } },
         select: { id: true },
@@ -38,6 +40,7 @@ export default async function AdminClientesPage() {
     flagApiAccess: t.flagApiAccess,
     apiKey: t.apiKey,
     users: t._count.users,
+    ownerEmail: t.users[0]?.email ?? null,
     events: t._count.events,
     eventsThisMonth: t.events.length,
   }));
