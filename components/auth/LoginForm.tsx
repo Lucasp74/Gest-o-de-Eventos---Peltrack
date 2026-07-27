@@ -46,10 +46,24 @@ export default function LoginForm() {
     if (res && !res.error) {
       router.push("/dashboard");
       router.refresh();
-    } else {
-      setAuthError("E-mail ou senha incorretos.");
-      setLoading(false);
+      return;
     }
+
+    // Falhou — descobre se foi bloqueio por excesso de tentativas (mensagem específica).
+    let msg = "E-mail ou senha incorretos.";
+    try {
+      const r = await fetch("/api/auth/throttle-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email }),
+      });
+      const data = await r.json();
+      if (data?.blocked) msg = `Muitas tentativas. Tente novamente em ${data.retryAfterMin} min.`;
+    } catch {
+      /* mantém a mensagem genérica */
+    }
+    setAuthError(msg);
+    setLoading(false);
   }
 
   return (

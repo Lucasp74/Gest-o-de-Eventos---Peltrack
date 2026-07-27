@@ -9,6 +9,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { signDesktopToken } from "@/lib/desktopToken";
+import { checkLoginThrottle, recordLoginFailure, resetLoginThrottle, getClientIp } from "@/lib/loginThrottle";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -19,6 +20,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Informe e-mail e senha." }, { status: 400 });
   }
 
+  // Rate limit: bloqueia após 5 falhas do mesmo par (e-mail + IP).
+  const ip = getClientIp(req);
+  const gate = await checkLoginThrottle(email, ip);
+  if (gate.blocked) {
+    return NextResponse.json(
+      { error: `Muitas tentativas. Tente novamente em ${gate.retryAfterMin} min.` },
+      { status: 429 },
+    );
+  }
+
   const user = await prisma.user.findUnique({
     where: { email },
     include: { tenant: { select: { id: true, name: true, plan: true, flagDesktopSync: true } } },
@@ -26,8 +37,10 @@ export async function POST(req: Request) {
 
   // Mensagem genérica de propósito: não revela se o e-mail existe.
   if (!user?.passwordHash || !bcrypt.compareSync(password, user.passwordHash)) {
+    await recordLoginFailure(email, ip);
     return NextResponse.json({ error: "E-mail ou senha inválidos." }, { status: 401 });
   }
+  await resetLoginThrottle(email, ip);
 
   if (!user.tenant) {
     return NextResponse.json({ error: "Conta sem organização vinculada." }, { status: 403 });

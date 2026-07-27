@@ -4,13 +4,19 @@
  * o adapter do Prisma e o provisionamento automático de Tenant no cadastro.
  */
 
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/auth.config";
+import { checkLoginThrottle, recordLoginFailure, resetLoginThrottle, getClientIp } from "@/lib/loginThrottle";
+
+/** Erro específico de excesso de tentativas (o `code` chega ao cliente via ?code=). */
+class TooManyLoginsError extends CredentialsSignin {
+  code = "muitas-tentativas";
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -23,18 +29,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "E-mail", type: "email" },
         password: { label: "Senha", type: "password" },
       },
-      authorize: async (credentials) => {
+      authorize: async (credentials, request) => {
         const email = String(credentials?.email ?? "").toLowerCase().trim();
         const password = String(credentials?.password ?? "");
         if (!email || !password) return null;
 
+        // Rate limit: bloqueia após 5 falhas do mesmo par (e-mail + IP).
+        const ip = getClientIp(request);
+        if ((await checkLoginThrottle(email, ip)).blocked) throw new TooManyLoginsError();
+
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user?.passwordHash) return null; // usuário só-Google ainda sem senha
+        const ok = !!user?.passwordHash && bcrypt.compareSync(password, user.passwordHash);
+        if (!ok) {
+          await recordLoginFailure(email, ip);
+          return null;
+        }
 
-        const ok = bcrypt.compareSync(password, user.passwordHash);
-        if (!ok) return null;
-
-        return { id: user.id, email: user.email, name: user.name };
+        await resetLoginThrottle(email, ip);
+        return { id: user!.id, email: user!.email, name: user!.name };
       },
     }),
     // Login do ADMIN (dono da plataforma) — 2ª etapa do fluxo em duas

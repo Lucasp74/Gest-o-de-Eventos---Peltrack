@@ -12,6 +12,7 @@ import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { brandedEmail, emailSubject } from "@/lib/emailLayout";
+import { checkLoginThrottle, recordLoginFailure, resetLoginThrottle, getClientIp } from "@/lib/loginThrottle";
 
 const OTP_TTL_MIN = 10;
 const RESEND_COOLDOWN_S = 60;
@@ -28,11 +29,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Verificação anti-robô falhou. Recarregue a página." }, { status: 400 });
   }
 
-  // 2) E-mail + senha
+  // 2) Rate limit (após 5 falhas do mesmo par e-mail+IP) + e-mail + senha
+  const ip = getClientIp(req);
+  const gate = await checkLoginThrottle(email, ip);
+  if (gate.blocked) {
+    return NextResponse.json(
+      { error: `Muitas tentativas. Tente novamente em ${gate.retryAfterMin} min.` },
+      { status: 429 },
+    );
+  }
   const admin = email ? await prisma.admin.findUnique({ where: { email } }) : null;
   if (!admin || !bcrypt.compareSync(password, admin.passwordHash)) {
+    await recordLoginFailure(email, ip);
     return NextResponse.json({ error: "Credenciais de administrador inválidas." }, { status: 401 });
   }
+  await resetLoginThrottle(email, ip);
 
   // 3) Cooldown — evita spam de códigos
   const last = await prisma.adminOtp.findFirst({
