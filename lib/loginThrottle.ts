@@ -25,37 +25,54 @@ export function getClientIp(req: Request | undefined | null): string {
 
 export type ThrottleState = { blocked: boolean; retryAfterMin: number };
 
-/** Verifica se o par (e-mail, IP) está bloqueado. Chamar ANTES de conferir a senha. */
+/**
+ * Verifica se o par (e-mail, IP) está bloqueado. Chamar ANTES de conferir a senha.
+ * FAIL-OPEN: se o store falhar (ex.: tabela ausente, DB fora), NÃO bloqueia — um
+ * rate limiter nunca deve derrubar o login por conta própria.
+ */
 export async function checkLoginThrottle(email: string, ip: string): Promise<ThrottleState> {
-  const row = await prisma.loginThrottle.findUnique({ where: { key: makeKey(email, ip) } });
-  if (row?.lockedUntil && row.lockedUntil > new Date()) {
-    return { blocked: true, retryAfterMin: Math.ceil((row.lockedUntil.getTime() - Date.now()) / 60000) };
+  try {
+    const row = await prisma.loginThrottle.findUnique({ where: { key: makeKey(email, ip) } });
+    if (row?.lockedUntil && row.lockedUntil > new Date()) {
+      return { blocked: true, retryAfterMin: Math.ceil((row.lockedUntil.getTime() - Date.now()) / 60000) };
+    }
+    return { blocked: false, retryAfterMin: 0 };
+  } catch (e) {
+    console.error("[loginThrottle] check falhou — liberando (fail-open):", e);
+    return { blocked: false, retryAfterMin: 0 };
   }
-  return { blocked: false, retryAfterMin: 0 };
 }
 
 /** Registra uma falha de login. Na 5ª falha do par (e-mail, IP), bloqueia por 10 min. */
 export async function recordLoginFailure(email: string, ip: string): Promise<void> {
-  const key = makeKey(email, ip);
-  const now = new Date();
-  const row = await prisma.loginThrottle.findUnique({ where: { key } });
+  try {
+    const key = makeKey(email, ip);
+    const now = new Date();
+    const row = await prisma.loginThrottle.findUnique({ where: { key } });
 
-  // Recomeça do zero se: não havia registro, o bloqueio anterior já venceu,
-  // ou ficou ocioso além da janela.
-  const expirou =
-    !row ||
-    (row.lockedUntil ? row.lockedUntil <= now : now.getTime() - row.updatedAt.getTime() > WINDOW_MINUTES * 60000);
-  const attempts = (expirou ? 0 : row!.attempts) + 1;
-  const lockedUntil = attempts >= MAX_ATTEMPTS ? new Date(now.getTime() + LOCK_MINUTES * 60000) : null;
+    // Recomeça do zero se: não havia registro, o bloqueio anterior já venceu,
+    // ou ficou ocioso além da janela.
+    const expirou =
+      !row ||
+      (row.lockedUntil ? row.lockedUntil <= now : now.getTime() - row.updatedAt.getTime() > WINDOW_MINUTES * 60000);
+    const attempts = (expirou ? 0 : row!.attempts) + 1;
+    const lockedUntil = attempts >= MAX_ATTEMPTS ? new Date(now.getTime() + LOCK_MINUTES * 60000) : null;
 
-  await prisma.loginThrottle.upsert({
-    where: { key },
-    create: { key, attempts, lockedUntil },
-    update: { attempts, lockedUntil },
-  });
+    await prisma.loginThrottle.upsert({
+      where: { key },
+      create: { key, attempts, lockedUntil },
+      update: { attempts, lockedUntil },
+    });
+  } catch (e) {
+    console.error("[loginThrottle] record falhou:", e);
+  }
 }
 
 /** Zera o contador do par (e-mail, IP) após um login bem-sucedido. */
 export async function resetLoginThrottle(email: string, ip: string): Promise<void> {
-  await prisma.loginThrottle.deleteMany({ where: { key: makeKey(email, ip) } });
+  try {
+    await prisma.loginThrottle.deleteMany({ where: { key: makeKey(email, ip) } });
+  } catch (e) {
+    console.error("[loginThrottle] reset falhou:", e);
+  }
 }
