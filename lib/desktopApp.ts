@@ -8,9 +8,9 @@
  *  3) atualize `version`, `downloadUrl` e `sizeLabel` aqui e faça o deploy.
  */
 export const desktopApp = {
-  version: "0.1.0",
+  version: "0.2.0",
   os: "Windows 10/11 (64-bit)",
-  sizeLabel: "~4,5 MB",
+  sizeLabel: "~4,8 MB",
   downloadUrl:
-    "https://github.com/Lucasp74/Gest-o-de-Eventos---Peltrack/releases/download/desktop-v0.1.0/Peltrack_0.1.0_x64-setup.exe",
+    "https://github.com/Lucasp74/Gest-o-de-Eventos---Peltrack/releases/download/desktop-v0.2.0/Peltrack_0.2.0_x64-setup.exe",
 } as const;
