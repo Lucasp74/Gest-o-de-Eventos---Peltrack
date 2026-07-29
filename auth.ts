@@ -46,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         await resetLoginThrottle(email, ip);
-        return { id: user!.id, email: user!.email, name: user!.name };
+        return { id: user!.id, email: user!.email, name: user!.name, image: user!.image };
       },
     }),
     // Login do ADMIN (dono da plataforma) — 2ª etapa do fluxo em duas

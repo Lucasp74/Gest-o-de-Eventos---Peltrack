@@ -37,10 +37,15 @@ export const authConfig = {
 
       return true;
     },
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
       if (user) {
         token.uid = user.id;
         if (user.role) token.role = user.role;
+        token.picture = user.image ?? null;
+      }
+      // useSession().update({ image }) → atualiza a foto no token sem novo login
+      if (trigger === "update" && typeof (session as { image?: unknown })?.image === "string") {
+        token.picture = (session as { image?: string }).image;
       }
       return token;
     },
@@ -48,6 +53,7 @@ export const authConfig = {
       if (session.user) {
         if (token.uid) session.user.id = token.uid as string;
         if (token.role) session.user.role = token.role as string;
+        session.user.image = (token.picture as string | null) ?? null;
       }
       return session;
     },

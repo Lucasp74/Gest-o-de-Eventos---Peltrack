@@ -8,6 +8,7 @@
  */
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Camera, Loader2, Mail, UserRound } from "lucide-react";
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB no original
@@ -38,6 +39,7 @@ export default function AccountPhoto({
   email: string | null;
 }) {
   const router = useRouter();
+  const { update } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState(initialImage);
   const [busy, setBusy] = useState(false);
@@ -69,7 +71,9 @@ export default function AccountPhoto({
       if (!save.ok) throw new Error("save");
 
       setImage(upData.url);
-      router.refresh(); // atualiza o avatar do sidebar
+      // atualiza a sessão → o avatar do sidebar troca na hora (sem novo login)
+      update({ image: upData.url }).catch(() => {});
+      router.refresh();
     } catch {
       setError("Não foi possível atualizar a foto. Tente novamente.");
     } finally {
