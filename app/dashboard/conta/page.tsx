@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Sidebar from "@/components/dashboard/Sidebar";
 import AccountPasswordForm from "@/components/dashboard/AccountPasswordForm";
-import { Mail, UserRound } from "lucide-react";
+import AccountPhoto from "@/components/dashboard/AccountPhoto";
 
 export const metadata: Metadata = {
   title: "Minha conta — Peltrack",
@@ -32,22 +32,11 @@ export default async function ContaPage() {
 
           {/* Dados */}
           <div className="bg-card rounded-2xl border border-border p-5 sm:p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-laranja flex items-center justify-center overflow-hidden flex-shrink-0">
-                {user?.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={user.image} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <UserRound className="w-7 h-7 text-white" />
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-foreground font-semibold text-lg">{user?.name ?? "—"}</p>
-                <p className="text-muted-foreground text-sm flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5" /> {user?.email ?? "—"}
-                </p>
-              </div>
-            </div>
+            <AccountPhoto
+              initialImage={user?.image ?? null}
+              name={user?.name ?? null}
+              email={user?.email ?? null}
+            />
             <div className="mt-4 pt-4 border-t border-border flex items-center gap-2 text-sm">
               <span className="text-muted-foreground">Métodos de login:</span>
               <span className="text-xs font-medium bg-fundo border border-border px-2.5 py-1 rounded-full text-foreground">Google</span>

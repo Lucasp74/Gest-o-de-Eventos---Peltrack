@@ -428,8 +428,9 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                 <input
                   value={cep}
                   onChange={(e) => {
-                    setCep(e.target.value);
-                    lookupCep(e.target.value);
+                    const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+                    setCep(digits);
+                    lookupCep(digits);
                   }}
                   placeholder="00000-000"
                   inputMode="numeric"
@@ -462,8 +463,9 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
             <Field label="Número">
               <input
                 value={address.number}
-                onChange={(e) => setAddress((a) => ({ ...a, number: e.target.value }))}
+                onChange={(e) => setAddress((a) => ({ ...a, number: e.target.value.replace(/\D/g, "") }))}
                 placeholder="Nº"
+                inputMode="numeric"
                 className={inputBase}
               />
             </Field>
@@ -598,7 +600,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                       <Field label={i === 0 ? "Preço (R$)" : ""} className="w-28">
                         <input
                           value={t.price}
-                          onChange={(e) => updateTicket(t.id, "price", e.target.value)}
+                          onChange={(e) => updateTicket(t.id, "price", e.target.value.replace(/[^\d,]/g, ""))}
                           placeholder="0,00"
                           inputMode="decimal"
                           className={inputBase}
@@ -607,7 +609,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                       <Field label={i === 0 ? "Qtd." : ""} className="w-24">
                         <input
                           value={t.quantity}
-                          onChange={(e) => updateTicket(t.id, "quantity", e.target.value)}
+                          onChange={(e) => updateTicket(t.id, "quantity", e.target.value.replace(/\D/g, ""))}
                           placeholder="50"
                           inputMode="numeric"
                           className={inputBase}
@@ -629,7 +631,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                       <Field label="Mín. por compra" className="w-32">
                         <input
                           value={t.minPerOrder}
-                          onChange={(e) => updateTicket(t.id, "minPerOrder", e.target.value)}
+                          onChange={(e) => updateTicket(t.id, "minPerOrder", e.target.value.replace(/\D/g, ""))}
                           placeholder="1"
                           inputMode="numeric"
                           className={inputBase}
@@ -638,7 +640,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                       <Field label="Máx. por compra" className="w-32">
                         <input
                           value={t.maxPerOrder}
-                          onChange={(e) => updateTicket(t.id, "maxPerOrder", e.target.value)}
+                          onChange={(e) => updateTicket(t.id, "maxPerOrder", e.target.value.replace(/\D/g, ""))}
                           placeholder="Sem limite"
                           inputMode="numeric"
                           className={inputBase}
