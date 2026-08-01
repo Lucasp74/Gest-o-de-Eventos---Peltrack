@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Eye, EyeOff, Zap, ArrowRight, Loader2 } from "lucide-react";
 import GoogleButton from "@/components/auth/GoogleButton";
+import { MIN_PASSWORD } from "@/lib/password";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function SignupForm() {
     if (!form.email) e.email = "E-mail obrigatório";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "E-mail inválido";
     if (!form.password) e.password = "Senha obrigatória";
-    else if (form.password.length < 6) e.password = "Mínimo de 6 caracteres";
+    else if (form.password.length < MIN_PASSWORD) e.password = `Mínimo de ${MIN_PASSWORD} caracteres`;
     return e;
   }
 

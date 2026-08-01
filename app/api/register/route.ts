@@ -5,6 +5,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { MIN_PASSWORD } from "@/lib/password";
 
 export async function POST(req: Request) {
   try {
@@ -18,8 +19,8 @@ export async function POST(req: Request) {
     if (!cleanName) return NextResponse.json({ error: "Informe o nome." }, { status: 400 });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail))
       return NextResponse.json({ error: "E-mail inválido." }, { status: 400 });
-    if (pass.length < 6)
-      return NextResponse.json({ error: "A senha deve ter ao menos 6 caracteres." }, { status: 400 });
+    if (pass.length < MIN_PASSWORD)
+      return NextResponse.json({ error: `A senha deve ter ao menos ${MIN_PASSWORD} caracteres.` }, { status: 400 });
 
     // E-mail já cadastrado?
     const existing = await prisma.user.findUnique({ where: { email: cleanEmail } });
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Este e-mail já está cadastrado." }, { status: 409 });
 
     // Cria o Tenant (organização) + o User vinculado
-    const passwordHash = bcrypt.hashSync(pass, 10);
+    const passwordHash = bcrypt.hashSync(pass, 12);
     const tenant = await prisma.tenant.create({
       data: { name: cleanName, plan: "STARTER" },
     });

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, Check, KeyRound } from "lucide-react";
+import { MIN_PASSWORD } from "@/lib/password";
 
 export default function AccountPasswordForm({ hasPassword }: { hasPassword: boolean }) {
   const [current, setCurrent] = useState("");
@@ -13,8 +14,8 @@ export default function AccountPasswordForm({ hasPassword }: { hasPassword: bool
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (next.length < 6) {
-      setError("A nova senha deve ter ao menos 6 caracteres.");
+    if (next.length < MIN_PASSWORD) {
+      setError(`A nova senha deve ter ao menos ${MIN_PASSWORD} caracteres.`);
       return;
     }
     setLoading(true);

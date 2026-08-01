@@ -60,7 +60,7 @@ export async function POST(req: Request) {
   const otp = await prisma.adminOtp.create({
     data: {
       adminId: admin.id,
-      codeHash: bcrypt.hashSync(code, 10),
+      codeHash: bcrypt.hashSync(code, 12),
       expiresAt: new Date(Date.now() + OTP_TTL_MIN * 60 * 1000),
     },
   });

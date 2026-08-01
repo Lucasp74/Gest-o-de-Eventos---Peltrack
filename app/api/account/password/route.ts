@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { MIN_PASSWORD } from "@/lib/password";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -16,8 +17,8 @@ export async function POST(req: Request) {
 
   const { currentPassword, newPassword } = await req.json();
   const pass = String(newPassword ?? "");
-  if (pass.length < 6) {
-    return NextResponse.json({ error: "A nova senha deve ter ao menos 6 caracteres." }, { status: 400 });
+  if (pass.length < MIN_PASSWORD) {
+    return NextResponse.json({ error: `A nova senha deve ter ao menos ${MIN_PASSWORD} caracteres.` }, { status: 400 });
   }
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { passwordHash: bcrypt.hashSync(pass, 10) },
+    data: { passwordHash: bcrypt.hashSync(pass, 12) },
   });
 
   return NextResponse.json({ ok: true });

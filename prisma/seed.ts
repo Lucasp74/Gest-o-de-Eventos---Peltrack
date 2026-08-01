@@ -42,7 +42,7 @@ async function main() {
     create: {
       name: SEED_ADMIN_NAME,
       email: SEED_ADMIN_EMAIL,
-      passwordHash: bcrypt.hashSync(SEED_ADMIN_PASSWORD, 10),
+      passwordHash: bcrypt.hashSync(SEED_ADMIN_PASSWORD, 12),
     },
   });
   console.log("  - Admin criado");
@@ -77,7 +77,7 @@ async function main() {
     create: {
       name: "Usuário Demo",
       email: SEED_DEMO_EMAIL,
-      passwordHash: bcrypt.hashSync(SEED_DEMO_PASSWORD, 10),
+      passwordHash: bcrypt.hashSync(SEED_DEMO_PASSWORD, 12),
       tenantId: tenant.id,
     },
   });
