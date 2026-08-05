@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { serializeEvent } from "@/lib/eventMap";
 import { feePct } from "@/lib/planPricing";
+import { resolveBatches } from "@/lib/batches";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -13,7 +14,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const event = await prisma.event.findUnique({
     where: { id },
     include: {
-      tickets: true,
+      tickets: { orderBy: { sortOrder: "asc" } },
       tenant: { select: { plan: true } },
       _count: { select: { confirmations: true, checkins: true } },
     },
@@ -25,6 +26,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     where: { eventId: id, status: "CONFIRMADO" },
   });
 
+  const serialized = serializeEvent(event);
+
+  // Modo lotes: quem decide qual lote vale é o SERVIDOR (relógio e regra únicos).
+  // A vitrine só desenha o que vier daqui — nunca recalcula a vigência.
+  if (event.batchMode && serialized.tickets) {
+    const { ordered } = resolveBatches(event.tickets);
+    const estado = new Map(ordered.map((t) => [t.id, t.batchState]));
+    serialized.tickets = serialized.tickets.map((t) => ({ ...t, batchState: estado.get(t.id) }));
+  }
+
   // Taxa de conveniência (%) para o comprador ver o total antes de pagar
-  return NextResponse.json({ ...serializeEvent(event), confirmed, feePct: feePct(event.tenant.plan) });
+  return NextResponse.json({ ...serialized, confirmed, feePct: feePct(event.tenant.plan) });
 }

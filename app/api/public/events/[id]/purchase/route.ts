@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { createPixCharge } from "@/lib/mercadopago";
 import { getValidSellerToken } from "@/lib/mpAccount";
 import { ticketCharge } from "@/lib/planPricing";
+import { resolveBatches } from "@/lib/batches";
 
 const emailOk = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
@@ -38,6 +39,19 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   const ticket = event.tickets.find((t) => t.id === ticketTypeId);
   if (!ticket) return NextResponse.json({ error: "Ingresso inválido." }, { status: 400 });
+
+  // Modo LOTES: só o lote vigente está à venda. A checagem é AQUI, no servidor,
+  // de propósito — o ticketTypeId vem do navegador e pode ser forjado (console)
+  // pra comprar um lote encerrado pelo preço antigo. Esconder na tela não basta.
+  if (event.batchMode) {
+    const { vigente } = resolveBatches(event.tickets);
+    if (!vigente) {
+      return NextResponse.json({ error: "As vendas foram encerradas.", code: "BATCH_OVER" }, { status: 409 });
+    }
+    if (vigente.id !== ticket.id) {
+      return NextResponse.json({ error: "Este lote não está disponível para compra.", code: "BATCH_CLOSED" }, { status: 409 });
+    }
+  }
 
   // Estoque disponível (0 = ilimitado) e limites por compra.
   const available = ticket.quantity > 0 ? ticket.quantity - ticket.sold : Infinity;

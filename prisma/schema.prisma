@@ -236,6 +236,9 @@ model Event {
   status      EventStatus @default(RASCUNHO)
   flow        EventFlow   @default(QRCODE)
   paid        Boolean     @default(false)
+  // true = os TicketType são LOTES sequenciais (só um vale por vez, na ordem);
+  // false = tipos de ingresso simultâneos (Pista, VIP...), o comprador escolhe.
+  batchMode   Boolean     @default(false)
   visibility  EventVisibility @default(RESTRITO) // privado por padrão; público = opt-in
 
   // Janela de inscrições (opcional)
@@ -273,6 +276,13 @@ model TicketType {
   // Limites de quantidade por compra. maxPerOrder 0 = sem limite (teto pelo estoque).
   minPerOrder    Int     @default(1)
   maxPerOrder    Int     @default(0)
+
+  // ── Modo lotes (Event.batchMode) ──
+  // Ordem da sequência: o lote vigente é o primeiro (menor sortOrder) ainda aberto.
+  sortOrder      Int       @default(0)
+  // Data-limite OPCIONAL. O lote fecha por ESGOTAMENTO ou por esta data — o que
+  // vier primeiro. Não existe data de início: o lote abre quando o anterior fecha.
+  closesAt       DateTime?
 
   payments  Payment[]
 

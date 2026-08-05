@@ -6,6 +6,7 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { wallClockNow } from "@/lib/eventMap";
 import { serializeConfirmation } from "@/lib/presenceMap";
 import { sendInviteEmail } from "@/lib/inviteEmail";
 import { notifyEvent } from "@/lib/pusherServer";
@@ -25,8 +26,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const event = await prisma.event.findUnique({ where: { id } });
   if (!event) return NextResponse.json({ error: "Evento não encontrado." }, { status: 404 });
 
-  // Janela de inscrições (se definida)
-  const now = new Date();
+  // Janela de inscrições (se definida) — comparada na convenção wall-clock do
+  // banco: new Date() puro erraria em 3h (fecharia 20:59 quando se digitou 23:59).
+  const now = wallClockNow();
   if (event.registrationOpensAt && now < event.registrationOpensAt) {
     return NextResponse.json({ error: "As inscrições ainda não abriram.", code: "NOT_OPEN" }, { status: 400 });
   }

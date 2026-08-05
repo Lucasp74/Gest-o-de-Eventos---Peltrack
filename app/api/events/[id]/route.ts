@@ -11,7 +11,7 @@ import { getCurrentTenantId } from "@/lib/tenant";
 import { inputToDate, statusToDb, serializeEvent } from "@/lib/eventMap";
 
 const EVENT_INCLUDE = {
-  tickets: true,
+  tickets: { orderBy: { sortOrder: "asc" } },
   _count: { select: { confirmations: true, checkins: true } },
 } as const;
 

@@ -35,6 +35,7 @@ interface TicketType {
   passFeeToBuyer: boolean;
   minPerOrder: string;
   maxPerOrder: string; // vazio = sem limite
+  closesAt: string;    // modo lotes: data-limite (vazio = fecha só ao esgotar)
 }
 
 /** "10,00" / "1.500,00" → 10 / 1500 */
@@ -77,8 +78,10 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
 
   // Ingressos
   const [paid, setPaid] = useState(false);
+  // true = os ingressos viram LOTES sequenciais (só um à venda por vez, na ordem da lista)
+  const [batchMode, setBatchMode] = useState(false);
   const [tickets, setTickets] = useState<TicketType[]>([
-    { id: "t1", name: "Inteira", price: "", quantity: "", passFeeToBuyer: true, minPerOrder: "1", maxPerOrder: "" },
+    { id: "t1", name: "Inteira", price: "", quantity: "", passFeeToBuyer: true, minPerOrder: "1", maxPerOrder: "", closesAt: "" },
   ]);
 
   // Aceite e submit
@@ -133,7 +136,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
   function addTicket() {
     setTickets((t) => [
       ...t,
-      { id: `t${Date.now()}`, name: "", price: "", quantity: "", passFeeToBuyer: true, minPerOrder: "1", maxPerOrder: "" },
+      { id: `t${Date.now()}`, name: "", price: "", quantity: "", passFeeToBuyer: true, minPerOrder: "1", maxPerOrder: "", closesAt: "" },
     ]);
   }
   function removeTicket(id: string) {
@@ -142,7 +145,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
   function toggleTicketFee(id: string) {
     setTickets((t) => t.map((x) => (x.id === id ? { ...x, passFeeToBuyer: !x.passFeeToBuyer } : x)));
   }
-  function updateTicket(id: string, field: "name" | "price" | "quantity" | "minPerOrder" | "maxPerOrder", value: string) {
+  function updateTicket(id: string, field: "name" | "price" | "quantity" | "minPerOrder" | "maxPerOrder" | "closesAt", value: string) {
     setTickets((t) =>
       t.map((x) => (x.id === id ? { ...x, [field]: value } : x)),
     );
@@ -162,6 +165,13 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
       if (!regClosesAt) e.regClosesAt = "Defina o fechamento das inscrições";
       if (regOpensAt && regClosesAt && regClosesAt <= regOpensAt)
         e.regClosesAt = "O fechamento deve ser depois da abertura";
+    }
+    // Um lote sem quantidade E sem data-limite nunca fecha — a fila trava nele
+    // e os próximos jamais abrem. Barra na criação, que é onde dá pra consertar.
+    if (paid && batchMode) {
+      const travado = tickets.findIndex((t) => !(parseInt(t.quantity) > 0) && !t.closesAt);
+      if (travado >= 0)
+        e.lotes = `O ${travado + 1}º lote precisa de quantidade ou data-limite — sem isso ele nunca fecha e os próximos não abrem.`;
     }
     if (!description.trim()) e.description = "Adicione uma descrição";
     if (!accepted) e.accepted = "É necessário aceitar os termos";
@@ -188,6 +198,8 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
           passFeeToBuyer: t.passFeeToBuyer,
           minPerOrder: parseInt(t.minPerOrder) || 1,
           maxPerOrder: parseInt(t.maxPerOrder) || 0,
+          // A ordem desta lista vira a ordem dos lotes no servidor.
+          ...(batchMode && t.closesAt ? { closesAt: t.closesAt } : {}),
         }))
       : [];
 
@@ -228,6 +240,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
         uf: address.uf,
         cep,
         paid,
+        batchMode: paid && batchMode,
         visibility,
         tickets: ticketTypes,
         ...(regEnabled
@@ -579,6 +592,30 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
 
           {paid && (
             <div className="space-y-3 mt-2">
+              {/* Lotes: transforma a lista em uma FILA (um à venda por vez) */}
+              <div className="bg-fundo/50 border border-border rounded-xl p-3.5">
+                <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={batchMode}
+                    onChange={() => setBatchMode((v) => !v)}
+                    className="w-4 h-4 mt-0.5 rounded border-border accent-laranja cursor-pointer flex-shrink-0"
+                  />
+                  <span>
+                    <span className="text-sm font-semibold text-foreground">Este evento tem lotes</span>
+                    <span className="block text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                      Os ingressos abaixo viram uma sequência: só o lote atual fica à venda. Ele passa
+                      para o próximo quando <span className="font-medium text-foreground">esgotar</span> ou quando
+                      chegar a <span className="font-medium text-foreground">data-limite</span> — o que vier primeiro.
+                    </span>
+                  </span>
+                </label>
+              </div>
+
+              {errors.lotes && (
+                <p data-error="true" className="text-red-500 text-xs">{errors.lotes}</p>
+              )}
+
               {tickets.map((t, i) => {
                 const priceNum = parsePrice(t.price);
                 const feeVal = Math.round(priceNum * feePct * 100) / 100;
@@ -589,11 +626,14 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                 return (
                   <div key={t.id} className="bg-fundo/50 rounded-xl p-3 border border-border space-y-2.5">
                     <div className="flex gap-3 items-end">
-                      <Field label={i === 0 ? "Tipo de ingresso" : ""} className="flex-1">
+                      <Field
+                        label={batchMode ? `${i + 1}º lote` : i === 0 ? "Tipo de ingresso" : ""}
+                        className="flex-1"
+                      >
                         <input
                           value={t.name}
                           onChange={(e) => updateTicket(t.id, "name", e.target.value)}
-                          placeholder="Ex: Inteira, Meia, VIP"
+                          placeholder={batchMode ? `Ex: ${i + 1}º lote` : "Ex: Inteira, Meia, VIP"}
                           className={inputBase}
                         />
                       </Field>
@@ -646,6 +686,16 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                           className={inputBase}
                         />
                       </Field>
+                      {batchMode && (
+                        <Field label="Vira o próximo lote em (opcional)" className="flex-1 min-w-[210px]">
+                          <input
+                            type="datetime-local"
+                            value={t.closesAt}
+                            onChange={(e) => updateTicket(t.id, "closesAt", e.target.value)}
+                            className={inputBase}
+                          />
+                        </Field>
+                      )}
                     </div>
 
                     {/* Taxa: repassar ao comprador ou absorver */}
@@ -682,7 +732,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                 className="flex items-center gap-1.5 text-laranja hover:text-laranja-dark text-sm font-medium transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                Adicionar tipo de ingresso
+                {batchMode ? "Adicionar lote" : "Adicionar tipo de ingresso"}
               </button>
 
               {/* Aviso Mercado Pago */}

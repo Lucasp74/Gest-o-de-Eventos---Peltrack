@@ -10,7 +10,7 @@ import { getCurrentTenantId } from "@/lib/tenant";
 import { inputToDate, serializeEvent } from "@/lib/eventMap";
 
 const EVENT_INCLUDE = {
-  tickets: true,
+  tickets: { orderBy: { sortOrder: "asc" } },
   _count: { select: { confirmations: true, checkins: true } },
 } as const;
 
@@ -84,17 +84,21 @@ export async function POST(req: Request) {
       capacity,
       status: "INSCRICOES",
       paid,
+      batchMode: paid && body.batchMode === true, // lotes só existem em evento pago
       visibility: body.visibility === "publico" ? "PUBLICO" : "RESTRITO",
       registrationOpensAt: body.registrationOpensAt ? inputToDate(body.registrationOpensAt) : null,
       registrationClosesAt: body.registrationClosesAt ? inputToDate(body.registrationClosesAt) : null,
       tickets: {
-        create: tickets.map((t: { name?: string; price?: number; quantity?: number; passFeeToBuyer?: boolean; minPerOrder?: number; maxPerOrder?: number }) => ({
+        create: tickets.map((t: { name?: string; price?: number; quantity?: number; passFeeToBuyer?: boolean; minPerOrder?: number; maxPerOrder?: number; closesAt?: string }, i: number) => ({
           name: String(t.name || "Ingresso"),
           price: Number(t.price) || 0,
           quantity: Number(t.quantity) || 0,
           passFeeToBuyer: t.passFeeToBuyer !== false, // padrão: repassa ao comprador
           minPerOrder: Math.max(1, Math.floor(Number(t.minPerOrder) || 1)),
           maxPerOrder: Math.max(0, Math.floor(Number(t.maxPerOrder) || 0)), // 0 = sem limite
+          // A ordem do formulário É a ordem dos lotes (1º, 2º, 3º...).
+          sortOrder: i,
+          closesAt: t.closesAt ? inputToDate(t.closesAt) : null,
         })),
       },
     },

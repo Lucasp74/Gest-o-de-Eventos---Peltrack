@@ -6,8 +6,8 @@
  * é feita pelo webhook (tarefa de 09/07) — aqui fica "aguardando pagamento".
  */
 import { useState, useEffect } from "react";
-import { QrCode, Loader2, Copy, Check, Ticket, Mail, PartyPopper, CalendarX, Minus, Plus } from "lucide-react";
-import { type EventItem } from "@/lib/mockEvents";
+import { QrCode, Loader2, Copy, Check, Ticket, Mail, PartyPopper, CalendarX, Minus, Plus, Clock } from "lucide-react";
+import { type EventItem, type TicketType } from "@/lib/mockEvents";
 import { formatBRL } from "@/lib/planPricing";
 
 type PixResult = {
@@ -22,6 +22,26 @@ type PixResult = {
   passFeeToBuyer?: boolean;
 };
 
+/** Dias inteiros até a data-limite do lote. O valor é wall-clock e o navegador
+ *  do comprador está no mesmo fuso — serve para o RÓTULO; quem decide se o lote
+ *  ainda vale é o servidor (batchState). */
+function diasAte(closesAt?: string): number | null {
+  if (!closesAt) return null;
+  const alvo = new Date(closesAt).getTime();
+  if (Number.isNaN(alvo)) return null;
+  return Math.max(0, Math.ceil((alvo - Date.now()) / 86_400_000));
+}
+
+const prazoLabel = (dias: number) => (dias <= 0 ? "hoje" : dias === 1 ? "amanhã" : `em ${dias} dias`);
+
+/** Estoque restante só quando vale mostrar escassez (últimas 10 unidades ou 20%). */
+function restantesParaAlerta(t: TicketType): number | null {
+  if (!t.quantity || t.quantity <= 0) return null; // 0 = ilimitado
+  const restam = t.quantity - t.sold;
+  if (restam <= 0) return null;
+  return restam <= 10 || restam <= t.quantity * 0.2 ? restam : null;
+}
+
 /** Máscara de CPF: 000.000.000-00 (guarda o texto formatado; os dígitos saem no envio). */
 function maskCpf(value: string): string {
   const d = value.replace(/\D/g, "").slice(0, 11);
@@ -35,7 +55,18 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
   const tickets = event.tickets ?? [];
   const pct = event.feePct ?? 0.08;
 
-  const firstAvailable = tickets.find((t) => t.quantity === 0 || t.sold < t.quantity);
+  // Modo LOTES: a fila e a vigência vêm prontas do servidor (batchState).
+  const batchMode = event.batchMode ?? false;
+  const vigente = batchMode ? tickets.find((t) => t.batchState === "vigente") ?? null : null;
+  const proximo = batchMode ? tickets.find((t) => t.batchState === "futuro") ?? null : null;
+
+  const totalComTaxa = (t: TicketType) => {
+    const fee = Math.round(t.price * (event.feePct ?? 0.08) * 100) / 100;
+    return (t.passFeeToBuyer ?? true) ? Math.round((t.price + fee) * 100) / 100 : t.price;
+  };
+
+  // Em lotes não há escolha: o vigente já vem selecionado.
+  const firstAvailable = batchMode ? vigente : tickets.find((t) => t.quantity === 0 || t.sold < t.quantity);
   const [ticketId, setTicketId] = useState<string | null>(firstAvailable?.id ?? null);
   const [quantity, setQuantity] = useState(1);
   const [name, setName] = useState("");
@@ -210,12 +241,29 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
     );
   }
 
+  /* ── Lotes: todos encerrados ─────────────────────── */
+  if (batchMode && !vigente) {
+    return (
+      <div className="bg-card rounded-2xl border border-border p-8 text-center">
+        <div className="w-14 h-14 rounded-2xl bg-fundo flex items-center justify-center mx-auto mb-4">
+          <CalendarX className="w-7 h-7 text-muted-foreground" />
+        </div>
+        <h2 className="text-foreground font-bold text-lg mb-1">Vendas encerradas</h2>
+        <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+          Todos os lotes deste evento foram encerrados.
+        </p>
+      </div>
+    );
+  }
+
   /* ── Tela de seleção + dados ─────────────────────── */
   return (
     <form onSubmit={pay} className="bg-card rounded-2xl border border-border p-6">
       <div className="flex items-center gap-2 mb-1">
         <Ticket className="w-5 h-5 text-laranja" />
-        <h2 className="text-foreground font-bold text-lg">Escolha seu ingresso</h2>
+        <h2 className="text-foreground font-bold text-lg">
+          {batchMode ? "Lote disponível" : "Escolha seu ingresso"}
+        </h2>
       </div>
       <p className="text-muted-foreground text-sm mb-5">A taxa de conveniência, quando aplicável, já está inclusa no total.</p>
 
@@ -223,13 +271,80 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
         <div role="alert" className="mb-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">{error}</div>
       )}
 
-      {/* Ingressos */}
+      {/* Ingressos (ou lotes, quando batchMode) */}
       <div className="space-y-2.5 mb-5">
         {tickets.map((t) => {
           const soldOut = t.quantity > 0 && t.sold >= t.quantity;
           const tPass = t.passFeeToBuyer ?? true;
           const tFee = Math.round(t.price * pct * 100) / 100;
           const tTotal = tPass ? Math.round((t.price + tFee) * 100) / 100 : t.price;
+
+          /* ── Modo LOTES: sequência, sem escolha ──────────── */
+          if (batchMode) {
+            // Encerrado — riscado, faz o preço atual parecer bom (prova social).
+            if (t.batchState === "encerrado") {
+              return (
+                <div key={t.id} className="flex items-center justify-between p-4 rounded-xl border border-border opacity-55">
+                  <div>
+                    <p className="font-semibold text-sm text-muted-foreground line-through">{t.name}</p>
+                    <p className="text-muted-foreground text-xs mt-0.5">Esgotado</p>
+                  </div>
+                  <span className="font-bold text-sm text-muted-foreground line-through">{formatBRL(tTotal)}</span>
+                </div>
+              );
+            }
+
+            // Futuro — âncora de preço: mostra quanto vai custar depois.
+            if (t.batchState === "futuro") {
+              return (
+                <div key={t.id} className="flex items-center justify-between p-4 rounded-xl border border-dashed border-border">
+                  <div>
+                    <p className="font-semibold text-sm text-muted-foreground">{t.name}</p>
+                    <p className="text-muted-foreground text-xs mt-0.5">Ainda não liberado</p>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    Depois: <span className="font-bold">{formatBRL(tTotal)}</span>
+                  </span>
+                </div>
+              );
+            }
+
+            // Vigente — o único à venda, com os sinais de urgência.
+            const restam = restantesParaAlerta(t);
+            const dias = diasAte(t.closesAt);
+            return (
+              <div key={t.id} className="p-4 rounded-xl border-2 border-laranja bg-laranja/5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">{t.name}</p>
+                    <p className="text-muted-foreground text-xs mt-0.5">
+                      {tPass ? `${formatBRL(t.price)} + ${formatBRL(tFee)} de taxa` : formatBRL(t.price)}
+                    </p>
+                  </div>
+                  <span className="font-bold text-sm text-laranja flex-shrink-0">{formatBRL(tTotal)}</span>
+                </div>
+                {(restam !== null || dias !== null) && (
+                  <div className="mt-2.5 pt-2.5 border-t border-laranja/20 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                    {restam !== null && (
+                      <span className="font-semibold text-laranja">
+                        {restam === 1 ? "Resta 1 ingresso neste lote" : `Restam ${restam} ingressos neste lote`}
+                      </span>
+                    )}
+                    {dias !== null && (
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Clock className="w-3 h-3" />
+                        {proximo
+                          ? `sobe para ${formatBRL(totalComTaxa(proximo))} ${prazoLabel(dias)}`
+                          : `encerra ${prazoLabel(dias)}`}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          /* ── Modo normal: tipos simultâneos, o comprador escolhe ── */
           return (
             <button
               type="button"

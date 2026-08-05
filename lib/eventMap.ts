@@ -25,6 +25,23 @@ export function dateToInput(date: Date): string {
   return `${date.getUTCFullYear()}-${p(date.getUTCMonth() + 1)}-${p(date.getUTCDate())}T${p(date.getUTCHours())}:${p(date.getUTCMinutes())}`;
 }
 
+/**
+ * "Agora" NA MESMA CONVENÇÃO wall-clock das datas do banco: os dígitos do
+ * relógio de São Paulo gravados como UTC. É com ISTO que se compara um
+ * closesAt/opensAt no servidor — `new Date()` puro compara o instante UTC real
+ * contra um "relógio de parede" e erra em 3 horas.
+ */
+export function wallClockNow(): Date {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+  const v = (t: string) => Number(parts.find((x) => x.type === t)?.value ?? 0);
+  return new Date(Date.UTC(v("year"), v("month") - 1, v("day"), v("hour"), v("minute"), v("second")));
+}
+
 const STATUS_TO_UI: Record<string, EventStatus> = {
   RASCUNHO: "rascunho", INSCRICOES: "inscricoes", ATIVO: "ativo",
   LOTADO: "lotado", ENCERRADO: "encerrado",
@@ -53,10 +70,11 @@ type DbEvent = {
   status: string;
   flow: string;
   paid: boolean;
+  batchMode: boolean;
   visibility: string;
   registrationOpensAt: Date | null;
   registrationClosesAt: Date | null;
-  tickets: { id: string; name: string; price: unknown; quantity: number; sold: number; passFeeToBuyer: boolean; minPerOrder: number; maxPerOrder: number }[];
+  tickets: { id: string; name: string; price: unknown; quantity: number; sold: number; passFeeToBuyer: boolean; minPerOrder: number; maxPerOrder: number; sortOrder: number; closesAt: Date | null }[];
   _count?: { confirmations: number; checkins: number };
 };
 
@@ -76,19 +94,26 @@ export function serializeEvent(e: DbEvent): EventItem {
     status: statusToUi(e.status),
     flow: e.flow === "EXCEL" ? "excel" : "qrcode",
     paid: e.paid,
+    batchMode: e.batchMode,
     visibility: visibilityToUi(e.visibility),
     ...(e.tickets.length > 0
       ? {
-          tickets: e.tickets.map((t) => ({
-            id: t.id,
-            name: t.name,
-            price: Number(t.price),
-            quantity: t.quantity,
-            sold: t.sold,
-            passFeeToBuyer: t.passFeeToBuyer,
-            minPerOrder: t.minPerOrder,
-            maxPerOrder: t.maxPerOrder,
-          })),
+          // Ordena aqui também (não só na query): no modo lotes, ordem errada
+          // significa lote vigente errado — é correção, não estética.
+          tickets: [...e.tickets]
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .map((t) => ({
+              id: t.id,
+              name: t.name,
+              price: Number(t.price),
+              quantity: t.quantity,
+              sold: t.sold,
+              passFeeToBuyer: t.passFeeToBuyer,
+              minPerOrder: t.minPerOrder,
+              maxPerOrder: t.maxPerOrder,
+              sortOrder: t.sortOrder,
+              ...(t.closesAt ? { closesAt: dateToInput(t.closesAt) } : {}),
+            })),
         }
       : {}),
     ...(e.registrationOpensAt ? { registrationOpensAt: dateToInput(e.registrationOpensAt) } : {}),

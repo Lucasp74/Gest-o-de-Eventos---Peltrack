@@ -17,6 +17,14 @@ export interface TicketType {
   minPerOrder?: number;
   /** Máximo por compra. 0/ausente = sem limite (teto pelo estoque). */
   maxPerOrder?: number;
+
+  // ── Modo lotes (EventItem.batchMode) ──
+  /** Posição na fila de lotes (0, 1, 2...). */
+  sortOrder?: number;
+  /** Data-limite do lote (datetime-local). Ausente = fecha só por esgotamento. */
+  closesAt?: string;
+  /** Estado calculado PELO SERVIDOR — a tela nunca recalcula essa regra. */
+  batchState?: "vigente" | "encerrado" | "futuro";
 }
 
 export interface EventItem {
@@ -40,6 +48,8 @@ export interface EventItem {
   /** Tipos de ingresso (eventos pagos). Ausente/vazio = evento gratuito. */
   tickets?: TicketType[];
   paid?: boolean;
+  /** true = os ingressos são LOTES sequenciais; false = tipos simultâneos. */
+  batchMode?: boolean;
   /** Taxa de conveniência (%) cobrada do comprador em ingressos pagos. */
   feePct?: number;
 }
