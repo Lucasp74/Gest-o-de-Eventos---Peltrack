@@ -76,7 +76,10 @@ export default function AdminLoginForm() {
 
   return (
     <div className="min-h-screen bg-grafite flex items-center justify-center px-4">
-      <Script src="https://challenges.cloudflare.com/turnstile/api.js" async defer />
+      {/* URL EXATA exigida pela Cloudflare — o "/v0/" é obrigatório. Sem ele o
+          script dá 404, o widget não desenha e o login trava em "Verificação
+          anti-robô falhou". Não proxiar nem cachear este arquivo. */}
+      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
 
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
