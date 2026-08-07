@@ -11,7 +11,7 @@ import { Resend } from "resend";
 
 import { prisma } from "@/lib/prisma";
 import { verifyTurnstile } from "@/lib/turnstile";
-import { brandedEmail, emailSubject } from "@/lib/emailLayout";
+import { brandedEmail, emailSubject, mailFrom } from "@/lib/emailLayout";
 import { checkLoginThrottle, recordLoginFailure, resetLoginThrottle, getClientIp } from "@/lib/loginThrottle";
 
 const OTP_TTL_MIN = 10;
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { error } = await resend.emails.send(
       {
-        from: process.env.MAIL_FROM || "Peltrack <onboarding@resend.dev>",
+        from: mailFrom(),
         to: [admin.email],
         subject: emailSubject("Código de Acesso"),
         html: brandedEmail(`

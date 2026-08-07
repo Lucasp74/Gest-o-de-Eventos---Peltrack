@@ -6,7 +6,7 @@
 import { Resend } from "resend";
 import QRCode from "qrcode";
 import { buildInvitePdf } from "@/lib/invitePdf";
-import { brandedEmail, emailSubject } from "@/lib/emailLayout";
+import { brandedEmail, emailSubject, mailFrom } from "@/lib/emailLayout";
 
 const MONTHS = [
   "janeiro", "fevereiro", "março", "abril", "maio", "junho",
@@ -74,7 +74,7 @@ export async function sendInviteEmail(opts: {
   /* Lista de espera — e-mail simples, sem QR */
   if (waitlist) {
     const { error } = await resend.emails.send({
-      from: process.env.MAIL_FROM || "Peltrack <onboarding@resend.dev>",
+      from: mailFrom(),
       to: [to],
       subject: emailSubject(`Lista de espera — ${event.name}`),
       html: brandedEmail(`
@@ -95,7 +95,7 @@ export async function sendInviteEmail(opts: {
   const pdf = buildInvitePdf({ eventName: event.name, when, addressLines, guestName: name, token, qrPngBase64: qrBase64 });
 
   const { error } = await resend.emails.send({
-    from: "Peltrack <onboarding@resend.dev>",
+    from: mailFrom(),
     to: [to],
     subject: emailSubject(`Seu convite — ${event.name}`),
     html: brandedEmail(`
@@ -172,7 +172,7 @@ export async function sendPaidInviteEmail(opts: {
   ];
 
   const { error } = await resend.emails.send({
-    from: process.env.MAIL_FROM || "Peltrack <onboarding@resend.dev>",
+    from: mailFrom(),
     to: [to],
     subject: emailSubject(n > 1 ? `Seus ${n} ingressos — ${event.name}` : `Seu convite — ${event.name}`),
     html: brandedEmail(`

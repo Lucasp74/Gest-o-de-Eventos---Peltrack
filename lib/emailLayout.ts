@@ -9,6 +9,15 @@ const TEAL = "#1F8A7A"; // acento da marca (= --color-laranja no CSS)
 /** Assunto padronizado: sempre "Peltrack - <assunto>". */
 export const emailSubject = (assunto: string) => `Peltrack - ${assunto}`;
 
+/**
+ * Remetente de TODOS os e-mails — ponto único de verdade.
+ * O fallback é o sandbox do Resend, que só entrega para o dono da conta; em
+ * produção o MAIL_FROM precisa apontar para o domínio verificado.
+ * Existe porque um dos envios tinha o sandbox fixo no código e ignorava a
+ * variável — o convite com QR nunca chegava em ninguém além do dono da conta.
+ */
+export const mailFrom = () => process.env.MAIL_FROM || "Peltrack <onboarding@resend.dev>";
+
 /** Embrulha o conteúdo (HTML) no layout da marca. `center` centraliza o corpo. */
 export function brandedEmail(body: string, center = false): string {
   return `
