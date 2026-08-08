@@ -6,9 +6,21 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { MIN_PASSWORD } from "@/lib/password";
+import { checkRegisterThrottle, recordRegister, getClientIp } from "@/lib/loginThrottle";
 
 export async function POST(req: Request) {
   try {
+    // Anti-bot: mais de 5 contas na última hora do mesmo IP → barra por 1h.
+    // Conta em massa = e-mail de confirmação em massa = reputação do domínio no lixo.
+    const ip = getClientIp(req);
+    const gate = await checkRegisterThrottle(ip);
+    if (gate.blocked) {
+      return NextResponse.json(
+        { error: "Muitas contas criadas a partir desta conexão. Tente novamente mais tarde." },
+        { status: 429 },
+      );
+    }
+
     const { name, email, password } = await req.json();
 
     const cleanName = String(name ?? "").trim();
@@ -41,6 +53,7 @@ export async function POST(req: Request) {
       },
     });
 
+    await recordRegister(ip); // só cadastro EFETIVADO conta pro limite
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Erro ao criar a conta." }, { status: 500 });
