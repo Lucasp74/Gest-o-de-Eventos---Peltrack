@@ -55,7 +55,7 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     token: signDesktopToken(user.id),
-    usuario: { nome: user.name, email: user.email },
+    usuario: { nome: user.name, email: user.email, image: user.image },
     organizacao: {
       id: user.tenant.id,
       nome: user.tenant.name,
