@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Sidebar from "@/components/dashboard/Sidebar";
 import MercadoPagoConnect from "@/components/dashboard/MercadoPagoConnect";
 import SubscriptionCard from "@/components/dashboard/SubscriptionCard";
+import ReplyToCard from "@/components/dashboard/ReplyToCard";
 import { prisma } from "@/lib/prisma";
 import { getCurrentTenantId } from "@/lib/tenant";
 
@@ -20,7 +21,12 @@ export default async function ConfiguracoesPage({
   const tenant = tenantId
     ? await prisma.tenant.findUnique({
         where: { id: tenantId },
-        select: { mpConnectedAt: true, mpUserId: true, plan: true, subscriptionStatus: true },
+        select: {
+          mpConnectedAt: true, mpUserId: true, plan: true, subscriptionStatus: true,
+          replyToEmail: true,
+          // dono da conta = usuário mais antigo do tenant (é o padrão do Reply-To)
+          users: { orderBy: { createdAt: "asc" }, take: 1, select: { email: true } },
+        },
       })
     : null;
   const { mp, sub } = await searchParams;
@@ -39,6 +45,11 @@ export default async function ConfiguracoesPage({
             plan={tenant?.plan ?? "STARTER"}
             subscriptionStatus={tenant?.subscriptionStatus ?? null}
             subFromQuery={sub ?? null}
+          />
+
+          <ReplyToCard
+            initialEmail={tenant?.replyToEmail ?? null}
+            ownerEmail={tenant?.users[0]?.email ?? null}
           />
 
           <MercadoPagoConnect

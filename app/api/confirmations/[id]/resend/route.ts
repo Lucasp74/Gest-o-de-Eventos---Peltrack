@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentTenantId } from "@/lib/tenant";
 import { sendInviteEmail } from "@/lib/inviteEmail";
+import { buscarOrganizador } from "@/lib/organizador";
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const tenantId = await getCurrentTenantId();
@@ -26,6 +27,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     name: confirmation.name,
     token: confirmation.id,
     event: confirmation.event,
+    organizador: await buscarOrganizador(tenantId),
     waitlist: confirmation.status === "LISTA_ESPERA",
     // sem idempotência: reenvio deliberado deve sempre disparar
   });

@@ -6,7 +6,16 @@
 import { Resend } from "resend";
 import QRCode from "qrcode";
 import { buildInvitePdf } from "@/lib/invitePdf";
-import { brandedEmail, emailSubject, mailFrom } from "@/lib/emailLayout";
+import { brandedEmail, emailSubject, mailFrom, mailFromOrganizador } from "@/lib/emailLayout";
+import type { Organizador } from "@/lib/organizador";
+
+/** De/Reply-To do convite: nome da organização + respostas indo pra ela. */
+function remetente(org?: Organizador) {
+  return {
+    from: mailFromOrganizador(org?.nome),
+    ...(org?.replyTo ? { replyTo: org.replyTo } : {}),
+  };
+}
 
 const MONTHS = [
   "janeiro", "fevereiro", "março", "abril", "maio", "junho",
@@ -56,8 +65,9 @@ export async function sendInviteEmail(opts: {
   event: InviteEvent;
   waitlist?: boolean;
   idempotencyKey?: string;
+  organizador?: Organizador;
 }): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
-  const { to, name, token, event, waitlist, idempotencyKey } = opts;
+  const { to, name, token, event, waitlist, idempotencyKey, organizador } = opts;
   const when = eventWhen(event.startAt);
   const addressLines = formatAddressLines(event);
   const addressHtml = addressLines.join("<br/>");
@@ -74,7 +84,7 @@ export async function sendInviteEmail(opts: {
   /* Lista de espera — e-mail simples, sem QR */
   if (waitlist) {
     const { error } = await resend.emails.send({
-      from: mailFrom(),
+      ...remetente(organizador),
       to: [to],
       subject: emailSubject(`Lista de espera — ${event.name}`),
       html: brandedEmail(`
@@ -95,7 +105,7 @@ export async function sendInviteEmail(opts: {
   const pdf = buildInvitePdf({ eventName: event.name, when, addressLines, guestName: name, token, qrPngBase64: qrBase64 });
 
   const { error } = await resend.emails.send({
-    from: mailFrom(),
+    ...remetente(organizador),
     to: [to],
     subject: emailSubject(`Seu convite — ${event.name}`),
     html: brandedEmail(`
@@ -128,8 +138,9 @@ export async function sendPaidInviteEmail(opts: {
   tokens: string[];
   event: InviteEvent;
   idempotencyKey?: string;
+  organizador?: Organizador;
 }): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
-  const { to, name, tokens, event, idempotencyKey } = opts;
+  const { to, name, tokens, event, idempotencyKey, organizador } = opts;
   const n = tokens.length;
   const when = eventWhen(event.startAt);
   const addressLines = formatAddressLines(event);
@@ -172,7 +183,7 @@ export async function sendPaidInviteEmail(opts: {
   ];
 
   const { error } = await resend.emails.send({
-    from: mailFrom(),
+    ...remetente(organizador),
     to: [to],
     subject: emailSubject(n > 1 ? `Seus ${n} ingressos — ${event.name}` : `Seu convite — ${event.name}`),
     html: brandedEmail(`

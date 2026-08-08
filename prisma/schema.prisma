@@ -88,6 +88,11 @@ model Tenant {
   mpTokenExpiresAt DateTime? // quando o access token expira
   mpConnectedAt    DateTime? // quando conectou (null = não conectado)
 
+  // Para onde vão as RESPOSTAS dos convidados (cabeçalho Reply-To dos convites).
+  // Vazio = usa o e-mail do dono da conta. Existe porque quem cria a conta
+  // (TI, dono) raramente é quem atende o público (secretaria, produção).
+  replyToEmail String?
+
   // Assinatura recorrente da mensalidade (Mercado Pago preapproval).
   subscriptionId     String? @unique // id da preapproval no MP
   subscriptionStatus String? // pending | authorized | paused | cancelled

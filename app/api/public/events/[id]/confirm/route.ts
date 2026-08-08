@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { wallClockNow } from "@/lib/eventMap";
 import { serializeConfirmation } from "@/lib/presenceMap";
 import { sendInviteEmail } from "@/lib/inviteEmail";
+import { buscarOrganizador } from "@/lib/organizador";
 import { notifyEvent } from "@/lib/pusherServer";
 
 const emailOk = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
@@ -69,6 +70,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       name,
       token: confirmation.id,
       event, // objeto completo do evento (inclui endereço)
+      // Nome da organização no remetente + respostas indo direto pra ela
+      organizador: await buscarOrganizador(event.tenantId),
       waitlist: status === "LISTA_ESPERA",
       idempotencyKey: `invite/${confirmation.id}`,
     }).catch((e) => ({ ok: false, error: String(e) }));

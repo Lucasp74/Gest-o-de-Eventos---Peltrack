@@ -14,6 +14,7 @@ import { randomUUID } from "crypto";
 import { checkPixCharge } from "@/lib/mercadopago";
 import { getValidSellerToken } from "@/lib/mpAccount";
 import { sendPaidInviteEmail } from "@/lib/inviteEmail";
+import { buscarOrganizador } from "@/lib/organizador";
 import { notifyEvent } from "@/lib/pusherServer";
 
 export type ReleaseResult = { released: boolean; already?: boolean; count?: number; reason?: string };
@@ -77,6 +78,7 @@ export async function releasePaidPayment(
     name,
     tokens,
     event,
+    organizador: await buscarOrganizador(event.tenantId),
     idempotencyKey: `invite/${payment.id}`,
   }).catch((e) => console.error("[release] falha ao enviar convite:", e));
 

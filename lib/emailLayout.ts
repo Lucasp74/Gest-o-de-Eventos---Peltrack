@@ -18,6 +18,22 @@ export const emailSubject = (assunto: string) => `Peltrack - ${assunto}`;
  */
 export const mailFrom = () => process.env.MAIL_FROM || "Peltrack <onboarding@resend.dev>";
 
+/**
+ * Mesmo endereço de sempre, mas exibindo o NOME DA ORGANIZAÇÃO — o convidado vê
+ * "Colégio Platão", não "Peltrack". O endereço não muda (é o domínio verificado);
+ * trocar o endereço seria falsificação e o convite cairia em spam.
+ * Sem nome, devolve o remetente padrão.
+ */
+export function mailFromOrganizador(nome?: string | null): string {
+  const base = mailFrom();
+  // Tira aspas, sinais de maior/menor e QUEBRAS DE LINHA: nome vem do cliente e
+  // um "\n" ali permitiria injetar cabeçalho de e-mail.
+  const limpo = (nome ?? "").replace(/[\r\n"<>\\]/g, "").trim().slice(0, 60);
+  if (!limpo) return base;
+  const endereco = base.match(/<([^>]+)>/)?.[1] ?? base;
+  return `${limpo} <${endereco}>`;
+}
+
 /** Embrulha o conteúdo (HTML) no layout da marca. `center` centraliza o corpo. */
 export function brandedEmail(body: string, center = false): string {
   return `
