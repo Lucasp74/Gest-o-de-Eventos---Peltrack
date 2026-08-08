@@ -25,6 +25,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const confirmations = await prisma.confirmation.findMany({
     where: { eventId: id },
     orderBy: { createdAt: "desc" },
+    // Traz o ingresso/lote de quem comprou — usado no relatório, na lista de
+    // convidados e no scanner do desktop. Gratuito volta sem.
+    include: { payment: { select: { ticketType: { select: { name: true } } } } },
   });
   return NextResponse.json(confirmations.map(serializeConfirmation));
 }

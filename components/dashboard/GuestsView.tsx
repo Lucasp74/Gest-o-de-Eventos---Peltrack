@@ -295,6 +295,12 @@ function GuestRowItem({
         <div className="min-w-0">
           <p className="text-foreground font-medium text-sm truncate">{c.name}</p>
           <p className="text-muted-foreground text-xs truncate">{c.email}</p>
+          {/* Lote/ingresso comprado — informativo. Evento gratuito não tem. */}
+          {c.ticket && (
+            <span className="inline-block mt-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-laranja/10 text-laranja">
+              {c.ticket}
+            </span>
+          )}
         </div>
       </div>
 

@@ -10,6 +10,7 @@ import {
   FileSpreadsheet, FileText, ChevronDown, Loader2,
 } from "lucide-react";
 import { type EventItem } from "@/lib/mockEvents";
+import { formatBRL } from "@/lib/planPricing";
 import {
   fetchConfirmations, fetchCheckins,
   type Confirmation, type CheckinRecord,
@@ -87,6 +88,35 @@ export default function ReportsView({ event, liveTick = 0 }: { event: EventItem;
       });
   }, [confs]);
 
+  /* ── Desempenho por ingresso/lote (só evento pago) ─────────────
+     Vendidos e receita saem do próprio TicketType (sold já é incrementado
+     pelo webhook do Mercado Pago) — sem consulta nova. Presentes vêm do
+     cruzamento confirmação → check-in.
+     ponytail: casa pelo NOME do ingresso, que é o que a API devolve. Dois
+     ingressos de nome idêntico somariam presenças — o formulário numera os
+     lotes, então na prática não acontece. */
+  const porLote = useMemo(() => {
+    const tickets = event.tickets ?? [];
+    if (tickets.length === 0) return [];
+
+    const ticketDaConfirmacao = new Map(confs.map((c) => [c.id, c.ticket]));
+    const presentesPorTicket = new Map<string, number>();
+    checks.forEach((ch) => {
+      const nome = ticketDaConfirmacao.get(ch.token);
+      if (nome) presentesPorTicket.set(nome, (presentesPorTicket.get(nome) ?? 0) + 1);
+    });
+
+    return tickets.map((t) => ({
+      nome: t.name,
+      vendidos: t.sold,
+      estoque: t.quantity,
+      receita: t.sold * t.price,
+      presentes: presentesPorTicket.get(t.name) ?? 0,
+    }));
+  }, [event.tickets, confs, checks]);
+
+  const receitaTotal = porLote.reduce((s, l) => s + l.receita, 0);
+
   /* ── Exportar CSV ──────────────────────────────── */
   function exportCsv() {
     const lines: string[][] = [
@@ -99,6 +129,16 @@ export default function ReportsView({ event, liveTick = 0 }: { event: EventItem;
       [],
       ["Hora", "Entradas"],
       ...byHour.map((h) => [h.hora, String(h.entradas)]),
+      ...(porLote.length > 0
+        ? [
+            [],
+            [event.batchMode ? "Lote" : "Ingresso", "Vendidos", "Estoque", "Receita (R$)", "Presentes"],
+            ...porLote.map((l) => [
+              l.nome, String(l.vendidos), String(l.estoque || "—"),
+              l.receita.toFixed(2).replace(".", ","), String(l.presentes),
+            ]),
+          ]
+        : []),
     ];
     const csv = lines
       .map((row) => row.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(";"))
@@ -225,6 +265,59 @@ export default function ReportsView({ event, liveTick = 0 }: { event: EventItem;
           </div>
         ))}
       </div>
+
+      {/* Desempenho por lote / tipo de ingresso — só em evento pago */}
+      {porLote.length > 0 && (
+        <div className="bg-card rounded-2xl border border-border p-5">
+          <div className="flex items-baseline justify-between gap-4 mb-4">
+            <h3 className="text-foreground font-bold">
+              {event.batchMode ? "Desempenho por lote" : "Desempenho por ingresso"}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Receita total <span className="font-bold text-foreground">{formatBRL(receitaTotal)}</span>
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[520px]">
+              <thead>
+                <tr className="text-muted-foreground text-xs uppercase tracking-wide">
+                  <th className="text-left font-medium pb-2">{event.batchMode ? "Lote" : "Ingresso"}</th>
+                  <th className="text-right font-medium pb-2">Vendidos</th>
+                  <th className="text-right font-medium pb-2">Receita</th>
+                  <th className="text-right font-medium pb-2">Presentes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {porLote.map((l, i) => {
+                  const pctVendido = l.estoque > 0 ? Math.round((l.vendidos / l.estoque) * 100) : 0;
+                  return (
+                    <tr key={`${l.nome}-${i}`} className="border-t border-border">
+                      <td className="py-2.5 pr-3 text-foreground font-medium">{l.nome}</td>
+                      <td className="py-2.5 text-right text-foreground tabular-nums">
+                        {l.vendidos}
+                        {l.estoque > 0 && (
+                          <span className="text-muted-foreground"> / {l.estoque} <span className="text-xs">({pctVendido}%)</span></span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-right text-foreground tabular-nums font-medium">{formatBRL(l.receita)}</td>
+                      <td className="py-2.5 text-right tabular-nums">
+                        <span className={l.presentes > 0 ? "text-laranja font-semibold" : "text-muted-foreground"}>
+                          {l.presentes}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <p className="text-xs text-muted-foreground mt-3">
+            Receita é o valor dos ingressos vendidos, sem descontar a taxa de conveniência.
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Fluxo por hora */}

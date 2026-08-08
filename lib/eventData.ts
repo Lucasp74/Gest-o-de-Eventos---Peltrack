@@ -13,6 +13,8 @@ export interface Confirmation {
   email: string;
   status: ConfirmationStatus;
   createdAt: string;
+  /** Ingresso comprado (no modo lotes, o nome do lote). Ausente em evento gratuito. */
+  ticket?: string;
 }
 
 export interface CheckinRecord {

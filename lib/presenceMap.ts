@@ -17,6 +17,9 @@ export const confStatusToDb = (s: string): string => CONF_TO_DB[s as Confirmatio
 
 type DbConfirmation = {
   id: string; eventId: string; name: string; email: string; status: string; createdAt: Date;
+  // Vem do include quando a rota pede: convidado pago carrega o ingresso/lote
+  // que ele comprou. Convidado gratuito não tem pagamento — fica sem.
+  payment?: { ticketType: { name: string } | null } | null;
 };
 type DbCheckin = {
   id: string; eventId: string; confirmationId: string | null; name: string; email: string;
@@ -31,6 +34,9 @@ export function serializeConfirmation(c: DbConfirmation) {
     email: c.email,
     status: confStatusToUi(c.status),
     createdAt: c.createdAt.toISOString(),
+    // Nome do ingresso (no modo lotes, é o nome do lote). Ausente em evento
+    // gratuito. Puramente informativo — não entra em nenhuma validação.
+    ...(c.payment?.ticketType?.name ? { ticket: c.payment.ticketType.name } : {}),
   };
 }
 
