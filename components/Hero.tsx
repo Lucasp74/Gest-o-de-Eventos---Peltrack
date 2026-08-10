@@ -77,7 +77,7 @@ export default function Hero() {
                   <div className="w-2.5 h-2.5 rounded-full bg-green-400/50" />
                 </div>
                 <span className="text-white/25 text-xs font-mono">
-                  app.peltrack.com.br · Scanner ao vivo
+                  peltrack.com · Scanner ao vivo
                 </span>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />

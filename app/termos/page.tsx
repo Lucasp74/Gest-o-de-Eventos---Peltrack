@@ -95,8 +95,8 @@ export default function TermosPage() {
       <Section n={11} title="Contato">
         <p>
           Em caso de dúvidas sobre estes Termos de Uso, escreva para{" "}
-          <a href="mailto:contato@peltrack.com.br" className="text-laranja hover:underline font-medium">
-            contato@peltrack.com.br
+          <a href="mailto:contato@peltrack.com" className="text-laranja hover:underline font-medium">
+            contato@peltrack.com
           </a>.
         </p>
       </Section>

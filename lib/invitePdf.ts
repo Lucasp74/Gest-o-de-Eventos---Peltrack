@@ -80,7 +80,7 @@ export function buildInvitePdf(opts: {
   /* Rodapé */
   doc.setFontSize(8);
   doc.setTextColor("#9ca3af");
-  doc.text("Gerado pela plataforma Peltrack — peltrack.com.br", W / 2, 202, { align: "center" });
+  doc.text("Gerado pela plataforma Peltrack — peltrack.com", W / 2, 202, { align: "center" });
 
   return Buffer.from(doc.output("arraybuffer"));
 }

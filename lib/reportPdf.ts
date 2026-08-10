@@ -178,7 +178,7 @@ export async function generateEventReportPdf(
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor("#9ca3af");
-    doc.text("Gerado pela plataforma Peltrack — peltrack.com.br", MARGIN, PAGE_H - 8);
+    doc.text("Gerado pela plataforma Peltrack — peltrack.com", MARGIN, PAGE_H - 8);
     doc.text(`Página ${p} de ${pages}`, PAGE_W - MARGIN, PAGE_H - 8, { align: "right" });
   }
 

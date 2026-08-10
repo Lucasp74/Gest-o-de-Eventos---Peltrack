@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Zap, ChevronDown, ChevronUp } from "lucide-react";
+import { Zap, ChevronDown, ChevronUp, Mail } from "lucide-react";
 
 const footerLinks: Record<string, { label: string; href: string }[]> = {
   Produto: [
@@ -14,7 +14,7 @@ const footerLinks: Record<string, { label: string; href: string }[]> = {
     { label: "Sobre nós", href: "#" },
     { label: "Blog", href: "#" },
     { label: "Carreiras", href: "#" },
-    { label: "Contato", href: "mailto:contato@peltrack.com.br" },
+    { label: "Contato", href: "mailto:contato@peltrack.com" },
   ],
   Suporte: [
     { label: "Central de ajuda", href: "#" },
@@ -47,6 +47,15 @@ export default function Footer() {
             <p className="text-white/40 text-sm leading-relaxed max-w-[200px]">
               Controle de acesso para quem leva eventos a sério.
             </p>
+            {/* Endereço VISÍVEL, não só atrás do link "Contato": em B2B, e-mail
+                de domínio próprio à mostra é sinal de que tem gente do outro lado. */}
+            <a
+              href="mailto:contato@peltrack.com"
+              className="inline-flex items-center gap-2 mt-4 text-white/60 hover:text-white text-sm transition-colors duration-200"
+            >
+              <Mail className="w-4 h-4 flex-shrink-0" />
+              contato@peltrack.com
+            </a>
           </div>
 
           {/* Links — cards em acordeão no mobile; colunas fixas no desktop (md+) */}
