@@ -1,12 +1,20 @@
 /**
  * Cadastro de cliente (e-mail/senha). Cria o User com senha em hash + o Tenant
- * (organização) automaticamente. O login é feito no cliente após o sucesso.
+ * (organização) automaticamente e envia o e-mail de confirmação.
+ *
+ * NÃO loga a pessoa: o login só é liberado depois de confirmar o e-mail.
+ *
+ * RESPOSTA NEUTRA (anti-enumeração): e-mail novo e e-mail já cadastrado
+ * devolvem exatamente a mesma coisa. Quem já tem conta recebe um e-mail de
+ * "você já tem uma conta" em vez de ver o erro na tela — assim ninguém
+ * consegue varrer a base descobrindo quem é cliente.
  */
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { MIN_PASSWORD } from "@/lib/password";
 import { checkRegisterThrottle, recordRegister, getClientIp } from "@/lib/loginThrottle";
+import { criarTokenConfirmacao, enviarConfirmacao, enviarContaJaExiste } from "@/lib/verifyEmail";
 
 export async function POST(req: Request) {
   try {
@@ -34,27 +42,30 @@ export async function POST(req: Request) {
     if (pass.length < MIN_PASSWORD)
       return NextResponse.json({ error: `A senha deve ter ao menos ${MIN_PASSWORD} caracteres.` }, { status: 400 });
 
-    // E-mail já cadastrado?
+    // Conta o gasto ANTES de ramificar: as duas saídas disparam e-mail, então
+    // as duas precisam pesar no limite. Senão dá para bombardear a caixa de
+    // alguém repetindo o cadastro com o e-mail dele.
+    await recordRegister(ip);
+
     const existing = await prisma.user.findUnique({ where: { email: cleanEmail } });
-    if (existing)
-      return NextResponse.json({ error: "Este e-mail já está cadastrado." }, { status: 409 });
 
-    // Cria o Tenant (organização) + o User vinculado
-    const passwordHash = bcrypt.hashSync(pass, 12);
-    const tenant = await prisma.tenant.create({
-      data: { name: cleanName, plan: "STARTER" },
-    });
-    await prisma.user.create({
-      data: {
-        name: cleanName,
-        email: cleanEmail,
-        passwordHash,
-        tenantId: tenant.id,
-      },
-    });
+    if (existing) {
+      // Mesma resposta da tela de sucesso — o aviso vai só para o dono do e-mail.
+      await enviarContaJaExiste(req, cleanEmail);
+    } else {
+      const passwordHash = bcrypt.hashSync(pass, 12);
+      const tenant = await prisma.tenant.create({
+        data: { name: cleanName, plan: "STARTER" },
+      });
+      await prisma.user.create({
+        data: { name: cleanName, email: cleanEmail, passwordHash, tenantId: tenant.id },
+      });
 
-    await recordRegister(ip); // só cadastro EFETIVADO conta pro limite
-    return NextResponse.json({ ok: true });
+      const token = await criarTokenConfirmacao(cleanEmail);
+      await enviarConfirmacao(req, cleanEmail, cleanName, token);
+    }
+
+    return NextResponse.json({ ok: true, confirmacaoEnviada: true });
   } catch {
     return NextResponse.json({ error: "Erro ao criar a conta." }, { status: 500 });
   }

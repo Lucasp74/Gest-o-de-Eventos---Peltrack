@@ -13,6 +13,10 @@ export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [authError, setAuthError] = useState<string | null>(null);
+  // Senha certa, e-mail não confirmado → oferece reenviar o link.
+  const [naoConfirmado, setNaoConfirmado] = useState(false);
+  const [reenviando, setReenviando] = useState(false);
+  const [reenviado, setReenviado] = useState(false);
 
   function validate() {
     const e: typeof errors = {};
@@ -49,21 +53,39 @@ export default function LoginForm() {
       return;
     }
 
-    // Falhou — descobre se foi bloqueio por excesso de tentativas (mensagem específica).
+    // Falhou — o Auth.js devolve erro genérico, então perguntamos o motivo real:
+    // bloqueio por tentativas, e-mail não confirmado, ou credencial errada mesmo.
     let msg = "E-mail ou senha incorretos.";
+    setNaoConfirmado(false);
     try {
-      const r = await fetch("/api/auth/throttle-status", {
+      const r = await fetch("/api/auth/login-status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email }),
+        body: JSON.stringify({ email: form.email, password: form.password }),
       });
       const data = await r.json();
-      if (data?.blocked) msg = `Muitas tentativas. Tente novamente em ${data.retryAfterMin} min.`;
+      if (data?.blocked) {
+        msg = `Muitas tentativas. Tente novamente em ${data.retryAfterMin} min.`;
+      } else if (data?.unverified) {
+        msg = "Confirme seu e-mail para entrar. Enviamos um link no seu cadastro.";
+        setNaoConfirmado(true);
+      }
     } catch {
       /* mantém a mensagem genérica */
     }
     setAuthError(msg);
     setLoading(false);
+  }
+
+  async function reenviarConfirmacao() {
+    setReenviando(true);
+    await fetch("/api/auth/resend-confirmation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: form.email }),
+    }).catch(() => {});
+    setReenviando(false);
+    setReenviado(true);
   }
 
   return (
@@ -99,9 +121,23 @@ export default function LoginForm() {
           {authError && (
             <div
               role="alert"
-              className="mb-5 flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl"
+              className={`mb-5 text-sm px-4 py-3 rounded-xl border ${
+                naoConfirmado
+                  ? "bg-amber-50 border-amber-200 text-amber-800"
+                  : "bg-red-50 border-red-200 text-red-600"
+              }`}
             >
               {authError}
+              {naoConfirmado && (
+                <button
+                  type="button"
+                  onClick={reenviarConfirmacao}
+                  disabled={reenviando || reenviado}
+                  className="block mt-2 font-semibold underline underline-offset-2 disabled:no-underline disabled:opacity-70"
+                >
+                  {reenviado ? "E-mail reenviado — confira sua caixa de entrada." : reenviando ? "Reenviando..." : "Reenviar e-mail de confirmação"}
+                </button>
+              )}
             </div>
           )}
 

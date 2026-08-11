@@ -42,6 +42,15 @@ export async function POST(req: Request) {
   }
   await resetLoginThrottle(email, ip);
 
+  // Mesma regra do login web — senão o app desktop vira porta dos fundos
+  // para quem não confirmou o e-mail.
+  if (!user.emailVerified) {
+    return NextResponse.json(
+      { error: "Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.", code: "EMAIL_NAO_CONFIRMADO" },
+      { status: 403 },
+    );
+  }
+
   if (!user.tenant) {
     return NextResponse.json({ error: "Conta sem organização vinculada." }, { status: 403 });
   }

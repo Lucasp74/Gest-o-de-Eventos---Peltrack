@@ -18,6 +18,11 @@ class TooManyLoginsError extends CredentialsSignin {
   code = "muitas-tentativas";
 }
 
+/** Senha certa, mas o e-mail nunca foi confirmado. */
+class EmailNaoConfirmadoError extends CredentialsSignin {
+  code = "email-nao-confirmado";
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
@@ -46,6 +51,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         await resetLoginThrottle(email, ip);
+
+        // E-mail não confirmado → não entra. Contas criadas ANTES desta regra
+        // foram marcadas como confirmadas por SQL no deploy, então clientes
+        // antigos não são afetados. Quem entra pelo Google já vem confirmado.
+        if (!user!.emailVerified) throw new EmailNaoConfirmadoError();
+
         return { id: user!.id, email: user!.email, name: user!.name, image: user!.image };
       },
     }),

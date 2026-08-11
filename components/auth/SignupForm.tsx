@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
-import { Eye, EyeOff, Zap, ArrowRight, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Zap, ArrowRight, Loader2, MailCheck } from "lucide-react";
 import GoogleButton from "@/components/auth/GoogleButton";
 import { MIN_PASSWORD } from "@/lib/password";
 
@@ -14,6 +13,23 @@ export default function SignupForm() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
   const [authError, setAuthError] = useState<string | null>(null);
+  // Conta criada → tela "confirme seu e-mail". O login automático saiu daqui:
+  // com a confirmação obrigatória ele falharia e cuspiria a pessoa no /login.
+  const [enviado, setEnviado] = useState(false);
+  const [reenviando, setReenviando] = useState(false);
+  const [reenviado, setReenviado] = useState(false);
+
+  async function reenviar() {
+    setReenviando(true);
+    await fetch("/api/auth/resend-confirmation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: form.email }),
+    }).catch(() => {});
+    setReenviando(false);
+    setReenviado(true);
+    setTimeout(() => setReenviado(false), 4000);
+  }
 
   function validate() {
     const e: typeof errors = {};
@@ -50,20 +66,9 @@ export default function SignupForm() {
       return;
     }
 
-    // 2) Loga automaticamente
-    const login = await signIn("credentials", {
-      email: form.email,
-      password: form.password,
-      redirect: false,
-    });
-
-    if (login?.ok) {
-      router.push("/dashboard");
-      router.refresh();
-    } else {
-      // conta criada, mas falhou o auto-login — manda para o login
-      router.push("/login");
-    }
+    // 2) Não loga: o acesso só é liberado depois de confirmar o e-mail.
+    setLoading(false);
+    setEnviado(true);
   }
 
   const inputBase =
@@ -71,6 +76,44 @@ export default function SignupForm() {
 
   function cls(err?: string) {
     return `${inputBase} ${err ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-border hover:border-border"}`;
+  }
+
+  /* ── Conta criada: confirme o e-mail ─────────────── */
+  if (enviado) {
+    return (
+      <div className="min-h-screen bg-fundo flex items-center justify-center px-4">
+        <div className="bg-card rounded-2xl border border-border p-8 sm:p-10 max-w-md w-full text-center">
+          <div className="w-16 h-16 rounded-2xl bg-laranja/10 flex items-center justify-center mx-auto mb-5">
+            <MailCheck className="w-8 h-8 text-laranja" />
+          </div>
+          <h1 className="text-foreground font-bold text-xl mb-2">Confirme seu e-mail</h1>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Enviamos um link de confirmação para{" "}
+            <span className="font-semibold text-foreground">{form.email}</span>. Clique nele para
+            ativar sua conta — o link vale por 24 horas.
+          </p>
+          <p className="text-muted-foreground text-xs mt-3">
+            Não chegou? Confira a pasta de spam.
+          </p>
+
+          <button
+            onClick={reenviar}
+            disabled={reenviando || reenviado}
+            className="w-full h-11 mt-6 border border-border hover:border-laranja disabled:opacity-60 text-foreground text-sm font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
+          >
+            {reenviando ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {reenviado ? "E-mail reenviado!" : reenviando ? "Reenviando..." : "Reenviar e-mail"}
+          </button>
+
+          <button
+            onClick={() => router.push("/login")}
+            className="w-full h-11 mt-2 text-muted-foreground hover:text-foreground text-sm transition-colors"
+          >
+            Já confirmei — ir para o login
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
