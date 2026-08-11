@@ -135,7 +135,7 @@ export default function LoginForm() {
                   disabled={reenviando || reenviado}
                   className="block mt-2 font-semibold underline underline-offset-2 disabled:no-underline disabled:opacity-70"
                 >
-                  {reenviado ? "E-mail reenviado — confira sua caixa de entrada." : reenviando ? "Reenviando..." : "Reenviar e-mail de confirmação"}
+                  {reenviado ? "E-mail reenviado. Confira sua caixa de entrada." : reenviando ? "Reenviando..." : "Reenviar e-mail de confirmação"}
                 </button>
               )}
             </div>

@@ -19,6 +19,19 @@ export const emailSubject = (assunto: string) => `Peltrack - ${assunto}`;
 export const mailFrom = () => process.env.MAIL_FROM || "Peltrack <onboarding@resend.dev>";
 
 /**
+ * Remetente dos e-mails de CONTA (confirmação de cadastro, aviso de conta
+ * existente). Sai de contato@, não de convites@: não tem relação com evento
+ * nenhum, e é o canal que o cliente já vê publicado no site.
+ * O domínio é derivado do MAIL_FROM para não existir endereço fixo no código,
+ * que foi o bug do convite em 07/08.
+ */
+export function mailFromContato(): string {
+  const base = mailFrom();
+  const dominio = base.match(/@([^>\s]+)/)?.[1];
+  return dominio ? `Peltrack <contato@${dominio}>` : base;
+}
+
+/**
  * Mesmo endereço de sempre, mas exibindo o NOME DA ORGANIZAÇÃO — o convidado vê
  * "Colégio Platão", não "Peltrack". O endereço não muda (é o domínio verificado);
  * trocar o endereço seria falsificação e o convite cairia em spam.

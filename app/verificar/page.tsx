@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CheckCircle2, XCircle, Clock } from "lucide-react";
 import { confirmarToken } from "@/lib/verifyEmail";
 
-export const metadata: Metadata = { title: "Confirmar e-mail — Peltrack" };
+export const metadata: Metadata = { title: "Confirmar e-mail | Peltrack" };
 export const dynamic = "force-dynamic";
 
 export default async function VerificarPage({
@@ -29,7 +29,7 @@ export default async function VerificarPage({
           cor: "text-amber-600",
           fundo: "bg-amber-50",
           titulo: "Este link expirou",
-          texto: "Os links de confirmação valem 24 horas. Tente entrar com sua conta — a tela de login oferece o reenvio.",
+          texto: "Os links de confirmação valem 24 horas. Tente entrar com sua conta, pois a tela de login oferece o reenvio.",
           acao: { href: "/login", label: "Ir para o login" },
         }
       : {

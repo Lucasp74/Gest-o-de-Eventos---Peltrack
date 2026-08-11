@@ -90,7 +90,7 @@ export default function SignupForm() {
           <p className="text-muted-foreground text-sm leading-relaxed">
             Enviamos um link de confirmação para{" "}
             <span className="font-semibold text-foreground">{form.email}</span>. Clique nele para
-            ativar sua conta — o link vale por 24 horas.
+            ativar sua conta. O link vale por 24 horas.
           </p>
           <p className="text-muted-foreground text-xs mt-3">
             Não chegou? Confira a pasta de spam.
@@ -109,7 +109,7 @@ export default function SignupForm() {
             onClick={() => router.push("/login")}
             className="w-full h-11 mt-2 text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
-            Já confirmei — ir para o login
+            Já confirmei, ir para o login
           </button>
         </div>
       </div>

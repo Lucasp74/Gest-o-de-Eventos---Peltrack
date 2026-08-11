@@ -11,7 +11,7 @@
 import { createHash, randomBytes } from "crypto";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
-import { brandedEmail, emailSubject, mailFrom } from "@/lib/emailLayout";
+import { brandedEmail, emailSubject, mailFromContato } from "@/lib/emailLayout";
 
 const VALIDADE_HORAS = 24;
 
@@ -73,7 +73,7 @@ export async function enviarConfirmacao(req: Request, email: string, nome: strin
   }
   const resend = new Resend(process.env.RESEND_API_KEY);
   const { error } = await resend.emails.send({
-    from: mailFrom(),
+    from: mailFromContato(),
     to: [email],
     subject: emailSubject("Confirme seu e-mail"),
     html: brandedEmail(`
@@ -82,7 +82,7 @@ export async function enviarConfirmacao(req: Request, email: string, nome: strin
       <p style="text-align:center">${botao(linkDe(req, token), "Confirmar meu e-mail")}</p>
       <p style="color:#666;font-size:13px;margin-bottom:0">
         O link vale por ${VALIDADE_HORAS} horas e só funciona uma vez.<br/>
-        Se você não criou esta conta, ignore esta mensagem — nada será ativado.
+        Se você não criou esta conta, ignore esta mensagem. Nada será ativado.
       </p>
     `, true),
   });
@@ -102,7 +102,7 @@ export async function enviarContaJaExiste(req: Request, email: string) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const entrar = new URL("/login", req.url).toString();
   await resend.emails.send({
-    from: mailFrom(),
+    from: mailFromContato(),
     to: [email],
     subject: emailSubject("Você já tem uma conta"),
     html: brandedEmail(`
@@ -111,7 +111,7 @@ export async function enviarContaJaExiste(req: Request, email: string) {
       <p style="text-align:center">${botao(entrar, "Entrar na minha conta")}</p>
       <p style="color:#666;font-size:13px;margin-bottom:0">
         Esqueceu a senha? Use a opção de recuperação na tela de login.<br/>
-        Se não foi você, pode ignorar — nada mudou na sua conta.
+        Se não foi você, pode ignorar. Nada mudou na sua conta.
       </p>
     `, true),
   }).catch(() => {});
