@@ -31,10 +31,16 @@ const MAX_IP_ATTEMPTS = 20;
 const MAX_REGISTERS = 5;
 const REGISTER_WINDOW_MIN = 60;
 
+// Recuperação de senha por IP (contador próprio, separado do cadastro, para um
+// fluxo não consumir a cota do outro)
+const MAX_RESETS = 5;
+const RESET_WINDOW_MIN = 60;
+
 const hash = (dados: string) => createHash("sha256").update(dados).digest("hex");
 const keyPar = (email: string, ip: string) => hash(`${email.toLowerCase().trim()}|${ip}`);
 const keyIp = (ip: string) => hash(`ip|${ip}`);
 const keyReg = (ip: string) => hash(`reg|${ip}`);
+const keyReset = (ip: string) => hash(`pwd|${ip}`);
 
 /** IP do cliente a partir dos headers (na Vercel vem no x-forwarded-for). */
 export function getClientIp(req: Request | undefined | null): string {
@@ -126,5 +132,24 @@ export async function recordRegister(ip: string): Promise<void> {
     await registrar(keyReg(ip), MAX_REGISTERS, REGISTER_WINDOW_MIN, REGISTER_WINDOW_MIN);
   } catch (e) {
     console.error("[registerThrottle] record falhou:", e);
+  }
+}
+
+/** Recuperação de senha: mais de 5 pedidos na última hora, mesmo IP, barra. */
+export async function checkResetThrottle(ip: string): Promise<ThrottleState> {
+  try {
+    return await estaBloqueada(keyReset(ip));
+  } catch (e) {
+    console.error("[resetThrottle] check falhou — liberando (fail-open):", e);
+    return LIVRE;
+  }
+}
+
+/** Conta um pedido de recuperação que REALMENTE disparou e-mail. */
+export async function recordReset(ip: string): Promise<void> {
+  try {
+    await registrar(keyReset(ip), MAX_RESETS, RESET_WINDOW_MIN, RESET_WINDOW_MIN);
+  } catch (e) {
+    console.error("[resetThrottle] record falhou:", e);
   }
 }
