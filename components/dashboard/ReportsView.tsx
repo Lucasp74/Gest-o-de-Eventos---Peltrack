@@ -15,10 +15,9 @@ import {
   fetchConfirmations, fetchCheckins,
   type Confirmation, type CheckinRecord,
 } from "@/lib/eventData";
-
-const LARANJA = "#1F8A7A"; // acento da marca (teal — mesmo valor de --color-laranja)
-const GRAFITE = "#1E2535";
-const GRAY = "#d4d8e0";
+import {
+  ChartCard, EmptyChart, Legend, LARANJA, GRAY, tooltipStyle,
+} from "@/components/dashboard/chartUi";
 
 export default function ReportsView({ event, liveTick = 0 }: { event: EventItem; liveTick?: number }) {
   const [confs, setConfs] = useState<Confirmation[]>([]);
@@ -274,7 +273,7 @@ export default function ReportsView({ event, liveTick = 0 }: { event: EventItem;
               {event.batchMode ? "Desempenho por lote" : "Desempenho por ingresso"}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Receita total <span className="font-bold text-foreground">{formatBRL(receitaTotal)}</span>
+              Vendido <span className="font-bold text-foreground">{formatBRL(receitaTotal)}</span>
             </p>
           </div>
 
@@ -313,8 +312,16 @@ export default function ReportsView({ event, liveTick = 0 }: { event: EventItem;
             </table>
           </div>
 
+          {/* Este número é preço x vendidos, que só coincide com o repasse quando
+              a taxa é paga pelo comprador. O valor exato sai do Payment, então
+              a conta do dinheiro mora numa tela só: o Financeiro. */}
           <p className="text-xs text-muted-foreground mt-3">
-            Receita é o valor dos ingressos vendidos, sem descontar a taxa de conveniência.
+            Valor dos ingressos vendidos. O quanto de fato entrou na sua conta, já com a taxa
+            descontada, está em{" "}
+            <a href="/dashboard/financeiro" className="font-medium text-laranja hover:underline">
+              Financeiro
+            </a>
+            .
           </p>
         </div>
       )}
@@ -396,49 +403,5 @@ export default function ReportsView({ event, liveTick = 0 }: { event: EventItem;
   );
 }
 
-/* ── Auxiliares ──────────────────────────────────── */
-const tooltipStyle = {
-  cursor: { fill: "rgba(240,90,40,0.06)" },
-  contentStyle: {
-    borderRadius: 12,
-    border: "1px solid #e5e7eb",
-    fontSize: 12,
-    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-  },
-  labelStyle: { color: GRAFITE, fontWeight: 600 },
-};
-
-function ChartCard({
-  title, subtitle, full, children,
-}: {
-  title: string;
-  subtitle: string;
-  full?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={`bg-card rounded-2xl border border-border p-6 ${full ? "lg:col-span-2" : ""}`}>
-      <h3 className="text-foreground font-semibold">{title}</h3>
-      <p className="text-muted-foreground text-sm mb-5">{subtitle}</p>
-      {children}
-    </div>
-  );
-}
-
-function EmptyChart({ message }: { message: string }) {
-  return (
-    <div className="h-[240px] flex items-center justify-center text-muted-foreground text-sm">
-      {message}
-    </div>
-  );
-}
-
-function Legend({ color, label, value }: { color: string; label: string; value: number }) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: color }} />
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-semibold text-foreground ml-auto">{value}</span>
-    </div>
-  );
-}
+/* Os auxiliares visuais (ChartCard, EmptyChart, Legend, tooltipStyle) vivem em
+   components/dashboard/chartUi.tsx — compartilhados com a tela Financeiro. */

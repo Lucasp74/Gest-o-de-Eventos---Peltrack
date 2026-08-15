@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
   Zap, LayoutDashboard, Calendar, Users, ScanLine,
-  BarChart3, Settings, Menu, X, LogOut, Monitor,
+  BarChart3, Settings, Menu, X, LogOut, Monitor, Wallet,
 } from "lucide-react";
 import ThemeSwitch from "@/components/ui/ThemeSwitch";
 
@@ -22,6 +22,7 @@ const navItems = [
   { icon: Users,           label: "Convidados",     href: "/dashboard/convidados" },
   { icon: ScanLine,        label: "Scanner",        href: "/dashboard/scanner" },
   { icon: BarChart3,       label: "Relatórios",     href: "/dashboard/relatorios" },
+  { icon: Wallet,          label: "Financeiro",     href: "/dashboard/financeiro" },
   { icon: Monitor,         label: "App Desktop",    href: "/dashboard/app-desktop" },
   { icon: Settings,        label: "Configurações",  href: "/dashboard/configuracoes" },
 ];
