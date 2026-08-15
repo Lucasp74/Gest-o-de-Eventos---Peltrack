@@ -12,6 +12,50 @@ import { randomUUID } from "crypto";
 const BASE = "https://api.mercadopago.com/v1";
 const OAUTH_URL = "https://api.mercadopago.com/oauth/token";
 
+/**
+ * Id da conta MP da PRÓPRIA Peltrack, memoizado por instância.
+ *
+ * POR QUE EXISTE: o Mercado Pago RECUSA a cobrança inteira quando ela leva
+ * application_fee e quem recebe é a conta dona da aplicação. Ninguém cobra taxa
+ * de marketplace de si mesmo. Isso derrubou uma compra real em 15/08, com a
+ * mensagem "You cannot use application_fee with this payment" aparecendo para o
+ * comprador na tela do celular.
+ *
+ * Vem da API em vez de variável de ambiente de propósito: não há o que
+ * configurar errado, e se um dia a conta mudar isso se corrige sozinho.
+ * Só memoiza em caso de SUCESSO, senão uma falha de rede envenenaria a
+ * instância inteira.
+ */
+let contaDaPlataforma: string | null = null;
+
+export async function getPlatformUserId(): Promise<string | null> {
+  if (contaDaPlataforma) return contaDaPlataforma;
+  const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+  if (!token) return null;
+  try {
+    const res = await fetch("https://api.mercadopago.com/users/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await res.json().catch(() => ({}));
+    if (body?.id) contaDaPlataforma = String(body.id);
+  } catch {
+    /* tenta de novo na próxima chamada */
+  }
+  return contaDaPlataforma;
+}
+
+/**
+ * O vendedor deste evento somos nós mesmos?
+ * Quando sim, não existe taxa: seria dinheiro saindo da Peltrack para a
+ * Peltrack. Na dúvida (API fora do ar) devolve false, mantendo o comportamento
+ * de sempre para os clientes de verdade, que são a esmagadora maioria.
+ */
+export async function vendedorEhAPlataforma(mpUserId: string | null): Promise<boolean> {
+  if (!mpUserId) return false;
+  const nossa = await getPlatformUserId();
+  return !!nossa && nossa === mpUserId;
+}
+
 function authHeaders(token: string, idempotencyKey?: string): Record<string, string> {
   const h: Record<string, string> = {
     Authorization: `Bearer ${token}`,

@@ -214,7 +214,7 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
             <span>{pix.quantity > 1 ? `Ingressos (${pix.quantity}× ${formatBRL(pix.ticketPrice)})` : "Ingresso"}</span>
             <span>{formatBRL(pix.subtotal)}</span>
           </div>
-          {(pix.passFeeToBuyer ?? true) && (
+          {(pix.passFeeToBuyer ?? true) && pix.fee > 0 && (
             <div className="flex justify-between text-muted-foreground"><span>Taxa de conveniência</span><span>{formatBRL(pix.fee)}</span></div>
           )}
           <div className="flex justify-between text-foreground font-bold pt-1.5 border-t border-border"><span>Total</span><span>{formatBRL(pix.total)}</span></div>
@@ -318,7 +318,7 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
                   <div>
                     <p className="font-semibold text-sm text-foreground">{t.name}</p>
                     <p className="text-muted-foreground text-xs mt-0.5">
-                      {tPass ? `${formatBRL(t.price)} + ${formatBRL(tFee)} de taxa` : formatBRL(t.price)}
+                      {tPass && tFee > 0 ? `${formatBRL(t.price)} + ${formatBRL(tFee)} de taxa` : formatBRL(t.price)}
                     </p>
                   </div>
                   <span className="font-bold text-sm text-laranja flex-shrink-0">{formatBRL(tTotal)}</span>
@@ -358,7 +358,7 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
               <div>
                 <p className="font-semibold text-sm text-foreground">{t.name}</p>
                 <p className="text-muted-foreground text-xs mt-0.5">
-                  {soldOut ? "Esgotado" : tPass ? `${formatBRL(t.price)} + ${formatBRL(tFee)} de taxa` : formatBRL(t.price)}
+                  {soldOut ? "Esgotado" : tPass && tFee > 0 ? `${formatBRL(t.price)} + ${formatBRL(tFee)} de taxa` : formatBRL(t.price)}
                 </p>
               </div>
               <span className={`font-bold text-sm ${ticketId === t.id ? "text-laranja" : "text-foreground"}`}>

@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { getCurrentTenantId } from "@/lib/tenant";
-import { exchangeCodeForToken } from "@/lib/mercadopago";
+import { exchangeCodeForToken, getPlatformUserId } from "@/lib/mercadopago";
 
 function back(req: Request, status: string) {
   const res = NextResponse.redirect(new URL(`/dashboard/configuracoes?mp=${status}`, req.url));
@@ -39,6 +39,14 @@ export async function GET(req: Request) {
   if (!r.ok || !r.accessToken || !r.userId) {
     console.error("[mp callback] troca de token falhou:", r.error);
     return back(req, "erro");
+  }
+
+  // Conectou a conta da PRÓPRIA Peltrack: aceita, mas registra. Essas vendas
+  // saem sem taxa (o MP proíbe application_fee quando quem recebe é a dona da
+  // aplicação), e é melhor saber disso aqui do que na tela de um comprador.
+  const nossa = await getPlatformUserId();
+  if (nossa && nossa === r.userId) {
+    console.warn("[mp callback] conta da plataforma conectada como organizador", { tenantId });
   }
 
   try {

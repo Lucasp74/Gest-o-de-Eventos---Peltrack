@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { serializeEvent } from "@/lib/eventMap";
 import { feePct } from "@/lib/planPricing";
 import { resolveBatches } from "@/lib/batches";
+import { vendedorEhAPlataforma } from "@/lib/mercadopago";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,7 +16,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     where: { id },
     include: {
       tickets: { orderBy: { sortOrder: "asc" } },
-      tenant: { select: { plan: true } },
+      tenant: { select: { plan: true, mpUserId: true } },
       _count: { select: { confirmations: true, checkins: true } },
     },
   });
@@ -36,6 +37,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     serialized.tickets = serialized.tickets.map((t) => ({ ...t, batchState: estado.get(t.id) }));
   }
 
-  // Taxa de conveniência (%) para o comprador ver o total antes de pagar
-  return NextResponse.json({ ...serialized, confirmed, feePct: feePct(event.tenant.plan) });
+  // Taxa de conveniência (%) para o comprador ver o total antes de pagar.
+  // Evento da própria Peltrack não tem taxa, e o MESMO teste roda no /purchase:
+  // se os dois discordassem, a tela mostraria um preço e a cobrança viria outro.
+  const semTaxa = await vendedorEhAPlataforma(event.tenant.mpUserId);
+  return NextResponse.json({
+    ...serialized,
+    confirmed,
+    feePct: semTaxa ? 0 : feePct(event.tenant.plan),
+  });
 }

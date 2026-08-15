@@ -6,7 +6,7 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createPixCharge } from "@/lib/mercadopago";
+import { createPixCharge, vendedorEhAPlataforma } from "@/lib/mercadopago";
 import { getValidSellerToken } from "@/lib/mpAccount";
 import { ticketCharge } from "@/lib/planPricing";
 import { resolveBatches } from "@/lib/batches";
@@ -32,7 +32,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   const event = await prisma.event.findUnique({
     where: { id },
-    include: { tenant: { select: { plan: true } }, tickets: true },
+    include: { tenant: { select: { plan: true, mpUserId: true } }, tickets: true },
   });
   if (!event) return NextResponse.json({ error: "Evento não encontrado." }, { status: 404 });
   if (!event.paid) return NextResponse.json({ error: "Este evento é gratuito." }, { status: 400 });
@@ -85,8 +85,16 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   // Valor por unidade depende de quem paga a taxa; total = unidade × quantidade.
   const ticketPrice = Number(ticket.price);
   const { fee: unitFee, buyerTotal: unitTotal } = ticketCharge(event.tenant.plan, ticketPrice, ticket.passFeeToBuyer);
-  const fee = Math.round(unitFee * quantity * 100) / 100;     // taxa total (receita Peltrack)
-  const total = Math.round(unitTotal * quantity * 100) / 100; // valor total cobrado
+
+  // Evento da própria Peltrack: sem taxa. Cobrar de si mesmo não faz sentido, e
+  // o MP RECUSA a cobrança inteira se ela vier com application_fee (foi o que
+  // barrou uma compra real em 15/08). Mesmo teste do /api/public/events/[id],
+  // que é quem desenha o preço na tela.
+  const semTaxa = await vendedorEhAPlataforma(event.tenant.mpUserId);
+  const fee = semTaxa ? 0 : Math.round(unitFee * quantity * 100) / 100; // receita Peltrack
+  const total = semTaxa
+    ? Math.round(ticketPrice * quantity * 100) / 100
+    : Math.round(unitTotal * quantity * 100) / 100;
 
   const charge = await createPixCharge({
     sellerToken,
@@ -98,9 +106,20 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     payerCpf: cpf,
   });
   if (!charge.ok || !charge.id) {
+    // O detalhe do gateway vai para o LOG, nunca para a tela. Em 15/08 um
+    // comprador leu "You cannot use application_fee with this payment", em
+    // inglês: jargão interno do MP, inútil para ele e revelando como a nossa
+    // cobrança funciona por dentro.
+    console.error("[purchase] Mercado Pago recusou a cobrança", {
+      eventId: id,
+      ticketTypeId: ticket.id,
+      total,
+      fee,
+      erro: charge.error,
+    });
     const msg = charge.error === "PAGAMENTO_INDISPONIVEL"
       ? "Pagamento indisponível no momento. Tente mais tarde."
-      : charge.error ?? "Não foi possível gerar a cobrança.";
+      : "Não foi possível gerar o Pix agora. Tente novamente em instantes ou fale com o organizador do evento.";
     return NextResponse.json({ error: msg }, { status: 502 });
   }
 
