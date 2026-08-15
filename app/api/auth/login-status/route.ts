@@ -23,10 +23,17 @@ export async function POST(req: Request) {
   }
 
   if (email && password) {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { tenant: { select: { suspendedAt: true } } },
+    });
     const senhaOk = !!user?.passwordHash && bcrypt.compareSync(password, user.passwordHash);
     if (senhaOk && !user!.emailVerified) {
       return NextResponse.json({ unverified: true });
+    }
+    // Mesma condição de segurança acima: só revela com a senha correta.
+    if (senhaOk && user!.tenant?.suspendedAt) {
+      return NextResponse.json({ suspended: true });
     }
   }
 

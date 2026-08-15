@@ -5,13 +5,14 @@
  * filtro por plano, lista com uso (eventos no mês/limite) e receita mensal,
  * e o modal de provisionamento (plano, valor, limites, flags, chave de API).
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
 } from "recharts";
 import {
   Building2, Settings2, X, Loader2, Check, KeyRound, Copy, Users, Calendar,
+  Ban, RotateCcw, Trash2, AlertTriangle,
 } from "lucide-react";
 import { PLAN_COLORS } from "@/components/admin/OverviewCharts";
 import { effectiveMonthlyPrice, formatBRL, PLAN_DEFAULTS } from "@/lib/planPricing";
@@ -31,6 +32,10 @@ export type AdminTenant = {
   ownerEmail: string | null;
   events: number;
   eventsThisMonth: number;
+  /** ISO da suspensão. Nulo = ativo. */
+  suspendedAt: string | null;
+  /** Eventos deste cliente acontecendo HOJE — suspender derruba a portaria deles. */
+  eventsToday: number;
 };
 
 type PlanKey = "STARTER" | "PRO" | "ENTERPRISE";
@@ -47,6 +52,7 @@ const PLAN_LABELS: Record<string, string> = {
 
 export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) {
   const [editing, setEditing] = useState<AdminTenant | null>(null);
+  const [excluindo, setExcluindo] = useState<AdminTenant | null>(null);
   const [filter, setFilter] = useState<FilterKey>("TODOS");
   const [toast, setToast] = useState<string | null>(null);
 
@@ -173,7 +179,14 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
                       <Building2 className="w-4 h-4 text-foreground" />
                     </div>
                     <div className="min-w-0">
-                      <span className="block text-foreground font-medium text-sm truncate">{t.name}</span>
+                      <span className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-foreground font-medium text-sm truncate">{t.name}</span>
+                        {t.suspendedAt && (
+                          <span className="flex-shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-red-50 text-red-700 border-red-200">
+                            Suspenso
+                          </span>
+                        )}
+                      </span>
                       {t.ownerEmail && (
                         <span className="block text-muted-foreground text-xs truncate">{t.ownerEmail}</span>
                       )}
@@ -244,15 +257,165 @@ export default function ClientsManager({ tenants }: { tenants: AdminTenant[] }) 
           tenant={editing}
           onClose={() => setEditing(null)}
           onSaved={(msg) => { setEditing(null); showToast(msg); }}
+          onExcluir={() => { setExcluindo(editing); setEditing(null); }}
+        />
+      )}
+
+      {excluindo && (
+        <DeleteDialog
+          tenant={excluindo}
+          onClose={() => setExcluindo(null)}
+          onDeleted={(msg) => { setExcluindo(null); showToast(msg); }}
         />
       )}
     </>
   );
 }
 
-/* ── Modal de provisionamento ────────────────────────── */
-function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose: () => void; onSaved: (msg: string) => void }) {
+/* ── Modal de exclusão definitiva ─────────────────────
+   Separado do de provisionamento de propósito: é uma ação de outra natureza,
+   irreversível, e não pode dividir botão "Salvar" com troca de plano. */
+type Estrago = { usuarios: number; eventos: number; convidados: number; checkins: number; pagamentos: number };
+
+function DeleteDialog({
+  tenant, onClose, onDeleted,
+}: {
+  tenant: AdminTenant;
+  onClose: () => void;
+  onDeleted: (msg: string) => void;
+}) {
   const router = useRouter();
+  const [estrago, setEstrago] = useState<Estrago | null>(null);
+  const [confirmacao, setConfirmacao] = useState("");
+  const [excluindo, setExcluindo] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Conta na hora de abrir: números velhos numa tela irreversível é pior que
+  // número nenhum.
+  useEffect(() => {
+    let vivo = true;
+    fetch(`/api/admin/tenants/${tenant.id}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: Estrago | null) => { if (vivo) setEstrago(d); })
+      .catch(() => { if (vivo) setEstrago(null); });
+    return () => { vivo = false; };
+  }, [tenant.id]);
+
+  const confere = confirmacao.trim() === tenant.name;
+
+  async function excluir() {
+    setExcluindo(true);
+    setError(null);
+    const res = await fetch(`/api/admin/tenants/${tenant.id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ confirmName: confirmacao.trim() }),
+    });
+    setExcluindo(false);
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      setError(d?.error ?? "Não foi possível excluir o cliente.");
+      return;
+    }
+    router.refresh();
+    onDeleted(`${tenant.name} foi excluído.`);
+  }
+
+  const linhas: [string, number | undefined][] = [
+    ["Usuários", estrago?.usuarios],
+    ["Eventos", estrago?.eventos],
+    ["Convidados", estrago?.convidados],
+    ["Check-ins", estrago?.checkins],
+    ["Pagamentos aprovados", estrago?.pagamentos],
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border">
+          <h3 className="text-foreground font-bold flex items-center gap-2">
+            <Trash2 className="w-4 h-4 text-red-600" /> Excluir cliente
+          </h3>
+          <button onClick={onClose} aria-label="Fechar" className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4">
+          {error && (
+            <div role="alert" className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
+              {error}
+            </div>
+          )}
+
+          <p className="text-sm text-muted-foreground">
+            Isto apaga <span className="font-semibold text-foreground">{tenant.name}</span> e tudo
+            que pertence a essa organização, sem volta.
+          </p>
+
+          <div className="bg-fundo/50 border border-border rounded-xl divide-y divide-border">
+            {linhas.map(([rotulo, n]) => (
+              <div key={rotulo} className="flex items-center justify-between px-3.5 py-2 text-sm">
+                <span className="text-muted-foreground">{rotulo}</span>
+                <span className="font-semibold text-foreground tabular-nums">
+                  {n === undefined ? "..." : n}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Venda registrada vira obrigação fiscal, e some junto. */}
+          {!!estrago?.pagamentos && (
+            <div className="flex gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl px-3 py-2.5">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>
+                Este cliente teve venda de ingresso. O registro dos pagamentos some junto. Se houver
+                obrigação fiscal, guarde um resumo antes de excluir.
+              </span>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">
+              Digite <span className="font-mono text-red-600">{tenant.name}</span> para liberar
+            </label>
+            <input
+              value={confirmacao}
+              onChange={(e) => setConfirmacao(e.target.value)}
+              autoComplete="off"
+              className="w-full h-10 px-3 rounded-xl border border-border text-sm text-foreground outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 px-5 py-4 border-t border-border bg-fundo/30">
+          <button onClick={onClose} className="px-4 py-2 rounded-xl border border-border text-foreground text-sm font-medium transition-colors">
+            Cancelar
+          </button>
+          <button
+            onClick={excluir}
+            disabled={!confere || excluindo}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:hover:bg-red-600 text-white text-sm font-semibold transition-colors"
+          >
+            {excluindo ? <><Loader2 className="w-4 h-4 animate-spin" /> Excluindo...</> : "Excluir para sempre"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Modal de provisionamento ────────────────────────── */
+function EditDialog({
+  tenant, onClose, onSaved, onExcluir,
+}: {
+  tenant: AdminTenant;
+  onClose: () => void;
+  onSaved: (msg: string) => void;
+  onExcluir: () => void;
+}) {
+  const router = useRouter();
+  const [suspendendo, setSuspendendo] = useState(false);
   const [plan, setPlan] = useState(tenant.plan);
   const [priceInput, setPriceInput] = useState(tenant.monthlyPrice !== null ? String(tenant.monthlyPrice).replace(".", ",") : "");
   const [maxEvents, setMaxEvents] = useState(String(tenant.maxEventsPerMonth));
@@ -303,6 +466,19 @@ function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose
   async function generateKey() {
     const data = await patch({ generateApiKey: true });
     if (data?.apiKey) setApiKey(data.apiKey);
+  }
+
+  async function alternarSuspensao(suspender: boolean) {
+    setSuspendendo(true);
+    setError(null);
+    const ok = await patch({ suspended: suspender });
+    setSuspendendo(false);
+    if (!ok) {
+      setError("Não foi possível alterar o acesso. Tente novamente.");
+      return;
+    }
+    router.refresh();
+    onSaved(suspender ? `${tenant.name} suspenso.` : `${tenant.name} reativado.`);
   }
 
   const input = "w-full h-10 px-3 rounded-xl border border-border text-sm text-foreground outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja";
@@ -419,6 +595,67 @@ function EditDialog({ tenant, onClose, onSaved }: { tenant: AdminTenant; onClose
                 + Gerar chave de API
               </button>
             )}
+          </div>
+
+          {/* ── Zona de risco: suspender e excluir ───────────────────── */}
+          <div className="pt-5 border-t border-border space-y-3">
+            <h4 className="text-sm font-semibold text-foreground">Acesso da organização</h4>
+
+            {/* Suspender com evento hoje derruba o scanner com gente na fila. */}
+            {!tenant.suspendedAt && tenant.eventsToday > 0 && (
+              <div className="flex gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl px-3 py-2.5">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>
+                  Este cliente tem {tenant.eventsToday} evento{tenant.eventsToday === 1 ? "" : "s"}{" "}
+                  acontecendo hoje. Suspender agora para o check-in na hora, inclusive com a
+                  portaria funcionando. Prefira fazer isso fora do horário do evento.
+                </span>
+              </div>
+            )}
+
+            {tenant.suspendedAt ? (
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs text-muted-foreground">
+                  Suspenso desde {new Date(tenant.suspendedAt).toLocaleDateString("pt-BR")}. Os dados
+                  seguem intactos.
+                </p>
+                <button
+                  onClick={() => alternarSuspensao(false)}
+                  disabled={suspendendo}
+                  className="flex items-center gap-1.5 flex-shrink-0 px-3 py-2 rounded-xl border border-border text-foreground text-sm font-medium hover:border-laranja disabled:opacity-60 transition-colors"
+                >
+                  {suspendendo ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+                  Reativar
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs text-muted-foreground">
+                  Bloqueia o painel e o app desktop. Mantém todos os dados e as páginas públicas
+                  dos eventos no ar.
+                </p>
+                <button
+                  onClick={() => alternarSuspensao(true)}
+                  disabled={suspendendo}
+                  className="flex items-center gap-1.5 flex-shrink-0 px-3 py-2 rounded-xl border border-amber-300 text-amber-700 text-sm font-medium hover:bg-amber-50 disabled:opacity-60 transition-colors"
+                >
+                  {suspendendo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ban className="w-4 h-4" />}
+                  Suspender
+                </button>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-border">
+              <p className="text-xs text-muted-foreground">
+                Excluir apaga tudo para sempre. Use apenas em pedido de exclusão pela LGPD.
+              </p>
+              <button
+                onClick={onExcluir}
+                className="flex items-center gap-1.5 flex-shrink-0 px-3 py-2 rounded-xl border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" /> Excluir
+              </button>
+            </div>
           </div>
         </div>
 

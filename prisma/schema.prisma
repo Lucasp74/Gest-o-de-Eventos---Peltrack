@@ -93,6 +93,14 @@ model Tenant {
   // (TI, dono) raramente é quem atende o público (secretaria, produção).
   replyToEmail String?
 
+  // Suspensão administrativa. Nulo = ativo; preenchido = suspenso E desde quando.
+  // Timestamp em vez de booleano porque a data é a primeira coisa que o suporte
+  // pergunta, e não custa coluna a mais.
+  // O bloqueio de verdade fica em getCurrentTenantId (lib/tenant.ts), que toda
+  // rota autenticada atravessa. As páginas PÚBLICAS de evento seguem no ar de
+  // propósito: suspender o organizador não pode punir quem já tem o convite.
+  suspendedAt DateTime?
+
   // Assinatura recorrente da mensalidade (Mercado Pago preapproval).
   subscriptionId     String? @unique // id da preapproval no MP
   subscriptionStatus String? // pending | authorized | paused | cancelled

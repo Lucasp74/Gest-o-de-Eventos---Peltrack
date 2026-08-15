@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { wallClockNow } from "@/lib/eventMap";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import ClientsManager, { type AdminTenant } from "@/components/admin/ClientsManager";
 
@@ -15,18 +16,36 @@ export default async function AdminClientesPage() {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const rows = await prisma.tenant.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      _count: { select: { users: true, events: true } },
-      // dono do tenant (usuário mais antigo) — para exibir o e-mail no admin
-      users: { orderBy: { createdAt: "asc" }, take: 1, select: { email: true } },
-      events: {
-        where: { createdAt: { gte: monthStart } },
-        select: { id: true },
+  // Quem tem evento ACONTECENDO HOJE. Suspender derruba o scanner na hora, então
+  // o painel avisa antes de o admin clicar com uma portaria funcionando.
+  // startAt é data de "relógio de parede" (dígitos digitados), por isso o dia
+  // sai do wallClockNow e não de new Date(), que erraria em 3 horas.
+  const agora = wallClockNow();
+  const inicioHoje = new Date(Date.UTC(agora.getUTCFullYear(), agora.getUTCMonth(), agora.getUTCDate()));
+  const fimHoje = new Date(inicioHoje.getTime() + 86_400_000);
+
+  const [rows, hoje] = await Promise.all([
+    prisma.tenant.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: { select: { users: true, events: true } },
+        // dono do tenant (usuário mais antigo) — para exibir o e-mail no admin
+        users: { orderBy: { createdAt: "asc" }, take: 1, select: { email: true } },
+        events: {
+          where: { createdAt: { gte: monthStart } },
+          select: { id: true },
+        },
       },
-    },
-  });
+    }),
+    // Uma consulta só para todos os clientes, em vez de uma por linha da lista.
+    prisma.event.groupBy({
+      by: ["tenantId"],
+      where: { startAt: { gte: inicioHoje, lt: fimHoje } },
+      _count: { _all: true },
+    }),
+  ]);
+
+  const eventosHojePorTenant = new Map(hoje.map((h) => [h.tenantId, h._count._all]));
 
   const tenants: AdminTenant[] = rows.map((t) => ({
     id: t.id,
@@ -43,6 +62,8 @@ export default async function AdminClientesPage() {
     ownerEmail: t.users[0]?.email ?? null,
     events: t._count.events,
     eventsThisMonth: t.events.length,
+    suspendedAt: t.suspendedAt ? t.suspendedAt.toISOString() : null,
+    eventsToday: eventosHojePorTenant.get(t.id) ?? 0,
   }));
 
   return (

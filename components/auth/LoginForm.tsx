@@ -69,6 +69,8 @@ export default function LoginForm() {
       } else if (data?.unverified) {
         msg = "Confirme seu e-mail para entrar. Enviamos um link no seu cadastro.";
         setNaoConfirmado(true);
+      } else if (data?.suspended) {
+        msg = "Acesso suspenso. Fale com o suporte pelo contato@peltrack.com.";
       }
     } catch {
       /* mantém a mensagem genérica */

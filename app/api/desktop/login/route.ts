@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
   const user = await prisma.user.findUnique({
     where: { email },
-    include: { tenant: { select: { id: true, name: true, plan: true, flagDesktopSync: true } } },
+    include: { tenant: { select: { id: true, name: true, plan: true, flagDesktopSync: true, suspendedAt: true } } },
   });
 
   // Mensagem genérica de propósito: não revela se o e-mail existe.
@@ -53,6 +53,15 @@ export async function POST(req: Request) {
 
   if (!user.tenant) {
     return NextResponse.json({ error: "Conta sem organização vinculada." }, { status: 403 });
+  }
+
+  // Mesma regra do web. O token não seria aceito nas demais rotas de qualquer
+  // forma (getCurrentTenantId barra), mas aqui o operador recebe o motivo.
+  if (user.tenant.suspendedAt) {
+    return NextResponse.json(
+      { error: "Acesso suspenso. Fale com o suporte pelo contato@peltrack.com.", code: "SUSPENSO" },
+      { status: 403 },
+    );
   }
 
   if (!user.tenant.flagDesktopSync) {

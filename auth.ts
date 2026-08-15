@@ -23,6 +23,11 @@ class EmailNaoConfirmadoError extends CredentialsSignin {
   code = "email-nao-confirmado";
 }
 
+/** Credencial certa, mas a organização está suspensa pelo admin. */
+class ContaSuspensaError extends CredentialsSignin {
+  code = "conta-suspensa";
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
@@ -43,7 +48,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const ip = getClientIp(request);
         if ((await checkLoginThrottle(email, ip)).blocked) throw new TooManyLoginsError();
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+          where: { email },
+          include: { tenant: { select: { suspendedAt: true } } },
+        });
         const ok = !!user?.passwordHash && bcrypt.compareSync(password, user.passwordHash);
         if (!ok) {
           await recordLoginFailure(email, ip);
@@ -56,6 +64,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // foram marcadas como confirmadas por SQL no deploy, então clientes
         // antigos não são afetados. Quem entra pelo Google já vem confirmado.
         if (!user!.emailVerified) throw new EmailNaoConfirmadoError();
+
+        // Barra na porta só para dar a MENSAGEM certa. O bloqueio real é o
+        // getCurrentTenantId, que também alcança Google e sessão já aberta.
+        if (user!.tenant?.suspendedAt) throw new ContaSuspensaError();
 
         return { id: user!.id, email: user!.email, name: user!.name, image: user!.image };
       },

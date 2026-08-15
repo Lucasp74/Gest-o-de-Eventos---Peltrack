@@ -11,11 +11,19 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { verifyDesktopToken } from "@/lib/desktopToken";
 
+/**
+ * CLIENTE SUSPENSO NÃO TEM TENANT.
+ * Esta é a única guarda da suspensão, e ela cobre tudo: login por senha, login
+ * pelo Google (que não passa pelo authorize) e SESSÕES JÁ ABERTAS, que o nosso
+ * JWT sem estado não derruba. Bloquear só nos logins deixaria essas três portas
+ * escancaradas. Custa zero consulta a mais: a busca do usuário já acontecia.
+ */
 async function tenantDoUsuario(userId: string): Promise<string | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { tenantId: true },
+    select: { tenantId: true, tenant: { select: { suspendedAt: true } } },
   });
+  if (user?.tenant?.suspendedAt) return null;
   return user?.tenantId ?? null;
 }
 
