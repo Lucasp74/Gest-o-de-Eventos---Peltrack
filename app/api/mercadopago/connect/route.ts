@@ -5,12 +5,16 @@
  */
 import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { getCurrentTenantId } from "@/lib/tenant";
+import { getCurrentMembership } from "@/lib/tenant";
 import { buildAuthorizeUrl } from "@/lib/mercadopago";
 
 export async function GET(req: Request) {
-  const tenantId = await getCurrentTenantId();
-  if (!tenantId) return NextResponse.redirect(new URL("/login", req.url));
+  const vinculo = await getCurrentMembership();
+  if (!vinculo) return NextResponse.redirect(new URL("/login", req.url));
+  // Conectar a conta bancária da organização é ato exclusivo do dono.
+  if (vinculo.papel !== "DONO") {
+    return NextResponse.redirect(new URL("/dashboard/configuracoes?mp=sem_permissao", req.url));
+  }
 
   const state = randomBytes(16).toString("hex");
   const redirectUri = new URL("/api/mercadopago/callback", req.url).toString();

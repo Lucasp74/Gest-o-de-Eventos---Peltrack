@@ -4,11 +4,11 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentTenantId } from "@/lib/tenant";
+import { getOwnerTenantId } from "@/lib/tenant";
 
 export async function POST() {
-  const tenantId = await getCurrentTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
+  const tenantId = await getOwnerTenantId();
+  if (!tenantId) return NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
 
   await prisma.tenant.update({
     where: { id: tenantId },

@@ -10,19 +10,25 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Ban } from "lucide-react";
+import { PapelProvider } from "@/components/dashboard/PapelProvider";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   const userId = session?.user?.id;
 
+  // A mesma consulta serve às duas coisas: barrar suspenso e distribuir o papel
+  // para as telas. Ler o papel daqui, e não do token da sessão, faz uma troca de
+  // papel valer na navegação seguinte, sem exigir novo login.
   const user = userId
     ? await prisma.user.findUnique({
         where: { id: userId },
-        select: { tenant: { select: { suspendedAt: true } } },
+        select: { tenantRole: true, tenant: { select: { suspendedAt: true } } },
       })
     : null;
 
-  if (!user?.tenant?.suspendedAt) return <>{children}</>;
+  if (!user?.tenant?.suspendedAt) {
+    return <PapelProvider papel={user?.tenantRole ?? "DONO"}>{children}</PapelProvider>;
+  }
 
   const desde = user.tenant.suspendedAt.toLocaleDateString("pt-BR");
 

@@ -50,6 +50,14 @@ enum PaymentStatus {
   CANCELADO
 }
 
+/// Papel do usuário DENTRO da organização (não confundir com o admin da
+/// plataforma, que vive na tabela Admin). DONO faz tudo; OPERADOR opera a
+/// portaria e não vê dinheiro, cobrança nem configuração da conta.
+enum TenantRole {
+  DONO
+  OPERADOR
+}
+
 enum LeadStatus {
   NOVO
   EM_CONTATO
@@ -126,6 +134,11 @@ model User {
 
   tenantId      String?   // opcional — o Tenant é criado automaticamente no cadastro
   tenant        Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Papel na organização. O padrão é DONO para que TODOS os usuários que já
+  // existiam continuem podendo tudo: quem se cadastra cria a própria
+  // organização e é dono dela. OPERADOR só existe por convite.
+  tenantRole    TenantRole @default(DONO)
 
   accounts      Account[] // contas OAuth (Google) vinculadas
   sessions      Session[]

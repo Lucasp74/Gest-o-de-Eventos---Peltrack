@@ -6,7 +6,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { getCurrentTenantId } from "@/lib/tenant";
+import { getCurrentMembership } from "@/lib/tenant";
 import { exchangeCodeForToken, getPlatformUserId } from "@/lib/mercadopago";
 
 function back(req: Request, status: string) {
@@ -16,8 +16,13 @@ function back(req: Request, status: string) {
 }
 
 export async function GET(req: Request) {
-  const tenantId = await getCurrentTenantId();
-  if (!tenantId) return NextResponse.redirect(new URL("/login", req.url));
+  const vinculo = await getCurrentMembership();
+  if (!vinculo) return NextResponse.redirect(new URL("/login", req.url));
+  // Mesma trava do /connect. Repetida aqui de propósito: o callback é uma URL
+  // pública, e depender só da trava da porta de entrada deixaria este caminho
+  // aberto para quem chegasse direto nele.
+  if (vinculo.papel !== "DONO") return back(req, "sem_permissao");
+  const tenantId = vinculo.tenantId;
 
   const url = new URL(req.url);
   const code = url.searchParams.get("code");

@@ -10,15 +10,15 @@
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentTenantId } from "@/lib/tenant";
+import { getOwnerTenantId } from "@/lib/tenant";
 import { agregar } from "@/lib/finance";
 
 /** Períodos aceitos, em dias. 0 = desde sempre. */
 const PERIODOS = [7, 30, 90];
 
 export async function GET(req: NextRequest) {
-  const tenantId = await getCurrentTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
+  const tenantId = await getOwnerTenantId();
+  if (!tenantId) return NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
 
   const sp = req.nextUrl.searchParams;
   const eventId = sp.get("eventId")?.trim() || null;

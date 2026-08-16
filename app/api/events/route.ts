@@ -6,7 +6,7 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentTenantId } from "@/lib/tenant";
+import { getCurrentTenantId, getOwnerTenantId } from "@/lib/tenant";
 import { inputToDate, serializeEvent } from "@/lib/eventMap";
 
 const EVENT_INCLUDE = {
@@ -27,8 +27,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const tenantId = await getCurrentTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
+  // Criar evento é do dono. O operador LÊ a lista (GET acima), porque precisa
+  // dela para operar a portaria, mas não cria nem altera.
+  const tenantId = await getOwnerTenantId();
+  if (!tenantId) return NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
 
   const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
   if (!tenant) return NextResponse.json({ error: "Cliente não encontrado." }, { status: 404 });

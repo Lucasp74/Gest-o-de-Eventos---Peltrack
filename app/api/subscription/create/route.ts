@@ -6,7 +6,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { getCurrentTenantId } from "@/lib/tenant";
+import { getCurrentMembership } from "@/lib/tenant";
 import { createPreapproval } from "@/lib/mercadopago";
 import { PLAN_DEFAULT_PRICE } from "@/lib/planPricing";
 
@@ -15,9 +15,12 @@ const back = (req: Request, s: string) =>
 
 export async function GET(req: Request) {
   const session = await auth();
-  const tenantId = await getCurrentTenantId();
+  const vinculo = await getCurrentMembership();
   const email = session?.user?.email;
-  if (!tenantId || !email) return NextResponse.redirect(new URL("/login", req.url));
+  if (!vinculo || !email) return NextResponse.redirect(new URL("/login", req.url));
+  // Assinar o plano é ato do dono: mexe na cobrança da organização.
+  if (vinculo.papel !== "DONO") return back(req, "sem_permissao");
+  const tenantId = vinculo.tenantId;
 
   const plan = new URL(req.url).searchParams.get("plan");
   if (plan !== "PRO" && plan !== "ENTERPRISE") return back(req, "erro");

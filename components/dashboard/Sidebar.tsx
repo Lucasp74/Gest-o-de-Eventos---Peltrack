@@ -8,6 +8,7 @@ import {
   BarChart3, Settings, Menu, X, LogOut, Monitor, Wallet,
 } from "lucide-react";
 import ThemeSwitch from "@/components/ui/ThemeSwitch";
+import { useEhDono } from "@/components/dashboard/PapelProvider";
 
 function getInitials(name?: string | null, email?: string | null) {
   if (name?.trim()) {
@@ -16,15 +17,17 @@ function getInitials(name?: string | null, email?: string | null) {
   return (email?.[0] ?? "?").toUpperCase();
 }
 
+// soDono: some da barra para o operador. Esconder não é a trava de segurança
+// (essa está em getOwnerTenantId, no servidor), é só não mostrar porta fechada.
 const navItems = [
   { icon: LayoutDashboard, label: "Visão geral",   href: "/dashboard" },
   { icon: Calendar,        label: "Meus eventos",   href: "/dashboard/eventos" },
   { icon: Users,           label: "Convidados",     href: "/dashboard/convidados" },
   { icon: ScanLine,        label: "Scanner",        href: "/dashboard/scanner" },
   { icon: BarChart3,       label: "Relatórios",     href: "/dashboard/relatorios" },
-  { icon: Wallet,          label: "Financeiro",     href: "/dashboard/financeiro" },
+  { icon: Wallet,          label: "Financeiro",     href: "/dashboard/financeiro", soDono: true },
   { icon: Monitor,         label: "App Desktop",    href: "/dashboard/app-desktop" },
-  { icon: Settings,        label: "Configurações",  href: "/dashboard/configuracoes" },
+  { icon: Settings,        label: "Configurações",  href: "/dashboard/configuracoes", soDono: true },
 ];
 
 export default function Sidebar() {
@@ -32,6 +35,8 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const user = session?.user;
+  const ehDono = useEhDono();
+  const itens = navItems.filter((i) => ehDono || !i.soDono);
 
   return (
     <>
@@ -79,7 +84,7 @@ export default function Sidebar() {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
+          {itens.map((item) => {
             const active =
               item.href === "/dashboard"
                 ? pathname === "/dashboard"

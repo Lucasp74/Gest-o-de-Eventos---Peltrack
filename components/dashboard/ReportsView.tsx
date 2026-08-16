@@ -18,10 +18,12 @@ import {
 import {
   ChartCard, EmptyChart, Legend, LARANJA, GRAY, tooltipStyle,
 } from "@/components/dashboard/chartUi";
+import { useEhDono } from "@/components/dashboard/PapelProvider";
 
 export default function ReportsView({ event, liveTick = 0 }: { event: EventItem; liveTick?: number }) {
   const [confs, setConfs] = useState<Confirmation[]>([]);
   const [checks, setChecks] = useState<CheckinRecord[]>([]);
+  const ehDono = useEhDono();
   const [exportOpen, setExportOpen] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
 
@@ -128,7 +130,9 @@ export default function ReportsView({ event, liveTick = 0 }: { event: EventItem;
       [],
       ["Hora", "Entradas"],
       ...byHour.map((h) => [h.hora, String(h.entradas)]),
-      ...(porLote.length > 0
+      // Mesma regra da tela: o bloco de receita não sai para o operador. Sem
+      // isto, o botão Exportar seria a porta dos fundos do financeiro.
+      ...(porLote.length > 0 && ehDono
         ? [
             [],
             [event.batchMode ? "Lote" : "Ingresso", "Vendidos", "Estoque", "Receita (R$)", "Presentes"],
@@ -265,8 +269,9 @@ export default function ReportsView({ event, liveTick = 0 }: { event: EventItem;
         ))}
       </div>
 
-      {/* Desempenho por lote / tipo de ingresso — só em evento pago */}
-      {porLote.length > 0 && (
+      {/* Desempenho por lote / tipo de ingresso — só em evento pago, e só para
+          o dono: o bloco é sobre receita, e o operador não vê financeiro. */}
+      {porLote.length > 0 && ehDono && (
         <div className="bg-card rounded-2xl border border-border p-5">
           <div className="flex items-baseline justify-between gap-4 mb-4">
             <h3 className="text-foreground font-bold">
