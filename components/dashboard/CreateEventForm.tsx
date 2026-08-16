@@ -171,7 +171,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
     if (paid && batchMode) {
       const travado = tickets.findIndex((t) => !(parseInt(t.quantity) > 0) && !t.closesAt);
       if (travado >= 0)
-        e.lotes = `O ${travado + 1}º lote precisa de quantidade ou data-limite — sem isso ele nunca fecha e os próximos não abrem.`;
+        e.lotes = `O ${travado + 1}º lote precisa de quantidade ou data-limite: sem isso ele nunca fecha e os próximos não abrem.`;
     }
     if (!description.trim()) e.description = "Adicione uma descrição";
     if (!accepted) e.accepted = "É necessário aceitar os termos";
@@ -606,7 +606,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
                     <span className="block text-xs text-muted-foreground mt-0.5 leading-relaxed">
                       Os ingressos abaixo viram uma sequência: só o lote atual fica à venda. Ele passa
                       para o próximo quando <span className="font-medium text-foreground">esgotar</span> ou quando
-                      chegar a <span className="font-medium text-foreground">data-limite</span> — o que vier primeiro.
+                      chegar a <span className="font-medium text-foreground">data-limite</span>, o que vier primeiro.
                     </span>
                   </span>
                 </label>

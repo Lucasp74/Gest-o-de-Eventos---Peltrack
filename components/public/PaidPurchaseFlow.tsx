@@ -182,6 +182,12 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
 
   /* ── Tela do Pix ─────────────────────────────────── */
   if (pix) {
+    // Um resumo existe para DECOMPOR um valor. Sem taxa e com um ingresso só não
+    // há o que decompor, e o quadro acabava repetindo o mesmo número em duas
+    // linhas, com um divisor no meio — parecia uma linha sem rótulo.
+    const mostraTaxa = (pix.passFeeToBuyer ?? true) && pix.fee > 0;
+    const decompoe = mostraTaxa || pix.quantity > 1;
+
     return (
       <div className="bg-card rounded-2xl border border-border p-6">
         <div className="flex items-center gap-2 text-laranja mb-1">
@@ -208,22 +214,26 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
           </button>
         </div>
 
-        {/* Resumo do valor — a taxa só aparece quando é repassada ao comprador */}
+        {/* Resumo do valor. A taxa só aparece quando é repassada ao comprador. */}
         <div className="mt-6 bg-fundo/50 border border-border rounded-xl p-4 text-sm space-y-1.5">
-          <div className="flex justify-between text-muted-foreground">
-            <span>{pix.quantity > 1 ? `Ingressos (${pix.quantity}× ${formatBRL(pix.ticketPrice)})` : "Ingresso"}</span>
-            <span>{formatBRL(pix.subtotal)}</span>
-          </div>
-          {(pix.passFeeToBuyer ?? true) && pix.fee > 0 && (
+          {decompoe && (
+            <div className="flex justify-between text-muted-foreground">
+              <span>{pix.quantity > 1 ? `Ingressos (${pix.quantity}× ${formatBRL(pix.ticketPrice)})` : "Ingresso"}</span>
+              <span>{formatBRL(pix.subtotal)}</span>
+            </div>
+          )}
+          {mostraTaxa && (
             <div className="flex justify-between text-muted-foreground"><span>Taxa de conveniência</span><span>{formatBRL(pix.fee)}</span></div>
           )}
-          <div className="flex justify-between text-foreground font-bold pt-1.5 border-t border-border"><span>Total</span><span>{formatBRL(pix.total)}</span></div>
+          <div className={`flex justify-between text-foreground font-bold ${decompoe ? "pt-1.5 border-t border-border" : ""}`}>
+            <span>Total</span><span>{formatBRL(pix.total)}</span>
+          </div>
         </div>
 
         <div className="mt-5 flex items-start gap-2.5 bg-yellow-50 border border-yellow-200 rounded-xl p-3.5">
           <Loader2 className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0 animate-spin" />
           <p className="text-foreground text-sm">
-            <span className="font-semibold">Aguardando pagamento.</span> Esta tela detecta o pagamento automaticamente — assim que confirmar, seu convite com QR Code é enviado por e-mail.
+            <span className="font-semibold">Aguardando pagamento.</span> Esta tela detecta o pagamento automaticamente, e assim que confirmar seu convite com QR Code é enviado por e-mail.
           </p>
         </div>
 

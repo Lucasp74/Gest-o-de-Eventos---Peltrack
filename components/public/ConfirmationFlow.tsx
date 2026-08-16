@@ -148,7 +148,7 @@ export default function ConfirmationFlow({ eventId }: { eventId: string }) {
               {remaining === null ? (
                 <span className="text-white/60">Vagas ilimitadas</span>
               ) : isFull ? (
-                <span className="text-laranja font-medium">Evento lotado — lista de espera disponível</span>
+                <span className="text-laranja font-medium">Evento lotado, lista de espera disponível</span>
               ) : (
                 <span className="text-white/80">
                   <span className="font-semibold text-white">{remaining}</span> de {capacity} vagas restantes
@@ -181,7 +181,7 @@ export default function ConfirmationFlow({ eventId }: { eventId: string }) {
               <div className="flex items-start gap-2.5 bg-laranja/5 border border-laranja/15 rounded-xl p-3.5 mb-5">
                 <AlertCircle className="w-4 h-4 text-laranja mt-0.5 flex-shrink-0" />
                 <p className="text-muted-foreground text-sm">
-                  As vagas se esgotaram. Você pode entrar na <span className="font-semibold text-foreground">lista de espera</span> — avisaremos por e-mail se uma vaga for liberada.
+                  As vagas se esgotaram. Você pode entrar na <span className="font-semibold text-foreground">lista de espera</span>: avisaremos por e-mail se uma vaga for liberada.
                 </p>
               </div>
             )}
