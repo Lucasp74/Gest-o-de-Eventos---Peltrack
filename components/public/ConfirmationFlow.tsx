@@ -291,12 +291,14 @@ function InviteCard({
   return (
     <div>
       {/* Mensagem de sucesso */}
-      <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl p-4 mb-5">
-        <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+      {/* Mesmo motivo da caixa do Pix: fundo claro fixo + text-foreground ficava
+          ilegível no tema escuro. Tinta translúcida funciona nos dois. */}
+      <div className="flex items-start gap-3 bg-green-500/10 border border-green-500/25 rounded-xl p-4 mb-5">
+        <div className="w-9 h-9 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0">
           {isWaitlist ? (
-            <Clock className="w-5 h-5 text-green-600" />
+            <Clock className="w-5 h-5 text-green-500" />
           ) : (
-            <PartyPopper className="w-5 h-5 text-green-600" />
+            <PartyPopper className="w-5 h-5 text-green-500" />
           )}
         </div>
         <div>

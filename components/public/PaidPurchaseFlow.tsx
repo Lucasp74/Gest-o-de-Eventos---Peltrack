@@ -230,8 +230,10 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
           </div>
         </div>
 
-        <div className="mt-5 flex items-start gap-2.5 bg-yellow-50 border border-yellow-200 rounded-xl p-3.5">
-          <Loader2 className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0 animate-spin" />
+        {/* Tinta translúcida, não amarelo-claro fixo: com bg-yellow-50 o texto
+            (text-foreground) virava quase branco no tema escuro e sumia. */}
+        <div className="mt-5 flex items-start gap-2.5 bg-yellow-500/10 border border-yellow-500/25 rounded-xl p-3.5">
+          <Loader2 className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0 animate-spin" />
           <p className="text-foreground text-sm">
             <span className="font-semibold">Aguardando pagamento.</span> Esta tela detecta o pagamento automaticamente, e assim que confirmar seu convite com QR Code é enviado por e-mail.
           </p>
