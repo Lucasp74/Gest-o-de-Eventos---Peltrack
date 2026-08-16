@@ -36,7 +36,8 @@ type InviteEvent = {
   cep: string | null;
 };
 
-function eventWhen(startAt: Date): string {
+/** Data do evento por extenso. UTC de propósito: startAt é "relógio de parede". */
+export function eventWhen(startAt: Date): string {
   return `${p(startAt.getUTCDate())} de ${MONTHS[startAt.getUTCMonth()]} de ${startAt.getUTCFullYear()} · ${p(startAt.getUTCHours())}:${p(startAt.getUTCMinutes())}`;
 }
 

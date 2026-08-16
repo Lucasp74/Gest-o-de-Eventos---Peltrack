@@ -6,8 +6,9 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentTenantId, getOwnerTenantId } from "@/lib/tenant";
+import { getCurrentMembership, getOwnerTenantId, filtroDeEventos } from "@/lib/tenant";
 import { inputToDate, serializeEvent } from "@/lib/eventMap";
+import { enviarEscala } from "@/lib/staffEmail";
 
 const EVENT_INCLUDE = {
   tickets: { orderBy: { sortOrder: "asc" } },
@@ -15,11 +16,13 @@ const EVENT_INCLUDE = {
 } as const;
 
 export async function GET() {
-  const tenantId = await getCurrentTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
+  const vinculo = await getCurrentMembership();
+  if (!vinculo) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
 
+  // O operador só vê os eventos em que foi escalado. Como o app desktop monta a
+  // lista por esta mesma rota, o filtro chega lá sem precisar de release novo.
   const events = await prisma.event.findMany({
-    where: { tenantId },
+    where: filtroDeEventos(vinculo),
     include: EVENT_INCLUDE,
     orderBy: { createdAt: "desc" },
   });
@@ -106,6 +109,25 @@ export async function POST(req: Request) {
     },
     include: EVENT_INCLUDE,
   });
+
+  // Escala inicial, opcional. Mesma conferência da rota de escala: só entra
+  // quem é OPERADOR DESTA organização, para um id solto no corpo não dar acesso
+  // à lista de convidados a alguém de fora.
+  const pedidos: string[] = Array.isArray(body.staffIds) ? body.staffIds.map(String) : [];
+  if (pedidos.length > 0) {
+    const validos = await prisma.user.findMany({
+      where: { id: { in: pedidos }, tenantId, tenantRole: "OPERADOR" },
+      select: { id: true, name: true, email: true },
+    });
+    if (validos.length > 0) {
+      await prisma.eventStaff.createMany({
+        data: validos.map((u) => ({ eventId: event.id, userId: u.id })),
+      });
+      for (const u of validos) {
+        await enviarEscala(req, { para: u.email, nome: u.name, evento: event }).catch(() => {});
+      }
+    }
+  }
 
   return NextResponse.json(serializeEvent(event), { status: 201 });
 }

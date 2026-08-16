@@ -6,16 +6,19 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentTenantId } from "@/lib/tenant";
+import { getCurrentMembership, eventoPermitido } from "@/lib/tenant";
 
 // Local (não exportar de um route.ts — o Next 16 só permite handlers).
 // A cópia compartilhada com o front vive em lib/eventData.ts.
 const DEFAULT_TERMINALS = ["Guichê 1", "Guichê 2", "Guichê 3", "Guichê 4"];
 
+// Dono enxerga qualquer evento da organizacao; OPERADOR, so onde foi escalado.
+// A checagem fica aqui, e nao so na listagem: quem souber o id chamaria esta
+// rota direto e receberia dados que a tela escondeu.
 async function ownedEvent(id: string) {
-  const tenantId = await getCurrentTenantId();
-  if (!tenantId) return 401 as const;
-  const event = await prisma.event.findFirst({ where: { id, tenantId }, select: { id: true } });
+  const vinculo = await getCurrentMembership();
+  if (!vinculo) return 401 as const;
+  const event = (await eventoPermitido(vinculo, id)) ? { id } : null;
   return event ? (200 as const) : (404 as const);
 }
 

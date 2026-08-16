@@ -16,7 +16,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyDesktopToken } from "@/lib/desktopToken";
 
 export type Papel = "DONO" | "OPERADOR";
-export type Vinculo = { tenantId: string; papel: Papel };
+export type Vinculo = { userId: string; tenantId: string; papel: Papel };
 
 /**
  * CLIENTE SUSPENSO NÃO TEM VÍNCULO.
@@ -34,7 +34,7 @@ async function vinculoDoUsuario(userId: string): Promise<Vinculo | null> {
   });
   if (!user?.tenantId) return null;
   if (user.tenant?.suspendedAt) return null;
-  return { tenantId: user.tenantId, papel: user.tenantRole };
+  return { userId, tenantId: user.tenantId, papel: user.tenantRole };
 }
 
 /** Vínculo do usuário atual (organização + papel), venha do web ou do desktop. */
@@ -69,4 +69,42 @@ export async function getCurrentTenantId(): Promise<string | null> {
 export async function getOwnerTenantId(): Promise<string | null> {
   const vinculo = await getCurrentMembership();
   return vinculo?.papel === "DONO" ? vinculo.tenantId : null;
+}
+
+/**
+ * O usuário atual pode operar ESTE evento?
+ *  · DONO: qualquer evento da organização dele.
+ *  · OPERADOR: só onde foi escalado (EventStaff).
+ *
+ * Precisa existir em toda rota por evento, e não apenas na listagem: filtrar a
+ * lista esconde o evento da tela, mas quem souber o id chamaria
+ * /api/events/{id}/confirmations direto e receberia a lista de convidados que a
+ * tela escondeu. É o mesmo cuidado do eventId no Financeiro.
+ */
+export async function eventoPermitido(vinculo: Vinculo, eventId: string): Promise<boolean> {
+  const evento = await prisma.event.findFirst({
+    where: {
+      id: eventId,
+      tenantId: vinculo.tenantId,
+      ...(vinculo.papel === "OPERADOR"
+        ? { staff: { some: { userId: vinculo.userId } } }
+        : {}),
+    },
+    select: { id: true },
+  });
+  return !!evento;
+}
+
+/** Mesma regra, quando o chamador ainda não tem o vínculo em mãos. */
+export async function podeOperarEvento(eventId: string): Promise<Vinculo | null> {
+  const vinculo = await getCurrentMembership();
+  if (!vinculo) return null;
+  return (await eventoPermitido(vinculo, eventId)) ? vinculo : null;
+}
+
+/** Filtro de listagem: o operador só enxerga os eventos em que está escalado. */
+export function filtroDeEventos(vinculo: Vinculo) {
+  return vinculo.papel === "OPERADOR"
+    ? { tenantId: vinculo.tenantId, staff: { some: { userId: vinculo.userId } } }
+    : { tenantId: vinculo.tenantId };
 }

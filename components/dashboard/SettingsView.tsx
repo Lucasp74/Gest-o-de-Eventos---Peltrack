@@ -1,5 +1,6 @@
 "use client";
 
+import StaffPicker from "@/components/dashboard/StaffPicker";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -315,6 +316,13 @@ export default function SettingsView({
           )}
         </div>
       </form>
+
+      {/* Equipe do evento. Fora do formulário de propósito: a escala salva
+          sozinha, porque trocar quem trabalha na véspera é mais frequente que
+          editar os dados do evento e não deve exigir salvar tudo de novo. */}
+      <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
+        <StaffPicker eventId={event.id} />
+      </div>
 
       {/* Zona de perigo */}
       <div className="bg-red-50/50 border border-red-200 rounded-2xl p-5 sm:p-6">

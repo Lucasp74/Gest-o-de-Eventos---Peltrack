@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import {
   ImagePlus, X, Calendar, MapPin, Ticket, Plus, Trash2,
   Loader2, Check, QrCode, Tag, Type, ArrowLeft, CalendarClock,
-  Globe, Lock,
+  Globe, Lock, Users,
 } from "lucide-react";
 import { Combobox } from "@/components/ui/combobox";
+import StaffPicker from "@/components/dashboard/StaffPicker";
 import { formatBRL } from "@/lib/planPricing";
 
 /* ── Listas de assunto e categoria ───────────────────── */
@@ -85,6 +86,9 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
   ]);
 
   // Aceite e submit
+  // Escala inicial. Opcional: dá para criar o evento e escalar depois, na tela
+  // de gerenciar, que é onde a troca de equipe costuma acontecer.
+  const [staffIds, setStaffIds] = useState<string[]>([]);
   const [accepted, setAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -243,6 +247,7 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
         batchMode: paid && batchMode,
         visibility,
         tickets: ticketTypes,
+        staffIds,
         ...(regEnabled
           ? { registrationOpensAt: regOpensAt, registrationClosesAt: regClosesAt }
           : {}),
@@ -747,7 +752,12 @@ export default function CreateEventForm({ feePct = 0.08 }: { feePct?: number }) 
           )}
         </Section>
 
-        {/* 8 — Termos */}
+        {/* 8 — Equipe do evento */}
+        <Section icon={Users} title="Equipe do evento" optional>
+          <StaffPicker value={staffIds} onChange={setStaffIds} />
+        </Section>
+
+        {/* 9 — Termos */}
         <div
           data-error={errors.accepted ? "true" : undefined}
           className={`rounded-2xl border p-5 ${errors.accepted ? "border-red-300 bg-red-50/50" : "border-border bg-card"}`}

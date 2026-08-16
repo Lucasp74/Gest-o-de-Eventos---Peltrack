@@ -142,6 +142,7 @@ model User {
 
   accounts      Account[] // contas OAuth (Google) vinculadas
   sessions      Session[]
+  eventStaff    EventStaff[] // eventos em que este usuário está escalado
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -276,6 +277,7 @@ model Event {
   checkins      Checkin[]
   terminals     Terminal[]
   payments      Payment[]
+  staff         EventStaff[]
 
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -361,6 +363,29 @@ model Checkin {
   checkedOutAt   DateTime?     // reservado para o check-out futuro
 
   @@index([eventId])
+}
+
+// ─────────────────────────────────────────────────────────────
+//  EventStaff — quem trabalha em cada evento (escala)
+//
+//  Existe por PRIVACIDADE, não por organização de tela: sem ela, um operador
+//  contratado para um show vê a lista de convidados de TODOS os eventos da
+//  organização, com nome e e-mail de cada pessoa.
+//
+//  O DONO não precisa estar aqui: ele enxerga tudo da organização dele.
+//  Só o OPERADOR depende da escala. A permissão é sempre individual; equipes
+//  com nome, se existirem um dia, apenas PREENCHEM estas linhas.
+// ─────────────────────────────────────────────────────────────
+model EventStaff {
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([eventId, userId])
+  @@index([userId])
 }
 
 // ─────────────────────────────────────────────────────────────

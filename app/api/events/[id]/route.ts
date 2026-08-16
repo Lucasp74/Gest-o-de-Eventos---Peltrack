@@ -7,7 +7,7 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentTenantId, getOwnerTenantId } from "@/lib/tenant";
+import { podeOperarEvento, getOwnerTenantId } from "@/lib/tenant";
 import { inputToDate, statusToDb, serializeEvent } from "@/lib/eventMap";
 
 const EVENT_INCLUDE = {
@@ -16,12 +16,16 @@ const EVENT_INCLUDE = {
 } as const;
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const tenantId = await getCurrentTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
-
   const { id } = await params;
+
+  // Dono vê qualquer evento da organização; operador, só onde foi escalado.
+  // Devolve 404 e não 403 de propósito: para quem não tem acesso, o evento
+  // simplesmente não existe, e o id não vira confirmação de que existe.
+  const vinculo = await podeOperarEvento(id);
+  if (!vinculo) return NextResponse.json({ error: "Evento não encontrado." }, { status: 404 });
+
   const event = await prisma.event.findFirst({
-    where: { id, tenantId },
+    where: { id, tenantId: vinculo.tenantId },
     include: EVENT_INCLUDE,
   });
   if (!event) return NextResponse.json({ error: "Evento não encontrado." }, { status: 404 });

@@ -4,13 +4,14 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentTenantId } from "@/lib/tenant";
+import { getCurrentMembership, eventoPermitido } from "@/lib/tenant";
 import { sendInviteEmail } from "@/lib/inviteEmail";
 import { buscarOrganizador } from "@/lib/organizador";
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const tenantId = await getCurrentTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
+  const vinculo = await getCurrentMembership();
+  if (!vinculo) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
+  const tenantId = vinculo.tenantId;
 
   const { id } = await params;
   const confirmation = await prisma.confirmation.findFirst({
@@ -18,6 +19,12 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     include: { event: true },
   });
   if (!confirmation) return NextResponse.json({ error: "Não encontrado." }, { status: 404 });
+
+  // A rota é por CONFIRMAÇÃO, então a escala é conferida pelo evento dela.
+  // Sem isto, um operador reenviaria convites de eventos em que não trabalha.
+  if (!(await eventoPermitido(vinculo, confirmation.eventId))) {
+    return NextResponse.json({ error: "Não encontrado." }, { status: 404 });
+  }
   if (confirmation.status === "CANCELADO") {
     return NextResponse.json({ error: "Convite cancelado não pode ser reenviado." }, { status: 400 });
   }

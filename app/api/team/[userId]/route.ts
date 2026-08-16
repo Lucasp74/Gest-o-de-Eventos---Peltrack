@@ -83,10 +83,15 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ user
   const nova = await prisma.tenant.create({
     data: { name: alvo.name ?? "Minha organização", plan: "STARTER" },
   });
-  await prisma.user.update({
-    where: { id: alvo.id },
-    data: { tenantId: nova.id, tenantRole: "DONO" },
-  });
+  await prisma.$transaction([
+    // Sai da equipe, sai das escalas. O filtro por organização já barraria o
+    // acesso, mas linha órfã no banco volta como bug estranho meses depois.
+    prisma.eventStaff.deleteMany({ where: { userId: alvo.id, event: { tenantId } } }),
+    prisma.user.update({
+      where: { id: alvo.id },
+      data: { tenantId: nova.id, tenantRole: "DONO" },
+    }),
+  ]);
 
   return NextResponse.json({ ok: true });
 }

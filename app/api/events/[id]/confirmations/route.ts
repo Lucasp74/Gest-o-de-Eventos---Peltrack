@@ -6,13 +6,16 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentTenantId } from "@/lib/tenant";
+import { getCurrentMembership, eventoPermitido } from "@/lib/tenant";
 import { serializeConfirmation } from "@/lib/presenceMap";
 
+// Dono enxerga qualquer evento da organizacao; OPERADOR, so onde foi escalado.
+// A checagem fica aqui, e nao so na listagem: quem souber o id chamaria esta
+// rota direto e receberia dados que a tela escondeu.
 async function ownedEvent(id: string) {
-  const tenantId = await getCurrentTenantId();
-  if (!tenantId) return { status: 401 as const };
-  const event = await prisma.event.findFirst({ where: { id, tenantId }, select: { id: true } });
+  const vinculo = await getCurrentMembership();
+  if (!vinculo) return { status: 401 as const };
+  const event = (await eventoPermitido(vinculo, id)) ? { id } : null;
   if (!event) return { status: 404 as const };
   return { status: 200 as const };
 }
