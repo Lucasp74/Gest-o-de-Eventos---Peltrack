@@ -14,12 +14,20 @@ import { createContext, useContext } from "react";
 
 export type Papel = "DONO" | "OPERADOR";
 
-const PapelContext = createContext<Papel>("DONO");
+/**
+ * ⚠️ O PADRÃO É O MAIS RESTRITO, DE PROPÓSITO.
+ * Antes era DONO, e em 17/08 isso mordeu: uma sessão que o servidor não
+ * conseguiu resolver caiu no padrão e a barra lateral mostrou Financeiro e
+ * Configurações, enquanto a API recusava tudo. O menu prometeu porta que o
+ * servidor fechava, e a pessoa concluiu que tinha sido rebaixada.
+ * Na dúvida, mostrar de menos. Quem é dono de verdade sempre chega com o papel
+ * resolvido pelo layout.
+ */
+const PapelContext = createContext<Papel>("OPERADOR");
 
 export function PapelProvider({ papel, children }: { papel: Papel; children: React.ReactNode }) {
   return <PapelContext.Provider value={papel}>{children}</PapelContext.Provider>;
 }
 
-/** Padrão DONO quando não há provider, para nada quebrar fora do dashboard. */
 export const usePapel = () => useContext(PapelContext);
 export const useEhDono = () => useContext(PapelContext) === "DONO";

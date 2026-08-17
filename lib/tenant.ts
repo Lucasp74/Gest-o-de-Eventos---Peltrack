@@ -71,6 +71,30 @@ export async function getOwnerTenantId(): Promise<string | null> {
   return vinculo?.papel === "DONO" ? vinculo.tenantId : null;
 }
 
+export type AcessoDono =
+  | { ok: true; tenantId: string }
+  | { ok: false; status: 401 | 403; erro: string };
+
+/**
+ * Mesma trava do getOwnerTenantId, mas SEPARANDO os dois motivos de recusa.
+ *
+ * POR QUE ISSO IMPORTA: quando os dois casos devolviam a mesma mensagem, uma
+ * sessão que morreu dizia "ação restrita ao dono" e a pessoa concluía que tinha
+ * sido rebaixada. Aconteceu em 17/08 e custou uma investigação. Não era falha de
+ * segurança, o servidor barrou certo nos dois casos, era a interface contando
+ * uma história errada sobre o motivo.
+ */
+export async function exigirDono(): Promise<AcessoDono> {
+  const vinculo = await getCurrentMembership();
+  if (!vinculo) {
+    return { ok: false, status: 401, erro: "Sessão expirada. Entre novamente." };
+  }
+  if (vinculo.papel !== "DONO") {
+    return { ok: false, status: 403, erro: "Ação restrita ao dono da organização." };
+  }
+  return { ok: true, tenantId: vinculo.tenantId };
+}
+
 /**
  * O usuário atual pode operar ESTE evento?
  *  · DONO: qualquer evento da organização dele.

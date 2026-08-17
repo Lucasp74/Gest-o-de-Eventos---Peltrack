@@ -9,10 +9,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { getOwnerTenantId } from "@/lib/tenant";
+import { exigirDono } from "@/lib/tenant";
 
-const negado = () =>
-  NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
+const negado = (a: { status: number; erro: string }) =>
+  NextResponse.json({ error: a.erro }, { status: a.status });
 
 /** Membro alvo, desde que seja da MESMA organização de quem está pedindo. */
 async function alvoDaOrganizacao(userId: string, tenantId: string) {
@@ -31,8 +31,9 @@ async function restariaDono(tenantId: string, userIdSaindo: string) {
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ userId: string }> }) {
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return negado();
+  const acesso = await exigirDono();
+  if (!acesso.ok) return negado(acesso);
+  const tenantId = acesso.tenantId;
 
   const { userId } = await params;
   const alvo = await alvoDaOrganizacao(userId, tenantId);
@@ -58,8 +59,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ userId
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ userId: string }> }) {
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return negado();
+  const acesso = await exigirDono();
+  if (!acesso.ok) return negado(acesso);
+  const tenantId = acesso.tenantId;
 
   const { userId } = await params;
   const alvo = await alvoDaOrganizacao(userId, tenantId);

@@ -4,11 +4,12 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOwnerTenantId } from "@/lib/tenant";
+import { exigirDono } from "@/lib/tenant";
 
 export async function POST() {
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
+  const acesso = await exigirDono();
+  if (!acesso.ok) return NextResponse.json({ error: acesso.erro }, { status: acesso.status });
+  const tenantId = acesso.tenantId;
 
   await prisma.tenant.update({
     where: { id: tenantId },

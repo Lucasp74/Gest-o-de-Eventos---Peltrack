@@ -5,13 +5,14 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOwnerTenantId } from "@/lib/tenant";
+import { exigirDono } from "@/lib/tenant";
 
 const emailOk = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
 export async function POST(req: Request) {
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
+  const acesso = await exigirDono();
+  if (!acesso.ok) return NextResponse.json({ error: acesso.erro }, { status: acesso.status });
+  const tenantId = acesso.tenantId;
 
   const body = await req.json().catch(() => ({}));
   const email = String(body.replyToEmail ?? "").trim().toLowerCase();

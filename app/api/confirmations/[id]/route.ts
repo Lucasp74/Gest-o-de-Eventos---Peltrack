@@ -4,13 +4,14 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOwnerTenantId } from "@/lib/tenant";
+import { exigirDono } from "@/lib/tenant";
 import { serializeConfirmation, confStatusToDb } from "@/lib/presenceMap";
 import { notifyEvent } from "@/lib/pusherServer";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
+  const acesso = await exigirDono();
+  if (!acesso.ok) return NextResponse.json({ error: acesso.erro }, { status: acesso.status });
+  const tenantId = acesso.tenantId;
 
   const { id } = await params;
   const body = await req.json().catch(() => ({}));

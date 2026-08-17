@@ -7,6 +7,7 @@
  * Precisa existir aqui, e não só no login, porque quem entra pelo Google não
  * passa pelo authorize e quem já estava logado carrega um JWT que não expirou.
  */
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Ban } from "lucide-react";
@@ -26,8 +27,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
       })
     : null;
 
-  if (!user?.tenant?.suspendedAt) {
-    return <PapelProvider papel={user?.tenantRole ?? "DONO"}>{children}</PapelProvider>;
+  // Chegou aqui logado (o proxy já barra anônimo), mas o usuário da sessão não
+  // existe mais no banco: sessão fantasma. Refazer o login é o que resolve, e
+  // foi exatamente o que resolveu no caso de 17/08. Sem isto a pessoa fica numa
+  // tela que carrega, não mostra nada e não explica por quê.
+  if (!user) redirect("/login");
+
+  if (!user.tenant?.suspendedAt) {
+    // Usuário não resolvido (sessão morta, por exemplo) cai no papel RESTRITO,
+    // nunca em DONO. Ver o comentário no PapelProvider: assumir dono aqui fez a
+    // barra lateral mentir em 17/08.
+    return <PapelProvider papel={user?.tenantRole ?? "OPERADOR"}>{children}</PapelProvider>;
   }
 
   const desde = user.tenant.suspendedAt.toLocaleDateString("pt-BR");

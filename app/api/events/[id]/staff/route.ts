@@ -7,11 +7,11 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOwnerTenantId } from "@/lib/tenant";
+import { exigirDono } from "@/lib/tenant";
 import { enviarEscala } from "@/lib/staffEmail";
 
-const negado = () =>
-  NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
+const negado = (a: { status: number; erro: string }) =>
+  NextResponse.json({ error: a.erro }, { status: a.status });
 
 async function eventoDoDono(id: string, tenantId: string) {
   return prisma.event.findFirst({
@@ -21,8 +21,9 @@ async function eventoDoDono(id: string, tenantId: string) {
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return negado();
+  const acesso = await exigirDono();
+  if (!acesso.ok) return negado(acesso);
+  const tenantId = acesso.tenantId;
 
   const { id } = await params;
   const evento = await eventoDoDono(id, tenantId);
@@ -45,8 +46,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return negado();
+  const acesso = await exigirDono();
+  if (!acesso.ok) return negado(acesso);
+  const tenantId = acesso.tenantId;
 
   const { id } = await params;
   const evento = await eventoDoDono(id, tenantId);

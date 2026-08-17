@@ -8,7 +8,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { getOwnerTenantId } from "@/lib/tenant";
+import { exigirDono } from "@/lib/tenant";
 import { criarConvite, enviarConvite, convitesPendentes, type PapelConvite } from "@/lib/teamInvite";
 
 const emailOk = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
@@ -16,12 +16,13 @@ const emailOk = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 /** Equipe é recurso de plano pago. Starter fica de fora. */
 const planoPermiteEquipe = (plan: string) => plan === "PRO" || plan === "ENTERPRISE";
 
-const negado = () =>
-  NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
+const negado = (a: { status: number; erro: string }) =>
+  NextResponse.json({ error: a.erro }, { status: a.status });
 
 export async function GET() {
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return negado();
+  const acesso = await exigirDono();
+  if (!acesso.ok) return negado(acesso);
+  const tenantId = acesso.tenantId;
 
   const [tenant, membros, pendentes] = await Promise.all([
     prisma.tenant.findUnique({ where: { id: tenantId }, select: { plan: true } }),
@@ -41,8 +42,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return negado();
+  const acesso = await exigirDono();
+  if (!acesso.ok) return negado(acesso);
+  const tenantId = acesso.tenantId;
 
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },

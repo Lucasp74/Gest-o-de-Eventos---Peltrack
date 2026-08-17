@@ -7,7 +7,7 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { podeOperarEvento, getOwnerTenantId } from "@/lib/tenant";
+import { podeOperarEvento, exigirDono } from "@/lib/tenant";
 import { inputToDate, statusToDb, serializeEvent } from "@/lib/eventMap";
 
 const EVENT_INCLUDE = {
@@ -35,8 +35,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   // Alterar o evento é do dono. O operador lê (GET acima) para operar a portaria.
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
+  const acesso = await exigirDono();
+  if (!acesso.ok) return NextResponse.json({ error: acesso.erro }, { status: acesso.status });
+  const tenantId = acesso.tenantId;
 
   const { id } = await params;
   const owned = await prisma.event.findFirst({ where: { id, tenantId }, select: { id: true } });
@@ -68,8 +69,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   // Apagar evento leva confirmações e check-ins junto: só o dono.
-  const tenantId = await getOwnerTenantId();
-  if (!tenantId) return NextResponse.json({ error: "Ação restrita ao dono da organização." }, { status: 403 });
+  const acesso = await exigirDono();
+  if (!acesso.ok) return NextResponse.json({ error: acesso.erro }, { status: acesso.status });
+  const tenantId = acesso.tenantId;
 
   const { id } = await params;
   const result = await prisma.event.deleteMany({ where: { id, tenantId } });
