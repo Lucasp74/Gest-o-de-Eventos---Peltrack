@@ -57,7 +57,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const local = localDoEvento(evento);
   const quando = dataPorExtenso(evento.startAt);
-  const titulo = `${evento.name} — ${quando}`;
+  // Título é SÓ o nome do evento, por pedido do Lucas em 18/08. A data sai
+  // daqui mas NÃO se perde: ela continua desenhada dentro do cartão de
+  // compartilhamento, onde tem mais destaque que numa linha de texto.
+  const titulo = evento.name;
   const descricao =
     evento.description?.trim() ||
     `Confirme sua presença em ${evento.name}, ${quando}${local ? `, em ${local}` : ""}. Você recebe seu convite com QR Code por e-mail.`;
