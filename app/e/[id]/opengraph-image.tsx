@@ -81,12 +81,12 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           <div style={{ width: 44, height: 44, borderRadius: 12, background: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, color: "#fff", fontWeight: 700 }}>
             P
           </div>
-          <div style={{ fontSize: 30, color: "#fff", fontWeight: 700, letterSpacing: -0.5 }}>
+          <div style={{ display: "flex", fontSize: 30, color: "#fff", fontWeight: 700, letterSpacing: -0.5 }}>
             Pel<span style={{ color: TEAL }}>track</span>
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 18, zIndex: 1 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div style={{ fontSize: 26, color: TEAL, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase" }}>
             Confirme sua presença
           </div>
