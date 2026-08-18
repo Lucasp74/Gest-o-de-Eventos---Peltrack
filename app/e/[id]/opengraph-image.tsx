@@ -32,11 +32,23 @@ const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "o
 const quandoCurto = (d: Date) =>
   `${d.getUTCDate()} de ${MESES[d.getUTCMonth()]} de ${d.getUTCFullYear()} · ${p2(d.getUTCHours())}h${p2(d.getUTCMinutes())}`;
 
-export default async function Image({ params }: { params: { id: string } }) {
-  const evento = await prisma.event.findUnique({
-    where: { id: params.id },
-    select: { name: true, startAt: true, venue: true, city: true, uf: true, imageUrl: true },
-  });
+/**
+ * ⚠️ params é PROMISE no Next 16 (mudou na v16.0.0, ver a doc de
+ * opengraph-image). Tratado como objeto, o id chega indefinido, o Prisma
+ * levanta erro e a rota devolve 500. Foi o que aconteceu em 18/08/2026: os
+ * metadados saíam certos e o cartão não carregava.
+ */
+export default async function Image({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
+  // Cartão de compartilhamento NUNCA pode devolver erro: 500 aqui significa
+  // link sem preview nenhum. Se a consulta falhar, sai o cartão da marca.
+  const evento = await prisma.event
+    .findUnique({
+      where: { id },
+      select: { name: true, startAt: true, venue: true, city: true, uf: true, imageUrl: true },
+    })
+    .catch(() => null);
 
   const nome = evento?.name ?? "Evento";
   const quando = evento ? quandoCurto(evento.startAt) : "";
