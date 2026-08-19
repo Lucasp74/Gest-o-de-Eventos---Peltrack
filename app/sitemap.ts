@@ -17,6 +17,9 @@ export const revalidate = 3600;
 const ESTATICAS: { caminho: string; prioridade: number; frequencia: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [
   { caminho: "/", prioridade: 1, frequencia: "weekly" },
   { caminho: "/eventos", prioridade: 0.8, frequencia: "daily" },
+  // Página de conteúdo: é a que disputa busca de quem CONTRATA, e por isso tem
+  // prioridade alta apesar de mudar pouco.
+  { caminho: "/controle-de-acesso-offline", prioridade: 0.9, frequencia: "monthly" },
   { caminho: "/termos", prioridade: 0.2, frequencia: "yearly" },
   { caminho: "/privacidade", prioridade: 0.2, frequencia: "yearly" },
 ];

@@ -1,6 +1,7 @@
+import Link from "next/link";
 import {
   QrCode, Users, ListOrdered, Smartphone,
-  BarChart3, Monitor, Wifi, ShieldCheck,
+  BarChart3, Monitor, Wifi, ShieldCheck, ArrowRight,
 } from "lucide-react";
 
 export default function Features() {
@@ -162,6 +163,16 @@ export default function Features() {
             <p className="text-muted-foreground text-sm leading-relaxed">
               Para locais sem internet estável. O app desktop com leitor USB funciona offline e sincroniza quando a conexão retornar.
             </p>
+            {/* Link interno a partir da página mais forte do site. É o que faz
+                a página nova ser encontrada, e transforma a promessa acima em
+                explicação para quem ficou com a dúvida. */}
+            <Link
+              href="/controle-de-acesso-offline"
+              className="inline-flex items-center gap-1.5 text-laranja hover:text-laranja-dark text-sm font-semibold mt-4 transition-colors"
+            >
+              Como funciona sem internet
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
           {/* Card — Segurança */}

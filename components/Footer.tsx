@@ -8,6 +8,8 @@ const footerLinks: Record<string, { label: string; href: string }[]> = {
     { label: "Funcionalidades", href: "/#funcionalidades" },
     { label: "Planos", href: "/#planos" },
     { label: "App Desktop", href: "#" },
+    // Link interno de verdade: página órfã demora muito mais a ser encontrada.
+    { label: "Funciona sem internet", href: "/controle-de-acesso-offline" },
     { label: "Atualizações", href: "#" },
   ],
   Empresa: [
