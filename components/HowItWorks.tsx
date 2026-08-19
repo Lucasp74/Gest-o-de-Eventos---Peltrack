@@ -50,9 +50,9 @@ export default function HowItWorks() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {steps.map((step, index) => (
             <div key={step.step} className="relative">
-              {/* Connector */}
+              {/* Conector entre os passos. Antes usava w-full (largura de um card INTEIRO) com -translate-x-1/2, entao a linha atravessava POR CIMA dos cards. w-6 e exatamente o gap-6 do grid: ocupa so o vao. top-12 alinha com o centro do icone. */}
               {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-7 left-full w-full h-px bg-gradient-to-r from-laranja/30 to-transparent z-10 -translate-x-1/2" />
+                <div className="hidden lg:block absolute top-12 left-full w-6 h-px bg-gradient-to-r from-laranja/30 to-transparent" />
               )}
 
               <div className="bg-card rounded-2xl p-6 border border-border h-full hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
