@@ -10,7 +10,6 @@ const PLAN_LABEL: Record<string, string> = { STARTER: "Starter", PRO: "Pro", ENT
 const SUB_MSG: Record<string, { ok: boolean; text: string }> = {
   ativa: { ok: true, text: "Assinatura ativa. A primeira cobrança aparece na fatura do cartão em até uma hora." },
   retorno: { ok: true, text: "Assinatura recebida. Assim que o Mercado Pago confirmar, seu plano é ativado (pode levar alguns instantes)." },
-  sem_permissao: { ok: false, text: "Só o dono da organização pode assinar um plano." },
   ja_ativa: { ok: false, text: "Você já tem uma assinatura ativa. Cancele a atual antes de assinar outro plano." },
   erro: { ok: false, text: "Não foi possível iniciar a assinatura. Tente novamente." },
 };

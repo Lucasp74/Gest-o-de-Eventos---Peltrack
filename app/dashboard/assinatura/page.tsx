@@ -32,8 +32,10 @@ export default async function AssinaturaPage({
   const vinculo = await getCurrentMembership();
   const email = session?.user?.email;
   if (!vinculo || !email) redirect("/login");
-  // Mesma regra do servidor: assinar é ato do dono.
-  if (vinculo.papel !== "DONO") redirect("/dashboard/configuracoes?sub=sem_permissao");
+  // Mesma regra do servidor: assinar é ato do dono. Vai para /dashboard e não
+  // para Configurações porque aquela página também rebate operador, e a
+  // mensagem morreria no meio do caminho.
+  if (vinculo.papel !== "DONO") redirect("/dashboard");
 
   const tenant = await prisma.tenant.findUnique({
     where: { id: vinculo.tenantId },
