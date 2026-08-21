@@ -247,33 +247,53 @@ const PREAPPROVAL_URL = "https://api.mercadopago.com/preapproval";
 
 export type Preapproval = { ok: boolean; id?: string; initPoint?: string; status?: string; error?: string };
 
-/** Cria a assinatura mensal e devolve o init_point (checkout hospedado do MP). */
-export async function createPreapproval(opts: {
+export type PreapprovalOpts = {
   planLabel: string;
   amountReais: number;
   payerEmail: string;
   backUrl: string;
   externalReference: string; // tenantId
-}): Promise<Preapproval> {
+  cardTokenId?: string; // token do cartão gerado NO NAVEGADOR (nunca vemos o número)
+};
+
+/**
+ * Corpo do POST /preapproval. Fora da função de rede para poder ser conferido.
+ * O RAMO É O PONTO: com card_token_id a assinatura nasce "authorized" e a pessoa
+ * não sai do site; sem ele nasce "pending" e o MP exige que ela cadastre o
+ * cartão na página dele. Ver mercadopago.check.ts.
+ */
+export function preapprovalBody(opts: PreapprovalOpts): Record<string, unknown> {
+  return {
+    reason: opts.planLabel,
+    external_reference: opts.externalReference,
+    payer_email: opts.payerEmail,
+    back_url: opts.backUrl,
+    ...(opts.cardTokenId
+      ? { card_token_id: opts.cardTokenId, status: "authorized" }
+      : { status: "pending" }),
+    auto_recurring: {
+      frequency: 1,
+      frequency_type: "months",
+      transaction_amount: Number(opts.amountReais.toFixed(2)),
+      currency_id: "BRL",
+    },
+  };
+}
+
+/**
+ * Cria a assinatura mensal.
+ *  - COM cardTokenId: nasce já autorizada, sem sair do site. É o caminho novo.
+ *  - SEM cardTokenId: nasce pendente e devolve init_point (checkout hospedado
+ *    do MP). Mantido como rede de segurança, não é mais usado pela tela.
+ */
+export async function createPreapproval(opts: PreapprovalOpts): Promise<Preapproval> {
   const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
   if (!token) return { ok: false, error: "ASSINATURA_INDISPONIVEL" };
   try {
     const res = await fetch(PREAPPROVAL_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        reason: opts.planLabel,
-        external_reference: opts.externalReference,
-        payer_email: opts.payerEmail,
-        back_url: opts.backUrl,
-        status: "pending",
-        auto_recurring: {
-          frequency: 1,
-          frequency_type: "months",
-          transaction_amount: Number(opts.amountReais.toFixed(2)),
-          currency_id: "BRL",
-        },
-      }),
+      body: JSON.stringify(preapprovalBody(opts)),
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok || !body?.id) {

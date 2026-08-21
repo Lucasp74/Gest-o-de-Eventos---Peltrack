@@ -38,12 +38,12 @@ import type { NextConfig } from "next";
  */
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://sdk.mercadopago.com https://http2.mlstatic.com",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
-  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://lh3.googleusercontent.com",
-  "connect-src 'self' https://viacep.com.br wss://ws-sa1.pusher.com https://sockjs-sa1.pusher.com",
-  "frame-src https://challenges.cloudflare.com https://www.google.com",
+  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://lh3.googleusercontent.com https://http2.mlstatic.com",
+  "connect-src 'self' https://viacep.com.br wss://ws-sa1.pusher.com https://sockjs-sa1.pusher.com https://api.mercadopago.com https://api.mercadolibre.com",
+  "frame-src https://challenges.cloudflare.com https://www.google.com https://sdk.mercadopago.com https://www.mercadopago.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
