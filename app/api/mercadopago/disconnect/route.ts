@@ -17,6 +17,9 @@ export async function POST() {
       mpUserId: null,
       mpAccessToken: null,
       mpRefreshToken: null,
+      // Some junto com o resto: chave de credencial guardada de conta
+      // desconectada não serve para nada e só confunde quem ler o banco depois.
+      mpPublicKey: null,
       mpTokenExpiresAt: null,
       mpConnectedAt: null,
     },
