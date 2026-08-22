@@ -9,6 +9,9 @@ import { feePct } from "@/lib/planPricing";
 import { resolveBatches } from "@/lib/batches";
 import { vendedorEhAPlataforma } from "@/lib/mercadopago";
 
+/** Teto de parcelas no cartão. Os juros são do emissor e quem paga é o comprador. */
+const MAX_PARCELAS = 12;
+
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -16,7 +19,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     where: { id },
     include: {
       tickets: { orderBy: { sortOrder: "asc" } },
-      tenant: { select: { plan: true, mpUserId: true } },
+      tenant: { select: { plan: true, mpUserId: true, mpPublicKey: true } },
       _count: { select: { confirmations: true, checkins: true } },
     },
   });
@@ -45,5 +48,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     ...serialized,
     confirmed,
     feePct: semTaxa ? 0 : feePct(event.tenant.plan),
+    // Cartão só aparece se o organizador tem a public key gravada. Num pagamento
+    // com split quem tokeniza é a chave do VENDEDOR, e quem conectou antes desta
+    // versão ainda não tem a dele: nesse caso a tela mostra só o Pix, em vez de
+    // oferecer um cartão que falharia na hora de cobrar.
+    mpPublicKey: event.tenant.mpPublicKey ?? null,
+    maxInstallments: MAX_PARCELAS,
   });
 }

@@ -6,10 +6,11 @@
  */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createPixCharge, vendedorEhAPlataforma } from "@/lib/mercadopago";
+import { createCardCharge, createPixCharge, vendedorEhAPlataforma } from "@/lib/mercadopago";
 import { getValidSellerToken } from "@/lib/mpAccount";
 import { ticketCharge } from "@/lib/planPricing";
 import { resolveBatches } from "@/lib/batches";
+import { releasePaidPayment } from "@/lib/paymentRelease";
 
 const emailOk = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
@@ -21,6 +22,9 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const cpf = String(body.cpf ?? "").replace(/\D/g, "");
   const ticketTypeId = String(body.ticketTypeId ?? "");
   const quantity = Math.floor(Number(body.quantity ?? 1));
+  // Ausente = Pix, que continua sendo o caminho padrão.
+  const cardToken = String(body.cardToken ?? "").trim();
+  const noCartao = cardToken.length > 0;
 
   if (!name || !emailOk(email)) {
     return NextResponse.json({ error: "Nome e e-mail válidos são obrigatórios." }, { status: 400 });
@@ -96,11 +100,70 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     ? Math.round(ticketPrice * quantity * 100) / 100
     : Math.round(unitTotal * quantity * 100) / 100;
 
+  const descricao = `${event.name} — ${ticket.name}${quantity > 1 ? ` (${quantity}x)` : ""}`;
+
+  // ── Cartão: resposta definitiva na hora, sem tela de espera ──────
+  if (noCartao) {
+    const cobranca = await createCardCharge({
+      sellerToken,
+      applicationFee: fee,
+      amountReais: total,
+      description: descricao,
+      cardToken,
+      installments: Number(body.installments ?? 1),
+      paymentMethodId: String(body.paymentMethodId ?? ""),
+      issuerId: body.issuerId ? String(body.issuerId) : undefined,
+      payerEmail: email,
+      payerCpf: cpf,
+    });
+    if (!cobranca.ok || !cobranca.id) {
+      console.error("[purchase] Mercado Pago recusou a cobrança no cartão", {
+        eventId: id, ticketTypeId: ticket.id, total, fee, erro: cobranca.error,
+      });
+      return NextResponse.json(
+        { error: "Não foi possível processar o cartão agora. Tente novamente ou pague com Pix." },
+        { status: 502 },
+      );
+    }
+
+    // Recusado NÃO vira Payment: tentativa de cartão não é venda, e registrar
+    // sujaria o Financeiro com linhas que nunca viraram dinheiro.
+    if (!cobranca.aprovado) {
+      return NextResponse.json({ error: cobranca.recusa, code: "CARD_REJECTED" }, { status: 402 });
+    }
+
+    const pago = await prisma.payment.create({
+      data: {
+        eventId: id, ticketTypeId: ticket.id, quantity,
+        buyerName: name, buyerEmail: email,
+        amount: total, feeAmount: fee,
+        status: "PENDENTE", providerId: cobranca.id,
+      },
+    });
+    // Aprovado já: libera os QRs aqui mesmo, em vez de deixar a tela consultando
+    // um status que nunca vai mudar. É idempotente, então o webhook chegando
+    // depois não duplica nada.
+    await releasePaidPayment(cobranca.id).catch((e) =>
+      console.error("[purchase] cartão aprovado mas a liberação falhou", { paymentId: pago.id, e }),
+    );
+
+    return NextResponse.json({
+      paymentId: pago.id,
+      pago: true,
+      quantity,
+      ticketPrice,
+      subtotal: Math.round(ticketPrice * quantity * 100) / 100,
+      fee,
+      total,
+      passFeeToBuyer: ticket.passFeeToBuyer,
+    }, { status: 201 });
+  }
+
   const charge = await createPixCharge({
     sellerToken,
     applicationFee: fee, // taxa total da Peltrack — o MP separa no ato do pagamento
     amountReais: total,
-    description: `${event.name} — ${ticket.name}${quantity > 1 ? ` (${quantity}x)` : ""}`,
+    description: descricao,
     payerEmail: email,
     payerName: name,
     payerCpf: cpf,

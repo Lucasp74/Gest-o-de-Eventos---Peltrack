@@ -161,6 +161,110 @@ export async function createPixCharge(opts: {
   }
 }
 
+export type CardCharge = {
+  ok: boolean;
+  id?: string;
+  aprovado?: boolean;
+  /** Motivo em português quando o cartão é recusado. */
+  recusa?: string;
+  error?: string;
+};
+
+/**
+ * Cobra no cartão de crédito, na conta do organizador, com a taxa da Peltrack
+ * como applicationFee. Mesmo desenho da createPixCharge, com duas diferenças
+ * que mudam a tela:
+ *  - o número do cartão NUNCA chega aqui, só o token gerado no navegador;
+ *  - a resposta já é definitiva (aprovado ou recusado), sem espera.
+ */
+export async function createCardCharge(opts: {
+  sellerToken: string;
+  applicationFee?: number;
+  amountReais: number;
+  description: string;
+  cardToken: string;
+  installments: number;
+  paymentMethodId: string;
+  issuerId?: string;
+  payerEmail: string;
+  payerCpf?: string;
+}): Promise<CardCharge> {
+  const token = opts.sellerToken;
+  if (!token) return { ok: false, error: "PAGAMENTO_INDISPONIVEL" };
+
+  const cpf = (opts.payerCpf ?? "").replace(/\D/g, "");
+  const payload: Record<string, unknown> = {
+    transaction_amount: Number(opts.amountReais.toFixed(2)),
+    token: opts.cardToken,
+    description: opts.description.slice(0, 255),
+    // Juros de parcelamento são do emissor e ficam com ele: o organizador
+    // continua recebendo transaction_amount, o comprador é quem paga a mais.
+    installments: Math.max(1, Math.floor(opts.installments)),
+    payment_method_id: opts.paymentMethodId,
+    ...(opts.issuerId ? { issuer_id: opts.issuerId } : {}),
+    ...(opts.applicationFee && opts.applicationFee > 0
+      ? { application_fee: Number(opts.applicationFee.toFixed(2)) }
+      : {}),
+    payer: {
+      email: opts.payerEmail,
+      ...(cpf.length === 11 ? { identification: { type: "CPF", number: cpf } } : {}),
+    },
+  };
+
+  try {
+    const res = await fetch(`${BASE}/payments`, {
+      method: "POST",
+      headers: authHeaders(token, randomUUID()),
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body?.id) {
+      return { ok: false, error: body?.message || body?.error || "Falha ao cobrar no cartão." };
+    }
+    const status = normalizeStatus(body.status);
+    return {
+      ok: true,
+      id: String(body.id),
+      aprovado: status === "PAID",
+      recusa: status === "PAID" ? undefined : recusaEmPortugues(body.status_detail),
+    };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+}
+
+/**
+ * Traduz o status_detail do MP. O texto cru dele é jargão em inglês e às vezes
+ * conta como a cobrança funciona por dentro, que foi o que um comprador leu em
+ * 15/08. Aqui sai só o que ajuda quem está com o cartão na mão.
+ */
+export function recusaEmPortugues(detalhe?: string | null): string {
+  switch (detalhe) {
+    case "cc_rejected_insufficient_amount":
+      return "Cartão sem limite disponível para esta compra. Tente outro cartão.";
+    case "cc_rejected_bad_filled_security_code":
+      return "Código de segurança inválido. Confira os dígitos do verso do cartão.";
+    case "cc_rejected_bad_filled_date":
+      return "Data de validade inválida. Confira o mês e o ano do cartão.";
+    case "cc_rejected_bad_filled_card_number":
+      return "Número do cartão inválido. Confira os dígitos.";
+    case "cc_rejected_bad_filled_other":
+      return "Algum dado do cartão está incorreto. Confira e tente de novo.";
+    case "cc_rejected_call_for_authorize":
+      return "Seu banco precisa autorizar esta compra. Ligue para ele e tente de novo.";
+    case "cc_rejected_card_disabled":
+      return "Cartão desabilitado. Fale com o seu banco ou use outro cartão.";
+    case "cc_rejected_duplicated_payment":
+      return "Essa compra já foi feita. Confira seu e-mail antes de tentar de novo.";
+    case "cc_rejected_high_risk":
+      return "A compra não foi autorizada. Tente outro cartão ou pague com Pix.";
+    case "cc_rejected_max_attempts":
+      return "Muitas tentativas com este cartão. Tente outro ou aguarde um pouco.";
+    default:
+      return "O pagamento não foi autorizado. Tente outro cartão ou pague com Pix.";
+  }
+}
+
 /** Consulta o status de uma cobrança na conta do organizador. */
 export async function checkPixCharge(id: string, sellerToken: string): Promise<{ status: string | null }> {
   if (!sellerToken) return { status: null };
@@ -184,6 +288,7 @@ export type MpTokens = {
   userId?: string;
   accessToken?: string;
   refreshToken?: string;
+  publicKey?: string; // chave pública do vendedor, para tokenizar cartão no navegador
   expiresInSec?: number;
   error?: string;
 };
@@ -221,6 +326,7 @@ async function oauthToken(extra: Record<string, string>): Promise<MpTokens> {
       userId: String(body.user_id),
       accessToken: body.access_token,
       refreshToken: body.refresh_token,
+      publicKey: body.public_key ?? undefined,
       expiresInSec: Number(body.expires_in) || undefined,
     };
   } catch (e) {

@@ -1,31 +1,17 @@
 "use client";
 
 /**
- * Formulário de cartão da assinatura, dentro do nosso site.
+ * Assinatura da mensalidade paga na nossa página, sem o redirecionamento para o
+ * checkout hospedado do Mercado Pago.
  *
- * O Brick do Mercado Pago é quem desenha os campos do cartão, de propósito: ele
- * roda num iframe do MP, então o número do cartão nunca toca no nosso código
- * nem na nossa página. É isso que nos mantém fora do escopo PCI. O que ele nos
- * devolve é só um token de uso único.
- *
- * ponytail: Brick pronto em vez de campos nossos com tokenização manual. Se o
- * visual dos campos incomodar, o caminho é mp.fields (Secure Fields), que dá
- * controle total e custa bem mais código.
+ * O formulário de cartão vem do MpCardBrick, compartilhado com a compra de
+ * ingresso. Aqui a cobrança é na conta da PRÓPRIA Peltrack, então a public key
+ * é a nossa.
  */
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Script from "next/script";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
-
-type Brick = { unmount: () => void };
-type MpBricks = {
-  create: (tipo: string, container: string, cfg: unknown) => Promise<Brick>;
-};
-declare global {
-  interface Window {
-    MercadoPago?: new (publicKey: string, opts?: { locale?: string }) => { bricks: () => MpBricks };
-  }
-}
+import MpCardBrick, { type DadosCartao } from "@/components/MpCardBrick";
 
 export default function SubscriptionCheckout({
   plan,
@@ -43,63 +29,33 @@ export default function SubscriptionCheckout({
   email: string;
 }) {
   const router = useRouter();
-  const [sdkPronto, setSdkPronto] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [ok, setOk] = useState(false);
-  const brickRef = useRef<Brick | null>(null);
 
-  useEffect(() => {
-    if (!sdkPronto || !window.MercadoPago || brickRef.current) return;
-    let vivo = true;
-
-    const mp = new window.MercadoPago(publicKey, { locale: "pt-BR" });
-    mp.bricks()
-      .create("cardPayment", "mp-card-brick", {
-        initialization: { amount: price, payer: { email } },
-        // Assinatura é sempre 1x no mês: parcelamento não existe aqui.
-        customization: { paymentMethods: { maxInstallments: 1 }, visual: { style: { theme: "bootstrap" } } },
-        callbacks: {
-          onReady: () => {},
-          onError: () => setErro("Não foi possível carregar o formulário do cartão. Recarregue a página."),
-          onSubmit: async (dados: { token?: string }) => {
-            setErro(null);
-            setEnviando(true);
-            try {
-              const res = await fetch("/api/subscription/create", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ plan, cardTokenId: dados.token }),
-              });
-              const body = await res.json().catch(() => ({}));
-              if (!res.ok) {
-                setErro(body.error ?? "Não foi possível ativar a assinatura agora.");
-                return;
-              }
-              setOk(true);
-              // Volta para Configurações já com o plano novo carregado do banco.
-              router.refresh();
-              setTimeout(() => router.push("/dashboard/configuracoes?sub=ativa"), 1800);
-            } catch {
-              setErro("Falha de conexão. Confira sua internet e tente de novo.");
-            } finally {
-              setEnviando(false);
-            }
-          },
-        },
-      })
-      .then((b) => {
-        if (vivo) brickRef.current = b;
-        else b.unmount();
-      })
-      .catch(() => setErro("Não foi possível carregar o formulário do cartão. Recarregue a página."));
-
-    return () => {
-      vivo = false;
-      brickRef.current?.unmount();
-      brickRef.current = null;
-    };
-  }, [sdkPronto, publicKey, price, email, plan, router]);
+  async function assinar(dados: DadosCartao) {
+    setErro(null);
+    setEnviando(true);
+    try {
+      const res = await fetch("/api/subscription/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, cardTokenId: dados.token }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErro(body.error ?? "Não foi possível ativar a assinatura agora.");
+        return;
+      }
+      setOk(true);
+      router.refresh();
+      setTimeout(() => router.push("/dashboard/configuracoes?sub=ativa"), 1800);
+    } catch {
+      setErro("Falha de conexão. Confira sua internet e tente de novo.");
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   if (ok) {
     return (
@@ -118,8 +74,6 @@ export default function SubscriptionCheckout({
 
   return (
     <>
-      <Script src="https://sdk.mercadopago.com/js/v2" onReady={() => setSdkPronto(true)} />
-
       {erro && (
         <div
           role="alert"
@@ -131,14 +85,17 @@ export default function SubscriptionCheckout({
       )}
 
       <div className="bg-card rounded-2xl border border-border p-5 sm:p-6">
-        {!sdkPronto && (
-          <p className="flex items-center gap-2 text-muted-foreground text-sm py-8 justify-center">
-            <Loader2 className="w-4 h-4 animate-spin" /> Carregando o formulário seguro...
-          </p>
-        )}
-        <div id="mp-card-brick" />
+        {/* Mensalidade não parcela: é 1x por mês, todo mês. */}
+        <MpCardBrick
+          publicKey={publicKey}
+          amount={price}
+          payerEmail={email}
+          maxInstallments={1}
+          onToken={assinar}
+          onErro={setErro}
+        />
         {enviando && (
-          <p className="flex items-center gap-2 text-muted-foreground text-sm mt-4 justify-center">
+          <p className="flex items-center justify-center gap-2 text-muted-foreground text-sm mt-4">
             <Loader2 className="w-4 h-4 animate-spin" /> Ativando sua assinatura...
           </p>
         )}

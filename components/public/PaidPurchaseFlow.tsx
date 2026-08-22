@@ -1,12 +1,19 @@
 "use client";
 
 /**
- * Fluxo de compra de ingresso pago: escolher tipo → dados → gerar Pix.
- * Mostra o QR Pix + copia-e-cola. A liberação do convite após o pagamento
- * é feita pelo webhook (tarefa de 09/07) — aqui fica "aguardando pagamento".
+ * Fluxo de compra de ingresso pago: escolher tipo → dados → pagar.
+ *
+ * DOIS MEIOS. Pix gera o QR e a liberação vem pelo webhook, então a tela fica
+ * em "aguardando pagamento". Cartão responde na hora: ou libera os ingressos
+ * direto, ou mostra o motivo da recusa e deixa tentar de novo.
+ *
+ * O cartão só aparece se o organizador tiver a public key gravada. Num
+ * pagamento com split quem tokeniza é a chave do VENDEDOR, e quem conectou o
+ * Mercado Pago antes desta versão ainda não tem a dele.
  */
 import { useState, useEffect } from "react";
-import { QrCode, Loader2, Copy, Check, Ticket, Mail, PartyPopper, CalendarX, Minus, Plus, Clock } from "lucide-react";
+import { QrCode, Loader2, Copy, Check, Ticket, Mail, PartyPopper, CalendarX, Minus, Plus, Clock, CreditCard } from "lucide-react";
+import MpCardBrick, { type DadosCartao } from "@/components/MpCardBrick";
 import { type EventItem, type TicketType } from "@/lib/mockEvents";
 import { formatBRL } from "@/lib/planPricing";
 
@@ -77,6 +84,10 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
   const [pix, setPix] = useState<PixResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [payStatus, setPayStatus] = useState<"pendente" | "aprovado" | "expirado">("pendente");
+  const [metodo, setMetodo] = useState<"pix" | "cartao">("pix");
+  // Pix continua sendo o padrão: cai na hora e é mais barato para o organizador.
+  const cartaoDisponivel = !!event.mpPublicKey;
+  const maxParcelas = event.maxInstallments ?? 12;
   const [simulating, setSimulating] = useState(false);
 
   // Verifica o pagamento a cada 4s enquanto o Pix está na tela e pendente
@@ -123,27 +134,57 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
     if (r.status === "aprovado") setPayStatus("aprovado");
   }
 
-  async function pay(e: React.FormEvent) {
-    e.preventDefault();
+  const cpfDigits = cpf.replace(/\D/g, "");
+  const dadosOk =
+    !!ticketId && !!name.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && cpfDigits.length === 11;
+
+  /** Envia a compra. Sem cartao = Pix, que é o comportamento de sempre. */
+  async function cobrar(cartao?: DadosCartao) {
     setError(null);
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/public/events/${event.id}/purchase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          cpf: cpfDigits,
+          ticketTypeId: ticketId,
+          quantity,
+          ...(cartao
+            ? {
+                cardToken: cartao.token,
+                installments: cartao.installments ?? 1,
+                paymentMethodId: cartao.payment_method_id,
+                issuerId: cartao.issuer_id,
+              }
+            : {}),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error ?? "Não foi possível concluir o pagamento.");
+        return;
+      }
+      setPix(data);
+      // Cartão aprovado já vem resolvido do servidor: não há status a consultar.
+      if (data.pago) setPayStatus("aprovado");
+    } catch {
+      setError("Falha de conexão. Confira sua internet e tente de novo.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function pay(e: React.FormEvent) {
+    e.preventDefault();
     if (!ticketId) return setError("Selecione um ingresso.");
     if (!name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return setError("Preencha nome e um e-mail válido.");
     }
-    const cpfDigits = cpf.replace(/\D/g, "");
-    if (cpfDigits.length !== 11) {
-      return setError("Informe um CPF válido (11 dígitos).");
-    }
-    setSubmitting(true);
-    const res = await fetch(`/api/public/events/${event.id}/purchase`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim(), email: email.trim(), cpf: cpfDigits, ticketTypeId: ticketId, quantity }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setSubmitting(false);
-    if (res.ok) setPix(data);
-    else setError(data.error ?? "Não foi possível gerar a cobrança.");
+    if (cpfDigits.length !== 11) return setError("Informe um CPF válido (11 dígitos).");
+    void cobrar();
   }
 
   /* ── Pagamento confirmado ────────────────────────── */
@@ -436,17 +477,67 @@ export default function PaidPurchaseFlow({ event }: { event: EventItem }) {
             onChange={(e) => setCpf(maskCpf(e.target.value))}
             placeholder="000.000.000-00"
             className="w-full h-12 px-4 rounded-xl border border-border text-sm text-foreground outline-none focus:ring-2 focus:ring-laranja/20 focus:border-laranja" />
-          <p className="text-xs text-muted-foreground mt-1.5">Exigido pelo Pix para identificar o pagador.</p>
+          <p className="text-xs text-muted-foreground mt-1.5">Exigido para identificar o pagador.</p>
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={submitting || !selected}
-        className="w-full h-12 mt-5 bg-laranja hover:bg-laranja-dark disabled:opacity-60 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-laranja/25"
-      >
-        {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Gerando Pix...</> : <><QrCode className="w-4 h-4" /> Pagar {selected ? formatBRL(grandTotal) : ""} com Pix</>}
-      </button>
+      {/* Meio de pagamento. Some quando só há Pix, para não virar escolha de um. */}
+      {cartaoDisponivel && (
+        <div className="grid grid-cols-2 gap-3 mt-5">
+          {([
+            { id: "pix", label: "Pix", nota: "Aprovação na hora", Icon: QrCode },
+            { id: "cartao", label: "Cartão de crédito", nota: `Em até ${maxParcelas}x`, Icon: CreditCard },
+          ] as const).map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => { setMetodo(m.id); setError(null); }}
+              className={`flex flex-col items-start gap-0.5 border rounded-xl px-4 py-3 text-left transition-colors ${
+                metodo === m.id ? "border-laranja bg-laranja/5" : "border-border hover:border-laranja/50"
+              }`}
+            >
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                <m.Icon className="w-4 h-4 text-laranja" /> {m.label}
+              </span>
+              <span className="text-xs text-muted-foreground">{m.nota}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {metodo === "cartao" && cartaoDisponivel ? (
+        dadosOk ? (
+          <div className="mt-4">
+            {/* O botão de pagar é do próprio Brick, por isso o nosso some aqui. */}
+            <MpCardBrick
+              publicKey={event.mpPublicKey!}
+              amount={grandTotal}
+              payerEmail={email.trim()}
+              payerCpf={cpfDigits}
+              maxInstallments={maxParcelas}
+              onToken={cobrar}
+              onErro={setError}
+            />
+            {submitting && (
+              <p className="flex items-center justify-center gap-2 text-muted-foreground text-sm mt-4">
+                <Loader2 className="w-4 h-4 animate-spin" /> Processando o pagamento...
+              </p>
+            )}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground bg-fundo border border-border rounded-xl px-4 py-3 mt-4">
+            Preencha nome, e-mail e CPF acima para liberar o formulário do cartão.
+          </p>
+        )
+      ) : (
+        <button
+          type="submit"
+          disabled={submitting || !selected}
+          className="w-full h-12 mt-5 bg-laranja hover:bg-laranja-dark disabled:opacity-60 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-laranja/25"
+        >
+          {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Gerando Pix...</> : <><QrCode className="w-4 h-4" /> Pagar {selected ? formatBRL(grandTotal) : ""} com Pix</>}
+        </button>
+      )}
     </form>
   );
 }

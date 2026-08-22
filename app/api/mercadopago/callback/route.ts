@@ -61,6 +61,7 @@ export async function GET(req: Request) {
         mpUserId: r.userId,
         mpAccessToken: r.accessToken,
         mpRefreshToken: r.refreshToken ?? null,
+        mpPublicKey: r.publicKey ?? null,
         mpTokenExpiresAt: r.expiresInSec ? new Date(Date.now() + r.expiresInSec * 1000) : null,
         mpConnectedAt: new Date(),
       },

@@ -92,6 +92,11 @@ model Tenant {
   // e a Peltrack recebe só a taxa (application_fee). Tokens são sensíveis.
   mpUserId         String?   @unique // id da conta MP do organizador
   mpAccessToken    String?   // token para cobrar em nome dele (expira em ~180 dias)
+  // Chave PÚBLICA do organizador, devolvida pelo OAuth junto com o token.
+  // Necessária para tokenizar cartão no navegador do comprador: num pagamento
+  // com split, quem tokeniza é a chave do VENDEDOR, não a nossa. Sem ela, a
+  // opção de cartão não aparece e só o Pix fica disponível.
+  mpPublicKey      String?
   mpRefreshToken   String?   // renova o access token sem novo OAuth
   mpTokenExpiresAt DateTime? // quando o access token expira
   mpConnectedAt    DateTime? // quando conectou (null = não conectado)

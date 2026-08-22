@@ -27,6 +27,9 @@ export async function getValidSellerToken(tenantId: string): Promise<string | nu
     data: {
       mpAccessToken: r.accessToken,
       mpRefreshToken: r.refreshToken ?? t.mpRefreshToken,
+      // O refresh devolve a public key junto: quem conectou antes desta versão
+      // ganha a chave sozinho na próxima renovação, sem reconectar.
+      ...(r.publicKey ? { mpPublicKey: r.publicKey } : {}),
       mpTokenExpiresAt: r.expiresInSec ? new Date(Date.now() + r.expiresInSec * 1000) : null,
     },
   });

@@ -52,6 +52,10 @@ export interface EventItem {
   batchMode?: boolean;
   /** Taxa de conveniência (%) cobrada do comprador em ingressos pagos. */
   feePct?: number;
+  /** Chave pública do organizador. Ausente = só Pix (ver PaidPurchaseFlow). */
+  mpPublicKey?: string | null;
+  /** Teto de parcelas no cartão, decidido pelo servidor. */
+  maxInstallments?: number;
 }
 
 export const STATUS_META: Record<
